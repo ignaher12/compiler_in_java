@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 import lexico.AnalizadorLexico;
 
@@ -8,11 +9,11 @@ public class App {
         System.out.println("Helslo, World!");
         System.out.println("Helslo, World!"+ Character.getType(' '));
 
-        
+        //Hashtable<String> tablaDeSimbolos = new Hashtable<String>()
         //c == letra, numero, otro ////// #, [ ..
         //  CHECK COLUMNAS DE MATRIZ Y CHARTYPES
         int[][] matrizTransicion = {
-                //     L,  d, '[', ']',  #,  'x', '.', 's', '+', '-', A..F, ' ',  \n
+            //     L,  d, '[', ']',  #,  'x', '.', 's', '+', '-', A..F, ' ',  \n
             /*0*/ {17,  1, 14, -1, 19, -1, -1, -1, -1, -1, -1, -1, -1},
             /*1*/ { 2,  1,  2,  2,  2, 11,  3,  2,  2,  2,  2, 2,  2},
             /*2*/ {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -45,14 +46,14 @@ public class App {
         estadosFinales.put(21, 95);
         estadosFinales.put(16, 94);
 
-        
-        HashMap<String, Integer> a = new HashMap<String, Integer>(); // tipoToken-numero
-        a.put("String", 1);
-        a.put("Identificador", 2);
-        a.put("IF", 3);
+        HashMap<String, Integer> identificacionToken = new HashMap<String, Integer>(); // tipoToken-numero
+        identificacionToken.put("_id", 1);
+        identificacionToken.put("_const", 2);
+        identificacionToken.put("IF", 3);
 
 
-        AnalizadorLexico lex = new AnalizadorLexico("codigoFuente.txt", matrizTransicion, estadosFinales);
+        AnalizadorLexico lex = new AnalizadorLexico("codigoFuente.txt", matrizTransicion, estadosFinales, identificacionToken);
+        System.out.println(lex.getNextToken());
         System.out.println(lex.getNextToken());
         System.out.println(lex.getNextToken());
         System.out.println(lex.getNextToken());

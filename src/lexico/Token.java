@@ -1,35 +1,35 @@
 package lexico;
 
 public class Token {
-    int identificador;
-    String valor;
+    private int token;
+    private int atributo; //LEXEMA
 
     public Token(){
-        this.identificador = 0;
-        this.valor = null;
+        this.token = 0;
+        this.atributo = -1;
     }
-    public Token(int identificador, String valor){
-        this.valor = valor;
-        this.identificador = identificador;
+    public Token(int token, int atributo){
+        this.atributo = atributo;
+        this.token = token;
     }
     
-    public int getIdentificador() {
-        return identificador;
+    public int getToken() {
+        return token;
     }
 
-    public void setIdentificador(int identificador) {
-        this.identificador = identificador;
+    public void setToken(int token) {
+        this.token = token;
     }
 
-    public String getValor() {
-        return valor;
+    public int getAtributo() {
+        return atributo;
     }
 
-    public void setValor(String valor) {
-        this.valor = valor;
+    public void setAtributo(int atributo) {
+        this.atributo = atributo;
     }
 
     public String toString(){
-        return "[" + identificador + "," + valor + "]";
+        return "[" + token + "," + atributo + "]";
     }
 }
