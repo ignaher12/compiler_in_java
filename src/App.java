@@ -3,6 +3,10 @@ import java.util.HashMap;
 import java.util.Hashtable;
 
 import lexico.AnalizadorLexico;
+import lexico.Lexema;
+import lexico.TablaDeSimbolos;
+import lexico.AccionesSemanticas.Accion;
+import lexico.AccionesSemanticas.AccionPalabra;
 
 public class App {
     public static void main(String[] args) throws Exception {
@@ -37,6 +41,7 @@ public class App {
             /*20*/{20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 21, 21},
             /*21*/{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
         };
+        Accion[][] matrizAcciones = {};
 
         HashMap<Integer, Integer> estadosFinales = new HashMap<Integer, Integer>();
         estadosFinales.put(2, 99);
@@ -46,17 +51,22 @@ public class App {
         estadosFinales.put(21, 95);
         estadosFinales.put(16, 94);
 
-        HashMap<String, Integer> identificacionToken = new HashMap<String, Integer>(); // tipoToken-numero
-        identificacionToken.put("_id", 1);
-        identificacionToken.put("_const", 2);
-        identificacionToken.put("IF", 3);
+        Lexema aux = new Lexema("hola");
+        Lexema test = TablaDeSimbolos.agregarSimbolo("hola");
+        
+        System.out.println(aux);
+        System.out.println(test);
+        TablaDeSimbolos.editarSimbolo(test, "mono");
+        System.out.println(aux);
+        System.out.println(test);
+        System.out.println(TablaDeSimbolos.imprimir());
+        AnalizadorLexico lex = new AnalizadorLexico("codigoFuente.txt", matrizTransicion, matrizAcciones, estadosFinales);
+        System.out.println(lex.getNextToken());
+        System.out.println(lex.getNextToken());
+        System.out.println(lex.getNextToken());
+        System.out.println(lex.getNextToken());
+        System.out.println(lex.getNextToken());
+        System.out.println(TablaDeSimbolos.imprimir());
 
-
-        AnalizadorLexico lex = new AnalizadorLexico("codigoFuente.txt", matrizTransicion, estadosFinales, identificacionToken);
-        System.out.println(lex.getNextToken());
-        System.out.println(lex.getNextToken());
-        System.out.println(lex.getNextToken());
-        System.out.println(lex.getNextToken());
-        System.out.println(lex.getNextToken());
     }
 }

@@ -2,15 +2,18 @@ package lexico;
 
 public class Token {
     private int token;
-    private int atributo; //LEXEMA
-
+    private Lexema lexema; //LEXEMA
     public Token(){
         this.token = 0;
-        this.atributo = -1;
+        this.lexema = null;
     }
-    public Token(int token, int atributo){
-        this.atributo = atributo;
+    public Token(int token, Lexema lexema){
         this.token = token;
+        this.lexema = lexema;
+    }
+    public Token(int token){
+        this.token = token;
+        this.lexema = null;
     }
     
     public int getToken() {
@@ -21,15 +24,15 @@ public class Token {
         this.token = token;
     }
 
-    public int getAtributo() {
-        return atributo;
+    public Lexema getAtributo() {
+        return lexema;
     }
 
-    public void setAtributo(int atributo) {
-        this.atributo = atributo;
+    public void setAtributo(Lexema lexema) {
+        this.lexema = lexema;
     }
 
     public String toString(){
-        return "[" + token + "," + atributo + "]";
+        return "[" + token + "," + lexema + "]";
     }
 }
