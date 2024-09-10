@@ -3,6 +3,7 @@ package lexico;
 public class Token {
     private int token;
     private Lexema lexema; //LEXEMA
+    
     public Token(){
         this.token = 0;
         this.lexema = null;

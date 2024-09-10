@@ -1,2 +1,5 @@
-1234 345 14444 dsad
-IF
+hola := 123;
+if (hola = 456) then
+    typedef jajaja
+else
+    hola := 999

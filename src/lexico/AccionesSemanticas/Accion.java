@@ -1,6 +1,8 @@
 package lexico.AccionesSemanticas;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import lexico.Token;
 
 public interface Accion {
-    abstract void activar(Token token, StringBuilder cadena, Integer pos);
-}
+    public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea);
+};

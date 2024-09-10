@@ -2,8 +2,13 @@ package lexico;
 
 public class Lexema {
     private String atributo;
-    public Lexema(String atributo){
+    private boolean reservada;
+    private int tipo = -3000; 
+
+    public Lexema(String atributo, boolean reservada, int tipo){
         this.atributo = atributo;
+        this.reservada = reservada;
+        this.tipo = tipo;
     }
     public String getAtributo(){
         return atributo;
@@ -11,6 +16,10 @@ public class Lexema {
     public void setAtributo(String newAtributo){
         this.atributo = newAtributo;
     }
+    public boolean isReservada(){
+        return reservada;
+    }
+
     public String toString(){
         return "[* "+ atributo + " *]";
     }

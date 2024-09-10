@@ -13,41 +13,49 @@ public class MatrizTransicion {
         // Leer el archivo CSV para contar filas y columnas
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
+            boolean firstLine = true;
             while ((line = br.readLine()) != null) {
-                numFilas++;
-                String[] columns = line.split(separator);
-                numColumnas = Math.max(numColumnas, columns.length);
+                if (firstLine) {
+                    // Calcular el número de columnas en la primera fila de encabezados
+                    String[] columns = line.split(separator);
+                    numColumnas = columns.length;
+                    firstLine = false;
+                } else {
+                    numFilas++;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
         
-        // Inicializar la matriz después de contar filas y columnas
-        int[][] matriz_transicion = new int[numFilas - 1][numColumnas - 1];
+        // Inicializar la matriz de transiciones
+        int[][] matriz_transicion = new int[numFilas][numColumnas - 1];
 
         // Leer los datos y almacenarlos en la matriz, ignorando encabezados
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             int row = 0;
+            boolean firstLine = true;
             while ((line = br.readLine()) != null) {
-                if (row == 0) {
+                if (firstLine) {
                     // Saltar la primera fila (encabezados de columna)
-                    row++;
+                    firstLine = false;
                     continue;
                 }
+                
                 String[] columns = line.split(separator);
-                for (int col = 2; col < columns.length; col++) { // Ignorar la primera columna
+                for (int col = 0; col < columns.length; col++) { // Iniciar desde la columna 1 (ignorar la primera columna)
                     String value = columns[col].trim();
                     char cvalue = columns[col].charAt(0);
                     if (!value.isEmpty()) {
                         try {
-                            matriz_transicion[row - 1][col - 1] = Integer.parseInt(value);
+                            matriz_transicion[row][col] = Integer.parseInt(value);
                         } catch (NumberFormatException e) {
-                            matriz_transicion[row - 1][col - 1] = MapeoCaracteres.getConversion(cvalue); // Valor predeterminado para valores no numéricos
+                            matriz_transicion[row][col] = MapeoCaracteres.getConversion(cvalue); // Manejar valores no numéricos
                         }
                     } else {
-                        matriz_transicion[row - 1][col - 1] = -1; // Valor predeterminado para celdas vacías
+                        matriz_transicion[row][col] = -1; // Valor predeterminado para celdas vacías
                     }
                 }
                 row++;
@@ -58,25 +66,5 @@ public class MatrizTransicion {
         }
 
         return matriz_transicion;
-    }
-
-    public static void main(String[] args) {
-        String filePath = "C:/Users/ignah/Desktop/compiler_in_java/src/matriz_transicion.csv"; 
-        
-        // Llamar al método para leer la matriz desde el archivo CSV
-        int[][] matriz = leerMatrizDesdeCSV(filePath);
-        
-        // Verificar si se leyó correctamente la matriz
-        if (matriz != null) {
-            // Imprimir la matriz
-            for (int i = 0; i < matriz.length; i++) {
-                for (int j = 0; j < matriz[i].length; j++) {
-                    System.out.print(matriz[i][j] + "\t");
-                }
-                System.out.println();
-            }
-        } else {
-            System.out.println("Error al leer el archivo CSV.");
-        }
     }
 }
