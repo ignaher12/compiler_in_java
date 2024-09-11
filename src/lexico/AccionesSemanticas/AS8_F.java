@@ -5,6 +5,7 @@ import lexico.Token;
 
 
 public class AS8_F implements Accion{
+    //Comentario de una linea, borra alo leido por cadena e inicializa un nuevo StringBuilder
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
         cadena = new StringBuilder();
     }

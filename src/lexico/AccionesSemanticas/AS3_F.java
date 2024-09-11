@@ -8,6 +8,7 @@ import lexico.TablaTipoToken;
 import lexico.Token;
 
 public class AS3_F implements Accion{
+    //Verifica si es palabra reservada, sino devuelve token con identificador
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
         token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.IDENTIFICADOR));
         Lexema res = TablaDeSimbolos.existe(cadena.toString());

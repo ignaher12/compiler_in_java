@@ -14,9 +14,6 @@ public class AS7_F implements Accion{
         if (res == null){
             token.setAtributo(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getToken()));
         }else{
-            if (res.isReservada()){
-                token.setToken(TablaTipoToken.getTipoToken(cadena.toString()));
-            }
             token.setAtributo(res);
         }
 

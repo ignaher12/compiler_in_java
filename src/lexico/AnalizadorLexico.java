@@ -34,8 +34,6 @@ public class AnalizadorLexico {
 
         while ( (lector.hasNextLine() || index.get() < linea.length()) && estadoActual != ESTADO_FINAL) {       
             char actual = linea.charAt(index.get());
-            System.out.println(actual);
-            
             
             int columnaMatriz = MapeoCaracteres.getConversion(actual);
             matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
@@ -44,7 +42,7 @@ public class AnalizadorLexico {
             
             
             if (estadoActual == -1) {
-                throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición.");
+                throw new IllegalArgumentException("Error lexico (estadoActual = -1)");
             }
             
             if (index.get() == linea.length()) {     // Salto de línea
