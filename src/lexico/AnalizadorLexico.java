@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner; 
 import java.util.concurrent.atomic.AtomicInteger;
 import lexico.AccionesSemanticas.Accion;
+import parser.ParserVal;
 
 public class AnalizadorLexico {
     private File fuente;
@@ -27,23 +28,27 @@ public class AnalizadorLexico {
         abrirArchivo(nombreArchivo);
     }
 
-    public Token getNextToken(){
+    public int getNextToken(ParserVal yyval){
         StringBuilder cadenaCaracteres = new StringBuilder();
         estadoActual = 0;
         Token token = new Token(-1);
+        System.out.println("start" + index.get());
+        while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL) {       
+            System.out.println(linea.length());
 
-        while ( (lector.hasNextLine() || index.get() < linea.length()) && estadoActual != ESTADO_FINAL) {       
-            char actual = linea.charAt(index.get());
+            if (linea.length() != 0){
+                char actual = linea.charAt(index.get());
+                int columnaMatriz = MapeoCaracteres.getConversion(actual);
+                matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
+                estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
+                
+                
+                
+                if (estadoActual == -1) {
+                    throw new IllegalArgumentException("Error lexico (estadoActual = -1)");
+                }
             
-            int columnaMatriz = MapeoCaracteres.getConversion(actual);
-            matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
-            estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
-            
-            
-            
-            if (estadoActual == -1) {
-                throw new IllegalArgumentException("Error lexico (estadoActual = -1)");
-            }
+            }   
             
             if (index.get() == linea.length()) {     // Salto de línea
                 // Intentar una transición con el carácter de fin de línea (\n)
@@ -70,8 +75,9 @@ public class AnalizadorLexico {
                 throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición.");
             }
         };
-
-        return token;
+        System.out.println(token);
+        if (token.getToken() == 1) yyval = new ParserVal(token.getAtributo().getAtributo());
+        return token.getToken();
     }
 
     private void abrirArchivo(String nombre){
@@ -99,9 +105,10 @@ public class AnalizadorLexico {
     }
 
     public boolean end(){
+        System.out.println("index " + index.get());
+        System.out.println("linea " + linea.length());
         if (!lector.hasNextLine() && index.get() >=  linea.length()) 
             return true;
-        
         return false;
     }
 

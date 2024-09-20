@@ -1,4 +1,6 @@
 import lexico.AccionesSemanticas.Accion;
+import utils.MatrizAccion;
+import utils.MatrizTransicion;
 import lexico.AnalizadorLexico;
 import lexico.TablaDeSimbolos;
 import lexico.TablaTipoToken;

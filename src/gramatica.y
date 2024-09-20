@@ -5,6 +5,7 @@
 // NUMERO DE TOKEN DE DEFINIDOS (257-...)
 %token IDENTIFICADOR CONSTANTE HEXADECIMAL FLOAT CADENA_MULTI SIMASIGNACION DISTINTO IF THEN BEGIN
        END END_IF OUTF TYPEDEF FUN RET SINGLE MENOR_IGUAL MAYOR_IGUAL REPEAT WHILE GOTO LONGINT ELSE
+
 %start programa
 
 %left '+' '-'
@@ -120,12 +121,25 @@ mensajeSalida : OUTF '(' expresion ')'
 
 %%
 //FUNCIONES
+private static AanalizadorLexico lex;
 public static void main(String[] args) {
-        if (args.length > 1) {
-                String archivo_a_leer = args[0];
-                this.run();
-        } else {
-                System.out.println("No se especifico el archivo a compilar");
-        }
+    String filePath = "src/MATRIZ DE TRANSICIONES - Hoja 1.csv";
+
+    int[][] matriz = MatrizTransicion.leerMatrizDesdeCSV(filePath);
+    filePath = "src/MATRIZ DE TRANSICIONES - Hoja 2.csv";
+
+    Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
+    
+    AnalizadorLexico lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
+    if (args.length > 1) {
+            String archivo_a_leer = args[0];
+            this.run();
+    } else {
+            System.out.println("No se especifico el archivo a compilar");
+    }
 }
-private int yylex(){}
+private int yylex(){
+    while (!lex.end()){
+        System.out.println(lex.getNextToken(yyval));
+    }
+}

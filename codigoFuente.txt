@@ -1,5 +1,6 @@
-hola := 123;
-if (hola = 456) then
-    typedef jajaja
-else
-    hola := 999
+ignaTrolo
+BEGIN
+single hola;
+END
+
+

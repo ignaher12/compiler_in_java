@@ -6,6 +6,7 @@ import lexico.Token;
 
 public class AS1 implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
+        System.out.println("borranod");
         pos.incrementAndGet();
     }
 }
