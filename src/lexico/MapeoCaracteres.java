@@ -36,6 +36,7 @@ public class MapeoCaracteres {
     public static final char PUNTO = '.';
     public static final char IGUAL = '=';
     public static final char PUNTO_COMA = ';';
+    public static final char ARROBA = '@'; //AGREGAR
 
 //,-----,esp,tab,\n,L,A..F,x,0,N,[,s,],#,<,>,!,",",:,"""+""",-,*,/,(,),.,"""=""",c
 

@@ -34,6 +34,12 @@ public class TablaTipoToken {
     public static final String FUN = "fun";
     public static final String RET = "ret";
     public static final String SINGLE = "single";
+    public static final String REPEAT = "repeat"; //AGREGAR
+    public static final String WHILE = "while"; //AGREGAR
+    public static final String GOTO = "goto"; //AGREGAR
+    public static final String ARROBA = "@"; //AGREGAR
+    public static final String LONGINT = "longint"; //AGREGAR
+    public static final String ELSE = "else"; //AGREGAR
     
     static{
         tabla = new HashMap<String, Integer>();
@@ -64,7 +70,7 @@ public class TablaTipoToken {
         tabla.put(TYPEDEF, 25);
         tabla.put(FUN, 26);
         tabla.put(RET, 27);
-        tabla.put(SINGLE, 28);
+        tabla.put(SINGLE, 28); //longINT
         tabla.put(PUNTO_COMA, 29);
         tabla.put(IGUAL, 30);
     }
