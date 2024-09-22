@@ -1,6 +1,30 @@
 ignaTrolo
 BEGIN
-single hola;
+
+##x := 1.2;
+
+
+single hol_a;
+
+
+Single fun f (longint w)
+begin
+    single x;
+    ##x := 1.2;
+    IF (x > 0.0) then 
+        RET( x + 2);
+    ELSE
+    begin
+
+OUTF ([ fasfassaf
+ccassacas  SIMASIGNACION asignacion
+ ] );
+        x := 2.0;
+        RET(x * 2);
+    end
+    END_IF;
+end;
+
 END
 
 

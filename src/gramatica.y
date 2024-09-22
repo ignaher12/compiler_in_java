@@ -3,7 +3,7 @@
 //MAYOR MENOR IGUAL SUMA RESTA DIVISION MULTIPLICACION PUNTO PUNTO_COMA PARENTESIS_I PARENTESIS_D
 
 // NUMERO DE TOKEN DE DEFINIDOS (257-...)
-%token IDENTIFICADOR CONSTANTE HEXADECIMAL FLOAT CADENA_MULTI SIMASIGNACION DISTINTO IF THEN BEGIN
+%token IDENTIFICADOR HEXADECIMAL FLOAT CADENA_MULTI SIMASIGNACION DISTINTO IF THEN BEGIN
        END END_IF OUTF TYPEDEF FUN RET SINGLE MENOR_IGUAL MAYOR_IGUAL REPEAT WHILE GOTO LONGINT ELSE
 
 %start programa
@@ -19,19 +19,19 @@
 programa : IDENTIFICADOR BEGIN cuerpo END
 ;
 
-cuerpo : sentencia
-       | cuerpo sentencia
+cuerpo : cuerpo sentencia
+       | sentencia
 ;
 
-sentencia : sentenciaDeclarativa ';'
-          | sentenciaEjecutable ';'
+sentencia : sentenciaDeclarativa
+          | sentenciaEjecutable 
 
-sentenciaDeclarativa : tipoDato declaracion
-                     | TYPEDEF IDENTIFICADOR SIMASIGNACION tipoDato '[' listaConstante ']'   // TEMA 11
+sentenciaDeclarativa : tipoDato declaracion ';'
+                     | TYPEDEF IDENTIFICADOR SIMASIGNACION tipoDato '[' listaConstante ']' ';'  // TEMA 11
 ;
 
 declaracion : listaVariable
-            | FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoDeLaFuncion END
+            | FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END
 ;
 
 tipoDato : SINGLE 
@@ -43,23 +43,26 @@ listaVariable : listaVariable ',' IDENTIFICADOR
               | IDENTIFICADOR
 ;
 
-listaConstante : listaConstante ',' CONSTANTE    // TEMA 11
-               | CONSTANTE                       // TEMA 11
+listaConstante : listaConstante ',' Constante    // TEMA 11
+               | Constante                       // TEMA 11
+;
+
+Constante : LONGINT
+          | FLOAT
+          | HEXADECIMAL
 ;
 
 parametro : tipoDato IDENTIFICADOR
 ;
 
-cuerpoDeLaFuncion : sentenciaFuncion
-                  | cuerpoDeLaFuncion sentenciaFuncion
+cuerpoFuncion : cuerpo sentenciaRet     //PUEDE NO TENER RET LA FUNCION PERSE?
+              | sentenciaRet
+              | cuerpo
 ;
 
-sentenciaFuncion : sentenciaDeclarativa
-//                 | sentenciaEjecutableConRet
-;
 //IF EN FUNCIONES 
-//sentenciaRet : RET '(' expresion ')' ';'
-//;
+sentenciaRet : RET '(' expresion ')' ';'
+;
  
 
 sentenciaEjecutable : asignacion
@@ -69,7 +72,7 @@ sentenciaEjecutable : asignacion
                     | mensajeSalida
 ;
 
-asignacion : IDENTIFICADOR SIMASIGNACION expresion
+asignacion : IDENTIFICADOR SIMASIGNACION expresion ';'
 ;
 
 expresion : operando 
@@ -79,7 +82,7 @@ operador : '+' | '-' | '*' | '/'
 ;
 
 operando : IDENTIFICADOR
-         | CONSTANTE
+         | Constante
          | invocacionFuncion
 ;
 
@@ -87,8 +90,8 @@ invocacionFuncion : IDENTIFICADOR '(' expresion ')'
                   | IDENTIFICADOR '(' tipoDato expresion ')' //TEMA 27
 ;
 
-clausulaSeleccion : IF '(' condicion ')' THEN bloqueIF END_IF
-                  | IF '(' condicion ')' THEN bloqueIF ELSE bloqueIF END_IF
+clausulaSeleccion : IF '(' condicion ')' THEN bloqueIF END_IF ';'
+                  | IF '(' condicion ')' THEN bloqueIF ELSE bloqueIF END_IF ';'
 ;
 
 condicion : listaExpresion comparador listaExpresion        
@@ -102,26 +105,25 @@ comparador : '<' | '>' | '=' | DISTINTO | MENOR_IGUAL | MAYOR_IGUAL
 ;
 
 bloqueIF : sentencia        //RENOMBRE A BLOQUECONTROL
-         | BEGIN cuerpo END
+         | sentenciaRet
+         | BEGIN cuerpoFuncion END
 ;
 
-clausulaBucle : REPEAT bloqueIF WHILE condicion
+clausulaBucle : REPEAT bloqueIF WHILE condicion ';'
 ;
 
-goto : GOTO IDENTIFICADOR '@'
+goto : GOTO IDENTIFICADOR '@' ';'
 ;
 
-mensajeSalida : OUTF '(' expresion ')'
-              | OUTF '(' CADENA_MULTI ')'
+mensajeSalida : OUTF '(' expresion ')' ';'
+              | OUTF '(' CADENA_MULTI ')' ';'
 ;
 
-//sentenciaEjecutableConRet : sentenciaRet
-//                          | sentenciaEjecutable
-//;
 
 %%
 //FUNCIONES
-private static AanalizadorLexico lex;
+private static AnalizadorLexico lex;
+
 public static void main(String[] args) {
     String filePath = "src/MATRIZ DE TRANSICIONES - Hoja 1.csv";
 
@@ -130,16 +132,25 @@ public static void main(String[] args) {
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
     
-    AnalizadorLexico lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
-    if (args.length > 1) {
-            String archivo_a_leer = args[0];
-            this.run();
+    Parser.lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
+    if (args.length > -1) {
+            //String archivo_a_leer = args[0];
+            Parser parser = new Parser(true);
+            parser.run();
     } else {
             System.out.println("No se especifico el archivo a compilar");
     }
+    System.out.println(TablaDeSimbolos.imprimir());
 }
 private int yylex(){
-    while (!lex.end()){
-        System.out.println(lex.getNextToken(yyval));
-    }
+  int idToken = -1;
+  if (!lex.end()){
+    idToken = lex.getNextToken(yyval);
+    System.out.println(idToken);
+  }
+  System.out.println(yyval.toString());
+  return idToken;
+}
+private void yyerror(String string) {
+  throw new UnsupportedOperationException("ERROR");
 }

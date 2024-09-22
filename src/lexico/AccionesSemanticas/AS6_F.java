@@ -8,7 +8,7 @@ import lexico.Token;
 
 public class AS6_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
-        token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.CONSTANTE));
+        token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.LONGINT));
         //chequear rangos
         Lexema res = TablaDeSimbolos.existe(cadena.toString());
 

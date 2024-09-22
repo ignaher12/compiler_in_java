@@ -18,9 +18,9 @@ public class MapeoCaracteres {
     public static final char X = 'x';
     public static final char CERO = '0';
     public static final char DIGITO = '0';
-    public static final char CORCHETE_D = '[';
+    public static final char CORCHETE_I = '[';
     public static final char X10 = 's';
-    public static final char CORCHETE_I = ']';
+    public static final char CORCHETE_D = ']';
     public static final char NUMERAL = '#';
     public static final char MENOR = '<';
     public static final char MAYOR = '>';
@@ -36,6 +36,7 @@ public class MapeoCaracteres {
     public static final char PUNTO = '.';
     public static final char IGUAL = '=';
     public static final char PUNTO_COMA = ';';
+    public static final char GUIONBAJO = '_'; //AGREGAR
     public static final char ARROBA = '@'; //AGREGAR
 
 //,-----,esp,tab,\n,L,A..F,x,0,N,[,s,],#,<,>,!,",",:,"""+""",-,*,/,(,),.,"""=""",c
@@ -74,6 +75,8 @@ public class MapeoCaracteres {
         conversion.put(PUNTO, 24);
         conversion.put(IGUAL, 25);
         conversion.put(PUNTO_COMA, 27);
+        conversion.put(GUIONBAJO, 28);
+        conversion.put(ARROBA, 29);
    }
 
 

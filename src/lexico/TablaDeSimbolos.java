@@ -20,6 +20,11 @@ public class TablaDeSimbolos {
         TablaDeSimbolos.agregarReservada(TablaTipoToken.FUN);
         TablaDeSimbolos.agregarReservada(TablaTipoToken.RET);
         TablaDeSimbolos.agregarReservada(TablaTipoToken.SINGLE);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.REPEAT);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.WHILE);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.GOTO);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.LONGINT);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.ELSE);
     }
 
     public static Lexema agregarSimbolo(String atributo, int tipo) {

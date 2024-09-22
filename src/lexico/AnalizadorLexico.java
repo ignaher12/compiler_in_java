@@ -32,9 +32,8 @@ public class AnalizadorLexico {
         StringBuilder cadenaCaracteres = new StringBuilder();
         estadoActual = 0;
         Token token = new Token(-1);
-        System.out.println("start" + index.get());
+        System.out.println("start " + index.get());
         while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL) {       
-            System.out.println(linea.length());
 
             if (linea.length() != 0){
                 char actual = linea.charAt(index.get());
@@ -45,7 +44,7 @@ public class AnalizadorLexico {
                 
                 
                 if (estadoActual == -1) {
-                    throw new IllegalArgumentException("Error lexico (estadoActual = -1)");
+                    throw new IllegalArgumentException("Error lexico (estadoActual = -1), pos = " + index.get() + ", caracter = " + actual);
                 }
             
             }   

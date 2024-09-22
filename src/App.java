@@ -1,4 +1,4 @@
-import lexico.AccionesSemanticas.Accion;
+/* import lexico.AccionesSemanticas.Accion;
 import utils.MatrizAccion;
 import utils.MatrizTransicion;
 import lexico.AnalizadorLexico;
@@ -22,4 +22,4 @@ public class App {
         System.out.println(TablaDeSimbolos.imprimir());
 
     }
-}
+} */

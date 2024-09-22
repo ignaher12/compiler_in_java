@@ -9,6 +9,7 @@ import lexico.Token;
 public class AS7_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
         cadena.append(linea.charAt(pos.get()));
+        pos.incrementAndGet();
         token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.CADENA_MULTI));
         Lexema res = TablaDeSimbolos.existe(cadena.toString());
         if (res == null){

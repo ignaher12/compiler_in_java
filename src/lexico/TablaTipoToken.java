@@ -2,10 +2,11 @@ package lexico;
 
 import java.util.HashMap;
 
+import parser.Parser;
+
 public class TablaTipoToken {
     private static HashMap<String, Integer> tabla;
     public static final String IDENTIFICADOR = "identificador";
-    public static final String CONSTANTE = "constante";
     public static final String HEXADECIMAL = "hexadecimal";
     public static final String FLOAT = "float";
     public static final String CADENA_MULTI = "cadena_multi";
@@ -43,36 +44,41 @@ public class TablaTipoToken {
     
     static{
         tabla = new HashMap<String, Integer>();
-        tabla.put(IDENTIFICADOR, 257);  // IDENTIFICADOR
-        tabla.put(CONSTANTE, 258);      // CONSTANTE
-        tabla.put(HEXADECIMAL, 259);    // HEXADECIMAL
-        tabla.put(FLOAT, 260);          // FLOAT
-        tabla.put(CADENA_MULTI, 261);   // CADENA_MULTI
-        tabla.put(MAYOR, 6);            // No existe en los shorts, valor sin mapeo
-        tabla.put(MENOR, 7);            // No existe en los shorts, valor sin mapeo
-        tabla.put(MENOR_IGUAL, 274);    // MENOR_IGUAL
-        tabla.put(MAYOR_IGUAL, 275);    // MAYOR_IGUAL
-        tabla.put(SUMA, 10);            // No existe en los shorts, valor sin mapeo
-        tabla.put(RESTA, 11);           // No existe en los shorts, valor sin mapeo
-        tabla.put(DIVISION, 12);        // No existe en los shorts, valor sin mapeo
-        tabla.put(MULTIPLICACION, 13);  // No existe en los shorts, valor sin mapeo
-        tabla.put(PUNTO, 14);           // No existe en los shorts, valor sin mapeo
-        tabla.put(PARENTESIS_I, 15);    // No existe en los shorts, valor sin mapeo
-        tabla.put(PARENTESIS_D, 16);    // No existe en los shorts, valor sin mapeo
-        tabla.put(ASIGNACION, 262);     // SIMASIGNACION
-        tabla.put(DISTINTO, 263);       // DISTINTO
-        tabla.put(IF, 264);             // IF
-        tabla.put(THEN, 265);           // THEN
-        tabla.put(BEGIN, 266);          // BEGIN
-        tabla.put(END, 267);            // END
-        tabla.put(END_IF, 268);         // END_IF
-        tabla.put(OUTF, 269);           // OUTF
-        tabla.put(TYPEDEF, 270);        // TYPEDEF
-        tabla.put(FUN, 271);            // FUN
-        tabla.put(RET, 272);            // RET
-        tabla.put(SINGLE, 273);         // SINGLE
-        tabla.put(PUNTO_COMA, 59);      // No existe en los shorts, valor sin mapeo
-        tabla.put(IGUAL, 30);           // No existe en los shorts, valor sin mapeo
+        tabla.put(IDENTIFICADOR, (int)Parser.IDENTIFICADOR);  
+        tabla.put(HEXADECIMAL, (int)Parser.HEXADECIMAL);   
+        tabla.put(FLOAT, (int)Parser.FLOAT);          
+        tabla.put(CADENA_MULTI, (int)Parser.CADENA_MULTI); 
+        tabla.put(MENOR_IGUAL, (int)Parser.MENOR_IGUAL);   
+        tabla.put(MAYOR_IGUAL, (int)Parser.MAYOR_IGUAL);   
+        tabla.put(ASIGNACION, (int)Parser.SIMASIGNACION);  
+        tabla.put(DISTINTO, (int)Parser.DISTINTO); 
+        tabla.put(IF, (int)Parser.IF);             
+        tabla.put(THEN, (int)Parser.THEN);         
+        tabla.put(BEGIN, (int)Parser.BEGIN);       
+        tabla.put(END, (int)Parser.END);           
+        tabla.put(END_IF, (int)Parser.END_IF);     
+        tabla.put(OUTF, (int)Parser.OUTF);         
+        tabla.put(TYPEDEF, (int)Parser.TYPEDEF);   
+        tabla.put(FUN, (int)Parser.FUN);           
+        tabla.put(RET, (int)Parser.RET);           
+        tabla.put(SINGLE, (int)Parser.SINGLE);     
+        tabla.put(REPEAT, (int)Parser.REPEAT);     
+        tabla.put(WHILE, (int)Parser.WHILE);       
+        tabla.put(GOTO, (int)Parser.GOTO);         
+        tabla.put(LONGINT, (int)Parser.LONGINT);   
+        tabla.put(ELSE, (int)Parser.ELSE);         
+        tabla.put(MAYOR, (int) '>');            // No existe en los shorts, valor sin mapeo
+        tabla.put(MENOR, (int) '<');            // No existe en los shorts, valor sin mapeo
+        tabla.put(SUMA, (int) '+');            // No existe en los shorts, valor sin mapeo
+        tabla.put(RESTA, (int) '-');           // No existe en los shorts, valor sin mapeo
+        tabla.put(DIVISION, (int) '/');        // No existe en los shorts, valor sin mapeo
+        tabla.put(MULTIPLICACION, (int) '*');  // No existe en los shorts, valor sin mapeo
+        tabla.put(PUNTO, (int) '.');           // No existe en los shorts, valor sin mapeo
+        tabla.put(PARENTESIS_I, (int) '(');    // No existe en los shorts, valor sin mapeo
+        tabla.put(PARENTESIS_D, (int) ')');    // No existe en los shorts, valor sin mapeo
+        tabla.put(PUNTO_COMA, (int) ';');      // No existe en los shorts, valor sin mapeo
+        tabla.put(IGUAL, (int) '=');           // No existe en los shorts, valor sin mapeo
+        tabla.put(ARROBA, (int) '@');           // No existe en los shorts, valor sin mapeo
     }
 
     public static int getTipoToken(String cadena){
