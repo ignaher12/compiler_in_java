@@ -1,6 +1,7 @@
 package lexico.AccionesSemanticas;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import lexico.AnalizadorLexico;
 import lexico.Lexema;
 import lexico.TablaDeSimbolos;
 import lexico.TablaTipoToken;
@@ -9,7 +10,13 @@ import lexico.Token;
 public class AS4_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
         token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.HEXADECIMAL));
-        //chequear rangos
+
+        double valor  = Double.parseDouble(cadena.toString());
+        if (valor > AnalizadorLexico.MAXHEXADECIMAL){
+            //WARNING
+            cadena = new StringBuilder(Double.toHexString(AnalizadorLexico.MAXHEXADECIMAL));
+        }
+
         Lexema res = TablaDeSimbolos.existe(cadena.toString());
 
         if (res == null){

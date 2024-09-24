@@ -10,6 +10,7 @@ public class AnalizadorLexico {
     private File fuente;
     private Scanner lector;
     private String linea;
+    private int numeroLinea;
     private AtomicInteger index;
 
     private int estadoActual;
@@ -19,9 +20,20 @@ public class AnalizadorLexico {
 
     private int ESTADO_FINAL = 11;
 
+    public static final int MAXLENGHTINDENTIFICADOR = 15;
+    public static final double MAXLONGINT = Math.pow(2,31) - 1;                // 2^31 – 1
+    public static final double MINLONGINT = Math.pow(-2,31);                     // -2_31
+    public static final double MAXHEXADECIMAL = 0x7FFFFFFF;
+    public static final double MINHEXADECIMAL = -0x80000000 ;
+    public static final float MAXFLOATPOSITIVO = 3.40282347e38f;
+    public static final float MINFLOATPOSITIVO = 1.17549435e-38f;
+    public static final float MAXFLOATNEGATIVO = -1.17549435e-38f;
+    public static final float MINFLOATNEGATIVO = -3.40282347e+38f;
+
     public AnalizadorLexico(String nombreArchivo, int[][] matrizTransicion, Accion[][] matrizAcciones) {
         this.index = new AtomicInteger(0);
         this.linea = null;
+        this.numeroLinea = 1;
         this.estadoActual = 0;
         this.matrizTransicion = matrizTransicion;
         this.matrizAcciones = matrizAcciones;
@@ -44,7 +56,7 @@ public class AnalizadorLexico {
                 
                 
                 if (estadoActual == -1) {
-                    throw new IllegalArgumentException("Error lexico (estadoActual = -1), pos = " + index.get() + ", caracter = " + actual);
+                    throw new IllegalArgumentException("Error lexico (estadoActual = -1), linea = "+ numeroLinea +", pos = " + index.get() + ", caracter = " + actual);
                 }
             
             }   
@@ -60,6 +72,7 @@ public class AnalizadorLexico {
                 }
                 if (lector.hasNextLine()){
                     linea = lector.nextLine();
+                    numeroLinea = numeroLinea + 1;
                     index.set(0);
                 };
             }
@@ -104,8 +117,6 @@ public class AnalizadorLexico {
     }
 
     public boolean end(){
-        System.out.println("index " + index.get());
-        System.out.println("linea " + linea.length());
         if (!lector.hasNextLine() && index.get() >=  linea.length()) 
             return true;
         return false;
