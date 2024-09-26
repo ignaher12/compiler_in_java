@@ -6,6 +6,9 @@ import lexico.Lexema;
 import lexico.TablaDeSimbolos;
 import lexico.TablaTipoToken;
 import lexico.Token;
+import parser.Parser;
+import parser.Error.Tipo;
+import parser.Error;
 
 public class AS5_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
@@ -16,6 +19,7 @@ public class AS5_F implements Accion{
 
         if (numero > AnalizadorLexico.MAXFLOATPOSITIVO){
             //WARNING
+            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.WARNING, "Constante de tipo Float fuera de rango"));
             cadena = new StringBuilder(Float.toString(AnalizadorLexico.MAXFLOATPOSITIVO));
         } else if (numero < AnalizadorLexico.MINFLOATNEGATIVO){
             //WARNING

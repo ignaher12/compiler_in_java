@@ -25,6 +25,7 @@ public class TablaDeSimbolos {
         TablaDeSimbolos.agregarReservada(TablaTipoToken.GOTO);
         TablaDeSimbolos.agregarReservada(TablaTipoToken.LONGINT);
         TablaDeSimbolos.agregarReservada(TablaTipoToken.ELSE);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.TRIPLE);
     }
 
     public static Lexema agregarSimbolo(String atributo, int tipo) {
@@ -48,6 +49,14 @@ public class TablaDeSimbolos {
     
     public static String imprimir() {
         StringBuilder sb = new StringBuilder();
+        
+        sb.append("Tabla de Reservadas:\n");
+        sb.append("-------------------\n");
+
+        for (Map.Entry<Integer,Lexema> par : tablaReservada.entrySet()) {
+            sb.append(par.getKey()).append(" - ").append(par.getValue()).append('\n');
+        }
+        
         sb.append("Tabla de Símbolos:\n");
         sb.append("-------------------\n");
 
@@ -55,12 +64,7 @@ public class TablaDeSimbolos {
             sb.append(par.getKey()).append(" - ").append(par.getValue()).append('\n');
         }
 
-        sb.append("Tabla de Reservadas:\n");
-        sb.append("-------------------\n");
-
-        for (Map.Entry<Integer,Lexema> par : tablaReservada.entrySet()) {
-            sb.append(par.getKey()).append(" - ").append(par.getValue()).append('\n');
-        }
+        
 
         return sb.toString();
     }

@@ -4,13 +4,14 @@ import java.io.FileNotFoundException;
 import java.util.Scanner; 
 import java.util.concurrent.atomic.AtomicInteger;
 import lexico.AccionesSemanticas.Accion;
+import parser.Parser;
 import parser.ParserVal;
 
 public class AnalizadorLexico {
     private File fuente;
     private Scanner lector;
     private String linea;
-    private int numeroLinea;
+    private static int numeroLinea;
     private AtomicInteger index;
 
     private int estadoActual;
@@ -44,15 +45,16 @@ public class AnalizadorLexico {
         StringBuilder cadenaCaracteres = new StringBuilder();
         estadoActual = 0;
         Token token = new Token(-1);
-        System.out.println("start " + index.get());
+
         while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL) {       
 
             if (linea.length() != 0){
                 char actual = linea.charAt(index.get());
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
+                //System.out.println("atual:" + estadoActual + "leo: " + actual);
                 matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
                 estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
-                
+                //System.out.println("nuevo:" + estadoActual );
                 
                 
                 if (estadoActual == -1) {
@@ -87,14 +89,14 @@ public class AnalizadorLexico {
                 throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición.");
             }
         };
-        System.out.println(token);
-        if (token.getToken() == 1) yyval = new ParserVal(token.getAtributo().getAtributo());
+        System.out.println("LEX: Token detectado -> " + token);
+        if (token.getToken() == (int)Parser.IDENTIFICADOR) yyval.sval = token.getAtributo().getAtributo();
         return token.getToken();
     }
 
     private void abrirArchivo(String nombre){
         try {
-            this.fuente = new File(nombre);
+            this.fuente = new File("tests/"+nombre);
             generarLector();
           } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
@@ -114,6 +116,10 @@ public class AnalizadorLexico {
 
     public int getEstado() {
         return estadoActual;
+    }
+
+    public static int getNumeroLinea(){
+        return numeroLinea;
     }
 
     public boolean end(){

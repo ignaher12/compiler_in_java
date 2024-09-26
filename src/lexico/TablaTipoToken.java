@@ -10,19 +10,8 @@ public class TablaTipoToken {
     public static final String HEXADECIMAL = "hexadecimal";
     public static final String FLOAT = "float";
     public static final String CADENA_MULTI = "cadena_multi";
-    public static final String MAYOR = ">";
-    public static final String MENOR = "<";
-    public static final String IGUAL = "=";
     public static final String MENOR_IGUAL = "<=";
     public static final String MAYOR_IGUAL = ">=";
-    public static final String SUMA = "+";
-    public static final String RESTA = "-";
-    public static final String DIVISION = "/";
-    public static final String MULTIPLICACION = "*";
-    public static final String PUNTO = ".";
-    public static final String PUNTO_COMA = ";";
-    public static final String PARENTESIS_I = "(";
-    public static final String PARENTESIS_D = ")";
     public static final String ASIGNACION = ":=";
     public static final String DISTINTO = "!=";
     public static final String IF = "if";
@@ -38,9 +27,9 @@ public class TablaTipoToken {
     public static final String REPEAT = "repeat"; //AGREGAR
     public static final String WHILE = "while"; //AGREGAR
     public static final String GOTO = "goto"; //AGREGAR
-    public static final String ARROBA = "@"; //AGREGAR
     public static final String LONGINT = "longint"; //AGREGAR
     public static final String ELSE = "else"; //AGREGAR
+    public static final String TRIPLE = "triple"; //AGREGAR
     
     static{
         tabla = new HashMap<String, Integer>();
@@ -67,18 +56,22 @@ public class TablaTipoToken {
         tabla.put(GOTO, (int)Parser.GOTO);         
         tabla.put(LONGINT, (int)Parser.LONGINT);   
         tabla.put(ELSE, (int)Parser.ELSE);         
-        tabla.put(MAYOR, (int) '>');            // No existe en los shorts, valor sin mapeo
-        tabla.put(MENOR, (int) '<');            // No existe en los shorts, valor sin mapeo
-        tabla.put(SUMA, (int) '+');            // No existe en los shorts, valor sin mapeo
-        tabla.put(RESTA, (int) '-');           // No existe en los shorts, valor sin mapeo
-        tabla.put(DIVISION, (int) '/');        // No existe en los shorts, valor sin mapeo
-        tabla.put(MULTIPLICACION, (int) '*');  // No existe en los shorts, valor sin mapeo
-        tabla.put(PUNTO, (int) '.');           // No existe en los shorts, valor sin mapeo
-        tabla.put(PARENTESIS_I, (int) '(');    // No existe en los shorts, valor sin mapeo
-        tabla.put(PARENTESIS_D, (int) ')');    // No existe en los shorts, valor sin mapeo
-        tabla.put(PUNTO_COMA, (int) ';');      // No existe en los shorts, valor sin mapeo
-        tabla.put(IGUAL, (int) '=');           // No existe en los shorts, valor sin mapeo
-        tabla.put(ARROBA, (int) '@');           // No existe en los shorts, valor sin mapeo
+        tabla.put(TRIPLE, (int)Parser.TRIPLE);         
+        tabla.put(String.valueOf(MapeoCaracteres.MAYOR), (int) '>');            // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.MENOR), (int) '<');            // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.MAS), (int) '+');            // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.MENOS), (int) '-');           // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.BARRA), (int) '/');        // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.ASTERISCO), (int) '*');  // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.PUNTO), (int) '.');           // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.COMA), (int) ',');           // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.PARENTESIS_I), (int) '(');    // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.PARENTESIS_D), (int) ')');    // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.PUNTO_COMA), (int) ';');      // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.IGUAL), (int) '=');           // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.ARROBA), (int) '@');           // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.CORCHETE_I), (int) '[');           // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.CORCHETE_D), (int) '[');           // No existe en los shorts, valor sin mapeo
     }
 
     public static int getTipoToken(String cadena){

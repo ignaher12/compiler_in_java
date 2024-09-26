@@ -5,7 +5,8 @@
 // NUMERO DE TOKEN DE DEFINIDOS (257-...)
 %token IDENTIFICADOR HEXADECIMAL FLOAT CADENA_MULTI SIMASIGNACION DISTINTO IF THEN BEGIN
        END END_IF OUTF TYPEDEF FUN RET SINGLE MENOR_IGUAL MAYOR_IGUAL REPEAT WHILE GOTO LONGINT ELSE
-
+       TRIPLE
+       
 %start programa
 
 %left '+' '-'
@@ -28,6 +29,7 @@ sentencia : sentenciaDeclarativa
 
 sentenciaDeclarativa : tipoDato declaracion ';'
                      | TYPEDEF IDENTIFICADOR SIMASIGNACION tipoDato '[' listaConstante ']' ';'  // TEMA 11
+                     | TYPEDEF TRIPLE '<' tipoDato '>' IDENTIFICADOR ';'  // TEMA 22
 ;
 
 declaracion : listaVariable
@@ -37,6 +39,7 @@ declaracion : listaVariable
 tipoDato : SINGLE 
          | LONGINT
          | IDENTIFICADOR //PARA typedef  // TEMA 11
+         | TRIPLE  // TEMA 22
 ;
 
 listaVariable : listaVariable ',' IDENTIFICADOR
@@ -73,6 +76,9 @@ sentenciaEjecutable : asignacion
 ;
 
 asignacion : IDENTIFICADOR SIMASIGNACION expresion ';'
+           | IDENTIFICADOR '[' '1' ']' SIMASIGNACION expresion ';'  //TEMA 22
+           | IDENTIFICADOR '[' '2' ']' SIMASIGNACION expresion ';'  //TEMA 22
+           | IDENTIFICADOR '[' '3' ']' SIMASIGNACION expresion ';'  //TEMA 22
 ;
 
 expresion : operando 
@@ -84,6 +90,9 @@ operador : '+' | '-' | '*' | '/'
 operando : IDENTIFICADOR
          | Constante
          | invocacionFuncion
+         | IDENTIFICADOR '[' '1' ']' //TEMA 22
+         | IDENTIFICADOR '[' '2' ']' //TEMA 22
+         | IDENTIFICADOR '[' '3' ']'  //TEMA 22
 ;
 
 invocacionFuncion : IDENTIFICADOR '(' expresion ')'
@@ -123,7 +132,7 @@ mensajeSalida : OUTF '(' expresion ')' ';'
 %%
 //FUNCIONES
 private static AnalizadorLexico lex;
-
+public static List<Error> erroresLexico = new ArrayList<Error>();
 public static void main(String[] args) {
     String filePath = "src/MATRIZ DE TRANSICIONES - Hoja 1.csv";
 
@@ -131,12 +140,14 @@ public static void main(String[] args) {
     filePath = "src/MATRIZ DE TRANSICIONES - Hoja 2.csv";
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
-    
+
     Parser.lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
     if (args.length > -1) {
             //String archivo_a_leer = args[0];
-            Parser parser = new Parser(true);
+            Parser parser = new Parser();
             parser.run();
+
+            for (Error error: erroresLexico){System.out.println(error);}
     } else {
             System.out.println("No se especifico el archivo a compilar");
     }
@@ -146,9 +157,8 @@ private int yylex(){
   int idToken = -1;
   if (!lex.end()){
     idToken = lex.getNextToken(yyval);
-    System.out.println(idToken);
   }
-  System.out.println(yyval.toString());
+  //System.out.println(yyval.sval);
   return idToken;
 }
 private void yyerror(String string) {

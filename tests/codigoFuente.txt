@@ -4,7 +4,11 @@ BEGIN
 ##x := 1.2;
 
 
-single hol_a;
+single hol_adasasasasasasasasasasasasasasasasasadsads;
+
+typedef triple <single> tripleT;
+
+tipleT tt,t2,t3;
 
 
 Single fun f (longint w)
