@@ -1,0 +1,23 @@
+CONSTANTES
+begin
+    longint primerValor;
+    ##primerValor := -2147483648;
+    LONGINT ultimoValor;
+    ultimoValor := 2147483647;
+
+    HEXADECIMAL ultimoHexa;
+    ultimoHexa:= 0x7FFFFFFF;
+    HEXADECIMAL primerHexa;
+    ##primerHexa:= -0x80000000;
+
+    SINGLE ultimoSingle;
+    ultimoSingle :=  3.40282347s38;
+    single primerSingle;
+    ##primerSingle :=  1.17549435s-38;
+    SINGLE ceroSingle;
+    ceroSingle :=  0.0;
+    SINGLE ultimoBajoSingle;
+    ##ultimoBajoSingle :=  -1.17549435s-38;
+    single primeroBajoSingle;
+    ##primeroBajo :=  -3.40282347s+38;
+END

@@ -15,7 +15,9 @@ public class AS6_F implements Accion{
         double valor  = Double.parseDouble(cadena.toString());
         if (valor > AnalizadorLexico.MAXLONGINT){
             //WARNING
-            cadena = new StringBuilder(Double.toString(AnalizadorLexico.MAXLONGINT));
+            cadena = new StringBuilder(Integer.toString(AnalizadorLexico.MAXLONGINT));
+        }if (valor > AnalizadorLexico.MAXLONGINT){
+            cadena = new StringBuilder(Integer.toString(AnalizadorLexico.MAXLONGINT));
         }
 
 

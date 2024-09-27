@@ -14,8 +14,8 @@ public class AS5_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
         token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.FLOAT));
         //chequear rangos
-
-        float numero = Float.parseFloat(cadena.toString());
+        String cadenaExponente = cadena.toString().replace('s', 'e');
+        float numero = Float.parseFloat(cadenaExponente);
 
         if (numero > AnalizadorLexico.MAXFLOATPOSITIVO){
             //WARNING

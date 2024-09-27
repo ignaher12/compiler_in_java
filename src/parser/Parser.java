@@ -437,16 +437,19 @@ public static void main(String[] args) {
     filePath = "src/MATRIZ DE TRANSICIONES - Hoja 2.csv";
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
-
+    Parser parser = new Parser();
     Parser.lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
-    if (args.length > -1) {
-            //String archivo_a_leer = args[0];
-            Parser parser = new Parser();
-            parser.run();
+    if (args.length > 1) {
+        Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
 
-            for (Error error: erroresLexico){System.out.println(error);}
+        parser.run();
+        for (Error error: erroresLexico){System.out.println(error);}
     } else {
-            System.out.println("No se especifico el archivo a compilar");
+        Parser.lex = new AnalizadorLexico("CP3.txt", matriz, matrizAcciones);
+        
+        parser.run();
+        for (Error error: erroresLexico){System.out.println(error);}
+        //System.out.println("No se especifico el archivo a compilar");
     }
     System.out.println(TablaDeSimbolos.imprimir());
 }
@@ -455,7 +458,7 @@ private int yylex(){
   if (!lex.end()){
     idToken = lex.getNextToken(yyval);
   }
-  //System.out.println(yyval.sval);
+  System.out.println("PARSER: " + yyval.sval);
   return idToken;
 }
 private void yyerror(String string) {

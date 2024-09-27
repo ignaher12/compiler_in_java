@@ -17,7 +17,7 @@ public class MapeoCaracteres {
     public static final char F = 'F';
     public static final char X = 'x';
     public static final char CERO = '0';
-    public static final char DIGITO = '0';
+    public static final char DIGITO = '1';
     public static final char CORCHETE_I = '[';
     public static final char X10 = 's';
     public static final char CORCHETE_D = ']';

@@ -46,14 +46,17 @@ listaVariable : listaVariable ',' IDENTIFICADOR
               | IDENTIFICADOR
 ;
 
-listaConstante : listaConstante ',' Constante    // TEMA 11
-               | Constante                       // TEMA 11
+listaConstante : listaConstante ',' constante    // TEMA 11
+               | constante                       // TEMA 11
 ;
 
-Constante : LONGINT
-          | FLOAT
-          | HEXADECIMAL
+constante : cte
+          | '-' cte
 ;
+
+cte : LONGINT 
+    | FLOAT 
+    | HEXADECIMAL 
 
 parametro : tipoDato IDENTIFICADOR
 ;
@@ -88,7 +91,7 @@ operador : '+' | '-' | '*' | '/'
 ;
 
 operando : IDENTIFICADOR
-         | Constante
+         | constante
          | invocacionFuncion
          | IDENTIFICADOR '[' '1' ']' //TEMA 22
          | IDENTIFICADOR '[' '2' ']' //TEMA 22
@@ -140,16 +143,19 @@ public static void main(String[] args) {
     filePath = "src/MATRIZ DE TRANSICIONES - Hoja 2.csv";
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
-
+    Parser parser = new Parser();
     Parser.lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
-    if (args.length > -1) {
-            //String archivo_a_leer = args[0];
-            Parser parser = new Parser();
-            parser.run();
+    if (args.length > 1) {
+        Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
 
-            for (Error error: erroresLexico){System.out.println(error);}
+        parser.run();
+        for (Error error: erroresLexico){System.out.println(error);}
     } else {
-            System.out.println("No se especifico el archivo a compilar");
+        Parser.lex = new AnalizadorLexico("CP1.txt", matriz, matrizAcciones);
+        
+        parser.run();
+        for (Error error: erroresLexico){System.out.println(error);}
+        //System.out.println("No se especifico el archivo a compilar");
     }
     System.out.println(TablaDeSimbolos.imprimir());
 }

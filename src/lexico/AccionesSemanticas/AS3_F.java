@@ -15,7 +15,6 @@ public class AS3_F implements Accion{
     //Verifica si es palabra reservada, sino devuelve token con identificador
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
         token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.IDENTIFICADOR));
-        Lexema res = TablaDeSimbolos.existe(cadena.toString());
         
         if (cadena.length() > AnalizadorLexico.MAXLENGHTINDENTIFICADOR){ //truncar
             StringBuilder cadenaLarga = cadena;
@@ -23,6 +22,7 @@ public class AS3_F implements Accion{
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.WARNING, "El identificador" + cadenaLarga + " fue truncado a: " + cadena));
         }
 
+        Lexema res = TablaDeSimbolos.existe(cadena.toString());
         if (res == null){
             token.setAtributo(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getToken()));
         }else{

@@ -22,8 +22,8 @@ public class AnalizadorLexico {
     private int ESTADO_FINAL = 11;
 
     public static final int MAXLENGHTINDENTIFICADOR = 15;
-    public static final double MAXLONGINT = Math.pow(2,31) - 1;                // 2^31 – 1
-    public static final double MINLONGINT = Math.pow(-2,31);                     // -2_31
+    public static final int MAXLONGINT = 2147483647;                // 2^31 – 1
+    public static final int MINLONGINT = -2147483648;                     // -231
     public static final double MAXHEXADECIMAL = 0x7FFFFFFF;
     public static final double MINHEXADECIMAL = -0x80000000 ;
     public static final float MAXFLOATPOSITIVO = 3.40282347e38f;
@@ -51,10 +51,11 @@ public class AnalizadorLexico {
             if (linea.length() != 0){
                 char actual = linea.charAt(index.get());
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
-                //System.out.println("atual:" + estadoActual + "leo: " + actual);
+                //System.out.println("estadoatual:" + estadoActual + "leo: " + actual);
+                //System.out.println("estadoatual:" + estadoActual + "columna: " + columnaMatriz);
                 matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
                 estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
-                //System.out.println("nuevo:" + estadoActual );
+                //System.out.println("estadonuevo:" + estadoActual );
                 
                 
                 if (estadoActual == -1) {
@@ -90,7 +91,9 @@ public class AnalizadorLexico {
             }
         };
         System.out.println("LEX: Token detectado -> " + token);
-        if (token.getToken() == (int)Parser.IDENTIFICADOR) yyval.sval = token.getAtributo().getAtributo();
+        if (token.getToken() == (int)Parser.IDENTIFICADOR || token.getToken() == (int)Parser.HEXADECIMAL || token.getToken() == (int)Parser.FLOAT || token.getToken() == (int)Parser.CADENA_MULTI){ 
+            yyval.sval = token.getAtributo().getAtributo();
+            System.out.println("sval pasado");};
         return token.getToken();
     }
 

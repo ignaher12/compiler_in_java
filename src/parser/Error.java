@@ -41,8 +41,8 @@ public class Error {
     }
     @Override
     public String toString() {
-        return "Linea" + linea +
-                ":" + tipo + 
-                ":" + descripcion + '\'' ;
+        return "Linea " + linea +
+                ": " + tipo + 
+                ": " + descripcion ;
     }
 }
