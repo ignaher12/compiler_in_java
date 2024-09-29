@@ -48,7 +48,7 @@ public class AnalizadorLexico {
 
         while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL && !token.isError()) {       
 
-            if (linea.length() != 0 && !token.isError()){
+            if (linea.length() != 0){
                 char actual = linea.charAt(index.get());
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
                 System.out.println("leo: " + actual);
@@ -57,14 +57,6 @@ public class AnalizadorLexico {
                 matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
                 estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
                 System.out.println("estadonuevo:" + estadoActual );
-                
-                
-                if (estadoActual == -1) {
-                    //System.out.println(estadoActual + "   " + columnaMatriz);
-                    //matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea);
-                    //throw new IllegalArgumentException("Error lexico (estadoActual = -1), linea = "+ numeroLinea +", pos = " + index.get() + ", caracter = " + actual);
-                }
-            
             }   
             
             if (index.get() == linea.length() && !token.isError()) {     // Salto de línea
@@ -73,10 +65,7 @@ public class AnalizadorLexico {
                     matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
                     estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
                 }
-                if (estadoActual == -1) {
-                   // matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
-                    //throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición del estado " + estadoActual + "con /n");
-                }
+
                 if (lector.hasNextLine()){
                     linea = lector.nextLine();
                     numeroLinea = numeroLinea + 1;
@@ -90,10 +79,6 @@ public class AnalizadorLexico {
         if (estadoActual != ESTADO_FINAL && !token.isError()) {
             matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
             estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
-            if (estadoActual == -1) {
-                matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
-                //throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición.");
-            }
         };
         System.out.println("LEX: Token detectado -> " + token);
         if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == (int)Parser.FLOAT || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
