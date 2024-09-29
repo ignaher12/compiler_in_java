@@ -10,7 +10,7 @@ import parser.Parser;
 public class ASE implements Accion{
         public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
             token.setError();
-            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ÉRROR LEXICO en la posicion "+pos.get()+"+-1"));
+            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ÉRROR LEXICO en la posicion "+pos.get()+"+-1 depende de donde arranca"));
             pos.incrementAndGet();
         }
 }

@@ -48,7 +48,7 @@ public class AnalizadorLexico {
 
         while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL && !token.isError()) {       
 
-            if (linea.length() != 0){
+            if (linea.length() != 0 && !token.isError()){
                 char actual = linea.charAt(index.get());
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
                 System.out.println("leo: " + actual);
@@ -67,9 +67,9 @@ public class AnalizadorLexico {
             
             }   
             
-            if (index.get() == linea.length()) {     // Salto de línea
+            if (index.get() == linea.length() && !token.isError()) {     // Salto de línea
                 // Intentar una transición con el carácter de fin de línea (\n)
-                if (estadoActual != ESTADO_FINAL){
+                if (estadoActual != ESTADO_FINAL ){
                     matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
                     estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
                 }

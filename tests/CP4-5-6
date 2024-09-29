@@ -4,7 +4,7 @@ begin
     single masDe15Caracteres;
     single pr_Ueba;
     single pr_Ueba2;
-    single 3ErrorNumero;
+    ##single 3ErrorNumero;
     single ErrorS^imbolo;
     single Erro#rSimbolo2;
 end

@@ -4,8 +4,8 @@ BEGIN
     floatDecimal := 0.2432;
 
     float floatExponente;
-    floatExponente =: 23.21s15;
-    floatExponente =: 12.32s-16;
+    floatExponente := 23.21s15;
+    floatExponente := 12.32s-16;
 
     float floatSinDecimal;
     floatSinDecimal := 25.;

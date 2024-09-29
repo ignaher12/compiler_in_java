@@ -74,6 +74,7 @@ public class MapeoCaracteres {
         conversion.put(PARENTESIS_D, 23);
         conversion.put(PUNTO, 24);
         conversion.put(IGUAL, 25);
+        // 26 es c (caracter generico).
         conversion.put(PUNTO_COMA, 27);
         conversion.put(GUIONBAJO, 28);
         conversion.put(ARROBA, 29);
@@ -98,7 +99,8 @@ public class MapeoCaracteres {
                 return conversion.get(caracter);
             return conversion.get(MAYUSCULA);
         } else {
-            return conversion.get(caracter);
+            // Si el caracter esta en el HashMap lo return, si no devuelve 26
+            return conversion.getOrDefault(caracter, 26);
         }
     }
 }

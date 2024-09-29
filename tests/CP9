@@ -6,7 +6,7 @@ begin
     outF ([[Cadena 
     
     
-    multilinea])
+    multilinea]);
 
     outF ([ Cadena Multilinea con error);
     outF ( Cadena Multilinea con error]);
