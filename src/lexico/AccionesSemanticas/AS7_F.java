@@ -10,12 +10,12 @@ public class AS7_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
         cadena.append(linea.charAt(pos.get()));
         pos.incrementAndGet();
-        token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.CADENA_MULTI));
+        token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.CADENA_MULTI));
         Lexema res = TablaDeSimbolos.existe(cadena.toString());
         if (res == null){
-            token.setAtributo(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getToken()));
+            token.setLexema(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
         }else{
-            token.setAtributo(res);
+            token.setLexema(res);
         }
 
     }

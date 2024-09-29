@@ -437,7 +437,7 @@ public static void main(String[] args) {
     filePath = "src/MATRIZ DE TRANSICIONES - Hoja 2.csv";
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
-    Parser parser = new Parser();
+    Parser parser = new Parser(true);
     Parser.lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
     if (args.length > 1) {
         Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
@@ -445,7 +445,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("CP3.txt", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("CP1.txt", matriz, matrizAcciones);
         
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
@@ -462,7 +462,7 @@ private int yylex(){
   return idToken;
 }
 private void yyerror(String string) {
-  throw new UnsupportedOperationException("ERROR");
+  System.out.println("Error: " + string);
 }
 //#line 389 "Parser.java"
 //###############################################################

@@ -87,6 +87,8 @@ public class MatrizAccion {
                 return new AS9_F();
             case "AS10_F":
                 return new AS10_F();
+            case "ASE":
+                return new ASE();
             default:
                 return null; // Or handle default case
         }

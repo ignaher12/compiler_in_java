@@ -12,31 +12,34 @@ import parser.Error;
 
 public class AS5_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
-        token.setToken(TablaTipoToken.getTipoToken(TablaTipoToken.FLOAT));
+        token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.FLOAT));
         //chequear rangos
         String cadenaExponente = cadena.toString().replace('s', 'e');
         float numero = Float.parseFloat(cadenaExponente);
 
         if (numero > AnalizadorLexico.MAXFLOATPOSITIVO){
-            //WARNING
-            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.WARNING, "Constante de tipo Float fuera de rango"));
-            cadena = new StringBuilder(Float.toString(AnalizadorLexico.MAXFLOATPOSITIVO));
+            //Error - Constante de tipo Float fuera de rango
+            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));
+            token.setError();
         } else if (numero < AnalizadorLexico.MINFLOATNEGATIVO){
-            //WARNING
-            cadena = new StringBuilder(Float.toString(AnalizadorLexico.MINFLOATNEGATIVO));
+            //Error - Constante de tipo Float fuera de rango
+            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));
+            token.setError();
         } else if ((numero > AnalizadorLexico.MAXFLOATNEGATIVO) && (numero < AnalizadorLexico.MAXFLOATPOSITIVO)){
-            //WARNING
-            cadena = new StringBuilder(Float.toString(0));
-        }
-        
-        Lexema res = TablaDeSimbolos.existe(cadena.toString());
-        if (res == null){
-            token.setAtributo(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getToken()));
-        }else{
-            if (res.isReservada()){
-                token.setToken(TablaTipoToken.getTipoToken(cadena.toString()));
+            //Error - Constante de tipo Float fuera de rango
+            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));
+            token.setError();
+        } else {
+
+            Lexema res = TablaDeSimbolos.existe(cadena.toString());
+            if (res == null){
+                token.setLexema(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
+            }else{
+                if (res.isReservada()){
+                    token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
+                }
+                token.setLexema(res);
             }
-            token.setAtributo(res);
         }
     }
 }

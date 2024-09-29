@@ -1,6 +1,6 @@
 CONSTANTES
 begin
-    longint primerValor;
+    longint prime!rValor;
     ##primerValor := -2147483648;
     LONGINT ultimoValor;
     ultimoValor := 2147483647;

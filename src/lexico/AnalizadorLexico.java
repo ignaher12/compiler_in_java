@@ -46,20 +46,23 @@ public class AnalizadorLexico {
         estadoActual = 0;
         Token token = new Token(-1);
 
-        while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL) {       
+        while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL && !token.isError()) {       
 
             if (linea.length() != 0){
                 char actual = linea.charAt(index.get());
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
-                //System.out.println("estadoatual:" + estadoActual + "leo: " + actual);
-                //System.out.println("estadoatual:" + estadoActual + "columna: " + columnaMatriz);
+                System.out.println("leo: " + actual);
+                System.out.println("estadoatual:" + estadoActual + "columna: " + columnaMatriz);
+                System.out.println(matrizAcciones[estadoActual][columnaMatriz]);
                 matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
                 estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
-                //System.out.println("estadonuevo:" + estadoActual );
+                System.out.println("estadonuevo:" + estadoActual );
                 
                 
                 if (estadoActual == -1) {
-                    throw new IllegalArgumentException("Error lexico (estadoActual = -1), linea = "+ numeroLinea +", pos = " + index.get() + ", caracter = " + actual);
+                    //System.out.println(estadoActual + "   " + columnaMatriz);
+                    //matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea);
+                    //throw new IllegalArgumentException("Error lexico (estadoActual = -1), linea = "+ numeroLinea +", pos = " + index.get() + ", caracter = " + actual);
                 }
             
             }   
@@ -71,7 +74,8 @@ public class AnalizadorLexico {
                     estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
                 }
                 if (estadoActual == -1) {
-                    throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición del estado " + estadoActual + "con /n");
+                   // matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
+                    //throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición del estado " + estadoActual + "con /n");
                 }
                 if (lector.hasNextLine()){
                     linea = lector.nextLine();
@@ -83,18 +87,22 @@ public class AnalizadorLexico {
 
         
         // Verifica quee no se haya llegado a estado final y hace transicion con salto de linea
-        if (estadoActual != ESTADO_FINAL) {
+        if (estadoActual != ESTADO_FINAL && !token.isError()) {
             matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
             estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
             if (estadoActual == -1) {
-                throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición.");
+                matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
+                //throw new IllegalArgumentException("Error: Estado -1 alcanzado en la transición.");
             }
         };
         System.out.println("LEX: Token detectado -> " + token);
-        if (token.getToken() == (int)Parser.IDENTIFICADOR || token.getToken() == (int)Parser.HEXADECIMAL || token.getToken() == (int)Parser.FLOAT || token.getToken() == (int)Parser.CADENA_MULTI){ 
-            yyval.sval = token.getAtributo().getAtributo();
-            System.out.println("sval pasado");};
-        return token.getToken();
+        if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == (int)Parser.FLOAT || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
+            if(!token.isError()){
+                yyval.sval = token.getLexema().getAtributo();
+                System.out.println("sval pasado");
+            }
+        };
+        return token.getIdentificador();
     }
 
     private void abrirArchivo(String nombre){

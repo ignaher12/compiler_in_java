@@ -15,7 +15,7 @@ public class AS9_F implements Accion{
             pos.incrementAndGet();
         }
         
-        token.setAtributo(null);
-        token.setToken(TablaTipoToken.getTipoToken(cadena.toString()));
+        token.setLexema(null);
+        token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
     }
 }
