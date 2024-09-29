@@ -80,11 +80,11 @@ public class AnalizadorLexico {
             matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
             estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
         };
-        System.out.println("LEX: Token detectado -> " + token);
-        if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == (int)Parser.FLOAT || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
+        System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + numeroLinea);
+        if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
             if(!token.isError()){
-                yyval.sval = token.getReferencia().toString();
-                System.out.println("sval pasado");
+                yyval= new ParserVal(token.getReferencia());
+                System.out.println("ival pasado | " + token.getReferencia());
             }
         };
         return token.getIdentificador();

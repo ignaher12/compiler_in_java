@@ -12,20 +12,17 @@ import parser.Error;
 
 public class AS5_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
-        token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.FLOAT));
+        token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.CONSTANTE));
         //chequear rangos
         String cadenaExponente = cadena.toString().replace('s', 'e');
         float numero = Float.parseFloat(cadenaExponente);
-
+        System.out.println(numero);
+        System.out.println(AnalizadorLexico.MAXFLOATPOSITIVO);
         if (numero > AnalizadorLexico.MAXFLOATPOSITIVO){
             //Error - Constante de tipo Float fuera de rango
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));
             token.setError();
-        } else if (numero < AnalizadorLexico.MINFLOATNEGATIVO){
-            //Error - Constante de tipo Float fuera de rango
-            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));
-            token.setError();
-        } else if ((numero > AnalizadorLexico.MAXFLOATNEGATIVO) && (numero < AnalizadorLexico.MAXFLOATPOSITIVO)){
+        } else if (numero < AnalizadorLexico.MINFLOATPOSITIVO){
             //Error - Constante de tipo Float fuera de rango
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));
             token.setError();
@@ -33,7 +30,7 @@ public class AS5_F implements Accion{
 
             int ref = TablaDeSimbolos.existe(cadena.toString());
             if (ref == -1){
-                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
+                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.SINGLE)));
             }else{
                 if (TablaDeSimbolos.getByID(ref).isReservada()){
                     token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));

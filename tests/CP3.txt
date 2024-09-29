@@ -1,13 +1,13 @@
-floats
+singles
 BEGIN
-    FLOAT floatDecimal;
-    floatDecimal := 0.2432;
+    single singleDecimal;
+    singleDecimal := 1.21s15;
 
-    float floatExponente;
-    floatExponente := 23.21s15;
-    floatExponente := 12.32s-16;
+    single singleExponente;
+    singleExponente := 23.21s15;
+    singleExponente := 12.32s-16;
 
-    float floatSinDecimal;
-    floatSinDecimal := 25.;
+    single singleSinDecimal;
+    singleSinDecimal := 25.;
 
 END

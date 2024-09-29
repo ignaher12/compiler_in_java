@@ -8,7 +8,6 @@ public class TablaTipoToken {
     private static HashMap<String, Integer> tabla;
     public static final String IDENTIFICADOR = "identificador";
     public static final String HEXADECIMAL = "hexadecimal";
-    public static final String FLOAT = "float";
     public static final String CADENA_MULTI = "cadena_multi";
     public static final String MENOR_IGUAL = "<=";
     public static final String MAYOR_IGUAL = ">=";
@@ -30,12 +29,12 @@ public class TablaTipoToken {
     public static final String LONGINT = "longint"; //AGREGAR
     public static final String ELSE = "else"; //AGREGAR
     public static final String TRIPLE = "triple"; //AGREGAR
+    public static final String CONSTANTE = "constante"; //AGREGAR
     
     static{
         tabla = new HashMap<String, Integer>();
         tabla.put(IDENTIFICADOR, (int)Parser.IDENTIFICADOR);  
-        tabla.put(HEXADECIMAL, (int)Parser.HEXADECIMAL);   
-        tabla.put(FLOAT, (int)Parser.FLOAT);          
+        tabla.put(HEXADECIMAL, (int)Parser.HEXADECIMAL);           
         tabla.put(CADENA_MULTI, (int)Parser.CADENA_MULTI); 
         tabla.put(MENOR_IGUAL, (int)Parser.MENOR_IGUAL);   
         tabla.put(MAYOR_IGUAL, (int)Parser.MAYOR_IGUAL);   
@@ -57,6 +56,7 @@ public class TablaTipoToken {
         tabla.put(LONGINT, (int)Parser.LONGINT);   
         tabla.put(ELSE, (int)Parser.ELSE);         
         tabla.put(TRIPLE, (int)Parser.TRIPLE);         
+        tabla.put(CONSTANTE, (int)Parser.CONSTANTE);         
         tabla.put(String.valueOf(MapeoCaracteres.MAYOR), (int) '>');            // No existe en los shorts, valor sin mapeo
         tabla.put(String.valueOf(MapeoCaracteres.MENOR), (int) '<');            // No existe en los shorts, valor sin mapeo
         tabla.put(String.valueOf(MapeoCaracteres.MAS), (int) '+');            // No existe en los shorts, valor sin mapeo
@@ -76,5 +76,13 @@ public class TablaTipoToken {
 
     public static int getTipoToken(String cadena){
         return tabla.get(cadena.toLowerCase()).intValue();
+    }
+    public static String getClavePorValor(int valor) {
+        for (HashMap.Entry<String, Integer> entry : tabla.entrySet()) {
+            if (entry.getValue().equals(valor)) {
+                return entry.getKey();
+            }
+        }
+        return null; // O lanzar una excepción si no se encuentra el valor
     }
 }

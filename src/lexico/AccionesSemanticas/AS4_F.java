@@ -13,14 +13,10 @@ import parser.Parser;
 
 public class AS4_F implements Accion{
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
-        token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.HEXADECIMAL));
+        token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.CONSTANTE));
 
         double valor  = HexFormat.fromHexDigits(cadena.subSequence(2, cadena.length()).toString());
-        if (valor > AnalizadorLexico.MAXHEXADECIMAL){
-            //ERROR - Constante de tipo Hexadecimal fuera de rango
-            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Hexadecimal fuera de rango"));
-            token.setError();
-        }if (valor < AnalizadorLexico.MINHEXADECIMAL){
+        if (valor >  -AnalizadorLexico.MINHEXADECIMAL){ //VALOR MAS ALTO POSITIVO
             //ERROR - Constante de tipo Hexadecimal fuera de rango
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Hexadecimal fuera de rango"));
             token.setError();
@@ -28,7 +24,7 @@ public class AS4_F implements Accion{
             int ref = TablaDeSimbolos.existe(cadena.toString());
 
             if (ref == -1){
-                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
+                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.HEXADECIMAL)));
             }else{
                 if (TablaDeSimbolos.getByID(ref).isReservada()){
                     token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
