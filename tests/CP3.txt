@@ -5,7 +5,7 @@ BEGIN
 
     single singleExponente;
     singleExponente := 23.21s15;
-    singleExponente := 12.32s-16;
+    singleExponente := -1.162s-38;
 
     single singleSinDecimal;
     singleSinDecimal := 25.;

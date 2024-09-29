@@ -41,7 +41,7 @@ public class AnalizadorLexico {
         abrirArchivo(nombreArchivo);
     }
 
-    public int getNextToken(ParserVal yyval){
+    public int getNextToken(ParserVal yylval){
         StringBuilder cadenaCaracteres = new StringBuilder();
         estadoActual = 0;
         Token token = new Token(-1);
@@ -83,7 +83,7 @@ public class AnalizadorLexico {
         System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + numeroLinea);
         if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
             if(!token.isError()){
-                yyval= new ParserVal(token.getReferencia());
+                yylval.ival= token.getReferencia();
                 System.out.println("ival pasado | " + token.getReferencia());
             }
         };

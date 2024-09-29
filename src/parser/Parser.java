@@ -116,7 +116,7 @@ int i;
 
 String   yytext;//user variable to return contextual strings
 ParserVal yyval; //used to return semantic vals from action routines
-public static ParserVal yylval;//the 'lval' (result) I got from yylex()
+ParserVal yylval;//the 'lval' (result) I got from yylex()
 ParserVal valstk[];
 int valptr;
 //###############################################################
@@ -466,9 +466,9 @@ public static void main(String[] args) {
 private int yylex(){
   int idToken = -1;
   if (!lex.end()){
-    idToken = lex.getNextToken(yyval);
+    idToken = lex.getNextToken(yylval);
   }
-  System.out.println("PARSER: " + yyval.sval);
+  System.out.println("PARSER: " + yyval.ival);
   return idToken;
 }
 private void yyerror(String string) {
@@ -643,13 +643,14 @@ case 21:
                             ));
                           }
                         } else if (lex.getTipo() == TablaTipoToken.getTipoToken("single")){
-                          if(Float.parseFloat(lex.getAtributo()) > AnalizadorLexico.MAXFLOATPOSITIVO){
+                          String valor = lex.getAtributo().toString().replace('s', 'e');
+                          if(Float.parseFloat(valor) > AnalizadorLexico.MAXFLOATPOSITIVO){
                             erroresSemantico.add(new Error(
                               AnalizadorLexico.getNumeroLinea(), 
                               Tipo.ERROR, 
                               "ERROR SINTACTICO excede rangos."
                             ));
-                          } else if (Float.parseFloat(lex.getAtributo()) < AnalizadorLexico.MINFLOATPOSITIVO) {
+                          } else if (Float.parseFloat(valor) < AnalizadorLexico.MINFLOATPOSITIVO) {
                             erroresSemantico.add(new Error(
                               AnalizadorLexico.getNumeroLinea(), 
                               Tipo.ERROR, 
