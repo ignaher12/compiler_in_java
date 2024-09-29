@@ -25,15 +25,15 @@ public class AS4_F implements Accion{
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Hexadecimal fuera de rango"));
             token.setError();
         } else {
-            Lexema res = TablaDeSimbolos.existe(cadena.toString());
+            int ref = TablaDeSimbolos.existe(cadena.toString());
 
-            if (res == null){
-                token.setLexema(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
+            if (ref == -1){
+                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
             }else{
-                if (res.isReservada()){
+                if (TablaDeSimbolos.getByID(ref).isReservada()){
                     token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
                 }
-                token.setLexema(res);
+                token.setReferencia(ref);
             }
         }
 

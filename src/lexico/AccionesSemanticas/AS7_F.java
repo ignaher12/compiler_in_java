@@ -11,11 +11,11 @@ public class AS7_F implements Accion{
         cadena.append(linea.charAt(pos.get()));
         pos.incrementAndGet();
         token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.CADENA_MULTI));
-        Lexema res = TablaDeSimbolos.existe(cadena.toString());
-        if (res == null){
-            token.setLexema(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
+        int ref = TablaDeSimbolos.existe(cadena.toString());
+        if (ref == -1){
+            token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
         }else{
-            token.setLexema(res);
+            token.setReferencia(ref);
         }
 
     }

@@ -2,20 +2,20 @@ package lexico;
 
 public class Token {
     private int identificador;
-    private Lexema lexema; //LEXEMA
+    private Integer referencia; //LEXEMA
     private boolean error = false;
     
     public Token(){
         this.identificador = 0;
-        this.lexema = null;
+        this.referencia = -1;
     }
-    public Token(int identificador, Lexema lexema){
+    public Token(int identificador, int referencia){
         this.identificador = identificador;
-        this.lexema = lexema;
+        this.referencia = referencia;
     }
     public Token(int identificador){
         this.identificador = identificador;
-        this.lexema = null;
+        this.referencia = -1;
     }
     
     public int getIdentificador() {
@@ -26,16 +26,16 @@ public class Token {
         this.identificador = identificador;
     }
 
-    public Lexema getLexema() {
-        return lexema;
+    public Integer getReferencia() {
+        return referencia;
     }
 
-    public void setLexema(Lexema lexema) {
-        this.lexema = lexema;
+    public void setReferencia(int referencia) {
+        this.referencia = referencia;
     }
 
     public String toString(){
-        return "[" + identificador + "," + lexema + "]";
+        return "[" + identificador + "," + referencia + "]";
     }
 
     public void setError(){

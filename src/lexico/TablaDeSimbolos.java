@@ -28,11 +28,11 @@ public class TablaDeSimbolos {
         TablaDeSimbolos.agregarReservada(TablaTipoToken.TRIPLE);
     }
 
-    public static Lexema agregarSimbolo(String atributo, int tipo) {
+    public static int agregarSimbolo(String atributo, int tipo) {
         id++;
         Lexema aux = new Lexema(atributo, false, tipo);
         tabla.put(id, aux);
-        return aux;
+        return id;
     }
 
     public static Lexema agregarReservada(String atributo) {
@@ -70,14 +70,14 @@ public class TablaDeSimbolos {
     }
 
     //VER TEMA MAYUSCULAS
-    public static Lexema existe(String cadena){
+    public static int existe(String cadena){
         Iterator<Map.Entry<Integer, Lexema>> iterator = tablaReservada.entrySet().iterator();
         
         while (iterator.hasNext()) {
             Map.Entry<Integer, Lexema> par = iterator.next();
         
             if (par.getValue().getAtributo().toLowerCase().equals(cadena.toLowerCase())) {
-                return par.getValue();
+                return par.getKey();
             }
         }
 
@@ -87,10 +87,16 @@ public class TablaDeSimbolos {
         
             if (par.getValue().getAtributo().equals(cadena)) {
         
-                return par.getValue();
+                return par.getKey();
             }
         }
-        return null;
+        return -1;
         
+    }
+
+    public static Lexema getByID(int id){
+        if(tabla.get(id) == null) return tablaReservada.get(id);
+        
+        return tabla.get(id);
     }
 }

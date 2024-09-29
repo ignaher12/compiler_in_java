@@ -83,7 +83,7 @@ public class AnalizadorLexico {
         System.out.println("LEX: Token detectado -> " + token);
         if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == (int)Parser.FLOAT || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
             if(!token.isError()){
-                yyval.sval = token.getLexema().getAtributo();
+                yyval.sval = token.getReferencia().toString();
                 System.out.println("sval pasado");
             }
         };

@@ -1,3 +1,15 @@
+%{
+package parser;
+
+import lexico.AnalizadorLexico;
+import lexico.TablaDeSimbolos;
+import lexico.AccionesSemanticas.Accion;
+import utils.MatrizAccion;
+import utils.MatrizTransicion;
+import java.util.ArrayList;
+import java.util.List;  
+
+%} 
 //DECLARACIONES
 //NUMERO DE TOKEN DE CARACTER ASCII (0-256)
 //MAYOR MENOR IGUAL SUMA RESTA DIVISION MULTIPLICACION PUNTO PUNTO_COMA PARENTESIS_I PARENTESIS_D
@@ -50,13 +62,46 @@ listaConstante : listaConstante ',' constante    // TEMA 11
                | constante                       // TEMA 11
 ;
 
-constante : cte
-          | '-' cte
+constante : cte {
+                  int ref = $2.sval;
+                  Lexema lex = TablaDeSimbolos.getByID(ref);
+                  if(cte == TablaTipoToken.getTipoToken('longint')){
+                    if(lex.getAtributo() > AnalizadorLexico.MAXLONGINT){
+                      agregarError(new Error(
+                        AnalizadorLexico.getNumeroLinea(), 
+                        Tipo.ERROR, 
+                        "ERROR SINTACTICO excede rangos."
+                      ));
+                    }
+                  } else if (cte == TablaTipoToken.getTipoToken('float')){
+                    if(lex.getAtributo() > AnalizadorLexico.MAXFLOAT){
+                      agregarError(new Error(
+                        AnalizadorLexico.getNumeroLinea(), 
+                        Tipo.ERROR, 
+                        "ERROR SINTACTICO excede rangos."
+                      ));
+                    } 
+                  } else {
+                    if(lex.getAtributo() > AnalizadorLexico.MAXHEXADECIMAL){
+                      agregarError(new Error(
+                        AnalizadorLexico.getNumeroLinea(), 
+                        Tipo.ERROR, 
+                        "ERROR SINTACTICO excede rangos."
+                      ));
+                    } 
+                  }
+                }
+          | '-' cte {
+                      int ref = $2.sval;
+                      Lexema lex = TablaDeSimbolos.getByID(ref);
+                      Lexema newLex = TablaDeSimbolos.agregarSimbolo("-"+lex.getAtributo(), lex.getTipo());
+                      $2.sval = newLex.
+                    }
 ;
 
-cte : LONGINT 
-    | FLOAT 
-    | HEXADECIMAL 
+cte : LONGINT {cte = TablaTipoToken.getTipoToken('longint');}
+    | FLOAT {cte = TablaTipoToken.getTipoToken('float');}
+    | HEXADECIMAL {cte = TablaTipoToken.getTipoToken('hexadecimal');}
 
 parametro : tipoDato IDENTIFICADOR
 ;

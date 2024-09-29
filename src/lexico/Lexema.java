@@ -20,6 +20,12 @@ public class Lexema {
         return reservada;
     }
 
+    public int getTipo(){
+        return tipo;
+    }
+    public void setTipo(int newTipo){
+        this.tipo = newTipo;
+    }
     public String toString(){
         return "[* "+ atributo + " *]";
     }

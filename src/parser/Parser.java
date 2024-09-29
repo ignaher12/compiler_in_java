@@ -445,7 +445,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("CP9", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("CP3.txt", matriz, matrizAcciones);
         
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
