@@ -1,0 +1,16 @@
+cadenas
+begin
+    outF ([cadena
+    Multilinea]);
+
+    outF ([[Cadena 
+    
+    
+    multilinea])
+
+    outF ([ Cadena Multilinea con error);
+    outF ( Cadena Multilinea con error]);
+    outF ([ Cadena[[[]]] 
+    
+    Multilinea/n]);
+end
