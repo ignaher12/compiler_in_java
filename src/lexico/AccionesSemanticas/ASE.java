@@ -27,6 +27,6 @@ public class ASE implements Accion {
         ));
 
         // Incrementa la posición
-        pos.incrementAndGet();
+        //pos.incrementAndGet();
     }
 }

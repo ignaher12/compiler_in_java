@@ -74,20 +74,24 @@ public class AnalizadorLexico {
             }
         };
 
+        if (token.isError()){
+            return getNextToken(yylval);
+        }else{
+            // Verifica quee no se haya llegado a estado final y hace transicion con salto de linea
+            if (estadoActual != ESTADO_FINAL && !token.isError()) {
+                matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
+                estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
+            };
+            System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + numeroLinea);
+            if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
+                if(!token.isError()){
+                    yylval.ival= token.getReferencia();
+                    System.out.println("ival pasado | " + token.getReferencia());
+                }
+            };
+            yylval.ival= token.getReferencia();
+        }
         
-        // Verifica quee no se haya llegado a estado final y hace transicion con salto de linea
-        if (estadoActual != ESTADO_FINAL && !token.isError()) {
-            matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
-            estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
-        };
-        System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + numeroLinea);
-        if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
-            if(!token.isError()){
-                yylval.ival= token.getReferencia();
-                System.out.println("ival pasado | " + token.getReferencia());
-            }
-        };
-        yylval.ival= token.getReferencia();
         return token.getIdentificador();
     }
 
