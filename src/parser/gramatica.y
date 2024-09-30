@@ -38,12 +38,16 @@ cuerpo : cuerpo sentencia
        | sentencia
 ;
 
-sentencia : sentenciaDeclarativa
-          | sentenciaEjecutable 
+sentencia : sentenciaDeclarativa ';'
+          | sentenciaEjecutable  ';'
+          | sentenciaDeclarativa {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
+          | sentenciaEjecutable {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
+;
 
-sentenciaDeclarativa : tipoDato listaVariable ';' {estructuras.add("Declaracion");}
-                     | typedefDeclaracion ';' {estructuras.add("Declaracion de typedef");}
-                     | tipoDato funDeclaracion ';' {estructuras.add("Declaracion de funcion");}
+sentenciaDeclarativa : tipoDato listaVariable  {estructuras.add("Declaracion");}
+                     | typedefDeclaracion  {estructuras.add("Declaracion de typedef");}
+                     | tipoDato funDeclaracion  {estructuras.add("Declaracion de funcion");}
+;
 
 typedefDeclaracion : TYPEDEF IDENTIFICADOR SIMASIGNACION tipoDato '[' listaConstante ']'  // TEMA 11
                    | TYPEDEF TRIPLE '<' tipoDato '>' IDENTIFICADOR  // TEMA 22
@@ -125,7 +129,7 @@ cuerpoFuncion : cuerpo sentenciaRet     //PUEDE NO TENER RET LA FUNCION PERSE?
 ;
 
 //IF EN FUNCIONES 
-sentenciaRet : RET '(' expresion ')' ';' {estructuras.add("Retorno");}
+sentenciaRet : RET '(' expresion ')'  {estructuras.add("Retorno");}
 ;
  
 
@@ -136,10 +140,10 @@ sentenciaEjecutable : asignacion {estructuras.add("Asignacion");}
                     | mensajeSalida {estructuras.add("OUTF");} 
 ;
 
-asignacion : IDENTIFICADOR SIMASIGNACION expresion ';'
-           | IDENTIFICADOR '[' '1' ']' SIMASIGNACION expresion ';'  //TEMA 22
-           | IDENTIFICADOR '[' '2' ']' SIMASIGNACION expresion ';'  //TEMA 22
-           | IDENTIFICADOR '[' '3' ']' SIMASIGNACION expresion ';'  //TEMA 22
+asignacion : IDENTIFICADOR SIMASIGNACION expresion 
+           | IDENTIFICADOR '[' '1' ']' SIMASIGNACION expresion   //TEMA 22
+           | IDENTIFICADOR '[' '2' ']' SIMASIGNACION expresion   //TEMA 22
+           | IDENTIFICADOR '[' '3' ']' SIMASIGNACION expresion   //TEMA 22
 ;
 
 expresion : operando 
@@ -160,8 +164,8 @@ invocacionFuncion : IDENTIFICADOR '(' expresion ')'
                   | IDENTIFICADOR '(' tipoDato expresion ')' //TEMA 27
 ;
 
-clausulaSeleccion : IF '(' condicion ')' THEN bloqueIF END_IF ';'
-                  | IF '(' condicion ')' THEN bloqueIF ELSE bloqueIF END_IF ';'
+clausulaSeleccion : IF '(' condicion ')' THEN bloqueIF END_IF 
+                  | IF '(' condicion ')' THEN bloqueIF ELSE bloqueIF END_IF 
 ;
 
 condicion : listaExpresion comparador listaExpresion        
@@ -179,14 +183,14 @@ bloqueIF : sentencia        //RENOMBRE A BLOQUECONTROL
          | BEGIN cuerpoFuncion END
 ;
 
-clausulaBucle : REPEAT bloqueIF WHILE condicion ';'
+clausulaBucle : REPEAT bloqueIF WHILE condicion 
 ;
 
-goto : GOTO IDENTIFICADOR '@' ';'
+goto : GOTO IDENTIFICADOR '@' 
 ;
 
-mensajeSalida : OUTF '(' expresion ')' ';'
-              | OUTF '(' CADENA_MULTI ')' ';'
+mensajeSalida : OUTF '(' expresion ')' 
+              | OUTF '(' CADENA_MULTI ')' 
 ;
 
 
@@ -211,7 +215,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("CP3.txt", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
         
         parser.run();
         System.out.println("v---------------------------v");
