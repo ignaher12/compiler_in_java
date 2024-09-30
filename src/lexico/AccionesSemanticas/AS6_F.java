@@ -16,7 +16,8 @@ public class AS6_F implements Accion{
         
         
         double valor  = Double.parseDouble(cadena.toString());
-        if (valor > -AnalizadorLexico.MINLONGINT){//VALOR MAS ALTO POSITIVO
+        double rango = AnalizadorLexico.MINLONGINT;
+        if (valor > -rango){//VALOR MAS ALTO POSITIVO
             //ERROR - Constante de tipo LongInt fuera de rango
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo LongInt fuera de rango"));
             token.setError();

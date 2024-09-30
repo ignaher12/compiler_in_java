@@ -23,8 +23,6 @@ public class AS3_F implements Accion{
         }
 
         int ref = TablaDeSimbolos.existe(cadena.toString());
-        System.out.println(ref);
-        System.out.println(TablaDeSimbolos.imprimir());
         if (ref == -1){
             token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
         }else{

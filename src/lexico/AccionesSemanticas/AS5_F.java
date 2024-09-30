@@ -16,8 +16,6 @@ public class AS5_F implements Accion{
         //chequear rangos
         String cadenaExponente = cadena.toString().replace('s', 'e');
         float numero = Float.parseFloat(cadenaExponente);
-        System.out.println(numero);
-        System.out.println(AnalizadorLexico.MAXFLOATPOSITIVO);
         if (numero > AnalizadorLexico.MAXFLOATPOSITIVO){
             //Error - Constante de tipo Float fuera de rango
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));

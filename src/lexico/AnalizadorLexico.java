@@ -53,7 +53,7 @@ public class AnalizadorLexico {
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
                 System.out.println("leo: " + actual);
                 System.out.println("estadoatual:" + estadoActual + "columna: " + columnaMatriz);
-                System.out.println(matrizAcciones[estadoActual][columnaMatriz]);
+                //System.out.println(matrizAcciones[estadoActual][columnaMatriz]);
                 matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
                 estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
                 System.out.println("estadonuevo:" + estadoActual );
@@ -87,6 +87,7 @@ public class AnalizadorLexico {
                 System.out.println("ival pasado | " + token.getReferencia());
             }
         };
+        yylval.ival= token.getReferencia();
         return token.getIdentificador();
     }
 

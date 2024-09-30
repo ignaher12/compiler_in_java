@@ -41,9 +41,9 @@ cuerpo : cuerpo sentencia
 sentencia : sentenciaDeclarativa
           | sentenciaEjecutable 
 
-sentenciaDeclarativa : tipoDato listaVariable ';'
-                     | typedefDeclaracion ';'
-                     | funDeclaracion ';'
+sentenciaDeclarativa : tipoDato listaVariable ';' {estructuras.add("Declaracion");}
+                     | typedefDeclaracion ';' {estructuras.add("Declaracion de typedef");}
+                     | tipoDato funDeclaracion ';' {estructuras.add("Declaracion de funcion");}
 
 typedefDeclaracion : TYPEDEF IDENTIFICADOR SIMASIGNACION tipoDato '[' listaConstante ']'  // TEMA 11
                    | TYPEDEF TRIPLE '<' tipoDato '>' IDENTIFICADOR  // TEMA 22
@@ -73,36 +73,40 @@ constante : CONSTANTE { Lexema lex = TablaDeSimbolos.getByID($1.ival);
                         System.out.println($1.ival);
                         System.out.println(lex);
                         System.out.println(TablaDeSimbolos.imprimir());
-                        if(lex.getTipo() == TablaTipoToken.getTipoToken("longint")){
-                          if(Integer.parseInt(lex.getAtributo()) > AnalizadorLexico.MAXLONGINT){
-                            erroresSemantico.add(new Error(
-                              AnalizadorLexico.getNumeroLinea(), 
-                              Tipo.ERROR, 
-                              "ERROR SINTACTICO excede rangos."
-                            ));
+                        if (lex != null){
+                          if(lex.getTipo() == TablaTipoToken.getTipoToken("longint")){
+                            if(Integer.parseInt(lex.getAtributo()) > AnalizadorLexico.MAXLONGINT){
+                              erroresSintactico.add(new Error(
+                                AnalizadorLexico.getNumeroLinea(), 
+                                Tipo.ERROR, 
+                                "ERROR SINTACTICO excede rangos."
+                              ));
+                            }
+                          } else if (lex.getTipo() == TablaTipoToken.getTipoToken("single")){
+                            String numero = lex.getAtributo().toString().replace('s', 'e');
+                            float valor = Float.parseFloat(numero);
+                            if(valor > AnalizadorLexico.MAXFLOATPOSITIVO){
+                              erroresSintactico.add(new Error(
+                                AnalizadorLexico.getNumeroLinea(), 
+                                Tipo.ERROR, 
+                                "ERROR SINTACTICO excede rangos."
+                              ));
+                            } else if (valor < AnalizadorLexico.MINFLOATPOSITIVO) {
+                              erroresSintactico.add(new Error(
+                                AnalizadorLexico.getNumeroLinea(), 
+                                Tipo.ERROR, 
+                                "ERROR SINTACTICO excede rangos."
+                              ));}
+                          } else {
+                            if(Double.parseDouble(lex.getAtributo()) > AnalizadorLexico.MAXHEXADECIMAL){
+                              erroresSintactico.add(new Error(
+                                AnalizadorLexico.getNumeroLinea(), 
+                                Tipo.ERROR, 
+                                "ERROR SINTACTICO excede rangos."
+                              ));
+                            } 
                           }
-                        } else if (lex.getTipo() == TablaTipoToken.getTipoToken("single")){
-                          if(Float.parseFloat(lex.getAtributo()) > AnalizadorLexico.MAXFLOATPOSITIVO){
-                            erroresSemantico.add(new Error(
-                              AnalizadorLexico.getNumeroLinea(), 
-                              Tipo.ERROR, 
-                              "ERROR SINTACTICO excede rangos."
-                            ));
-                          } else if (Float.parseFloat(lex.getAtributo()) < AnalizadorLexico.MINFLOATPOSITIVO) {
-                            erroresSemantico.add(new Error(
-                              AnalizadorLexico.getNumeroLinea(), 
-                              Tipo.ERROR, 
-                              "ERROR SINTACTICO excede rangos."
-                            ));}
-                        } else {
-                          if(Double.parseDouble(lex.getAtributo()) > AnalizadorLexico.MAXHEXADECIMAL){
-                            erroresSemantico.add(new Error(
-                              AnalizadorLexico.getNumeroLinea(), 
-                              Tipo.ERROR, 
-                              "ERROR SINTACTICO excede rangos."
-                            ));
-                          } 
-                        }
+                        };
                       }
           | '-' CONSTANTE {
                             Lexema lex = TablaDeSimbolos.getByID($2.ival);
@@ -121,15 +125,15 @@ cuerpoFuncion : cuerpo sentenciaRet     //PUEDE NO TENER RET LA FUNCION PERSE?
 ;
 
 //IF EN FUNCIONES 
-sentenciaRet : RET '(' expresion ')' ';'
+sentenciaRet : RET '(' expresion ')' ';' {estructuras.add("Retorno");}
 ;
  
 
-sentenciaEjecutable : asignacion
-                    | clausulaSeleccion
-                    | clausulaBucle
-                    | goto              //TEMA 23
-                    | mensajeSalida
+sentenciaEjecutable : asignacion {estructuras.add("Asignacion");}
+                    | clausulaSeleccion {estructuras.add("IF");}
+                    | clausulaBucle {estructuras.add("WHILE");}
+                    | goto {estructuras.add("GOTO");}              //TEMA 23
+                    | mensajeSalida {estructuras.add("OUTF");} 
 ;
 
 asignacion : IDENTIFICADOR SIMASIGNACION expresion ';'
@@ -190,7 +194,8 @@ mensajeSalida : OUTF '(' expresion ')' ';'
 //FUNCIONES
 private static AnalizadorLexico lex;
 public static List<Error> erroresLexico = new ArrayList<Error>();
-public static List<Error> erroresSemantico = new ArrayList<Error>();
+public static List<Error> erroresSintactico = new ArrayList<Error>();
+public static List<String> estructuras = new ArrayList<String>();
 public static void main(String[] args) {
     String filePath = "src/MATRIZ DE TRANSICIONES - Hoja 1.csv";
 
@@ -209,7 +214,11 @@ public static void main(String[] args) {
         Parser.lex = new AnalizadorLexico("CP3.txt", matriz, matrizAcciones);
         
         parser.run();
+        System.out.println("v---------------------------v");
+        for (Error error: erroresSintactico){System.out.println(error);}
         for (Error error: erroresLexico){System.out.println(error);}
+        for (String estructura: estructuras){System.out.println(estructura);}
+        System.out.println("^---------------------------^");
         //System.out.println("No se especifico el archivo a compilar");
     }
     System.out.println(TablaDeSimbolos.imprimir());
@@ -217,9 +226,9 @@ public static void main(String[] args) {
 private int yylex(){
   int idToken = -1;
   if (!lex.end()){
-    idToken = lex.getNextToken(yyval);
+    idToken = lex.getNextToken(yylval);
   }
-  System.out.println("PARSER: " + yyval.sval);
+  System.out.println("PARSER: " + yyval.ival);
   return idToken;
 }
 private void yyerror(String string) {
