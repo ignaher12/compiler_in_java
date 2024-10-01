@@ -26,6 +26,7 @@ public class AS3_F implements Accion{
         if (ref == -1){
             token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
         }else{
+            System.out.println(TablaDeSimbolos.getByID(ref).isReservada());
             if (TablaDeSimbolos.getByID(ref).isReservada()){
                 token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
             }

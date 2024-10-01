@@ -1,11 +1,7 @@
 reservada
 Begin
-    single If;
-    SINGLE IF;
-    single iF;
-    sINgle if;
 
-    sIngle EACH;
-    HEXADEcimal 0x600;
+    HEXADECIMAL hexa; 
+    hexa := -0x600;
 
 END

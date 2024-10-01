@@ -11,6 +11,7 @@ import utils.MatrizTransicion;
 import java.util.ArrayList;
 import java.util.List;  
 import lexico.Lexema;
+import java.util.HexFormat;
 %} 
 //DECLARACIONES
 //NUMERO DE TOKEN DE CARACTER ASCII (0-256)
@@ -31,7 +32,8 @@ import lexico.Lexema;
 //no terminal : DEFINICION('caracter') {accion}
 //            ;
 
-programa : IDENTIFICADOR BEGIN cuerpo END
+programa  : IDENTIFICADOR BEGIN cuerpo END
+          | IDENTIFICADOR BEGIN END {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'cuerpo'."));}
 ;
 
 cuerpo : cuerpo sentencia
@@ -47,11 +49,13 @@ sentencia : sentenciaDeclarativa ';'
 sentenciaDeclarativa : tipoDato listaVariable  {estructuras.add("Declaracion");}
                      | typedefDeclaracion  {estructuras.add("Declaracion de typedef");}
                      | tipoDato funDeclaracion  {estructuras.add("Declaracion de funcion");}
+                     | tipoDato error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'objeto a declarar'."));}
 ;
 
 typedefDeclaracion : TYPEDEF IDENTIFICADOR SIMASIGNACION tipoDato '[' listaConstante ']'  // TEMA 11
                    | TYPEDEF TRIPLE '<' tipoDato '>' IDENTIFICADOR  // TEMA 22
                    | TYPEDEF TRIPLE '<' IDENTIFICADOR '>' IDENTIFICADOR  // TEMA 22 //CHECK
+                   | TYPEDEF TRIPLE '<' error '>' IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'objeto a declarar'."));}
 ;
 
 funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END
@@ -77,40 +81,7 @@ constante : CONSTANTE { Lexema lex = TablaDeSimbolos.getByID($1.ival);
                         System.out.println($1.ival);
                         System.out.println(lex);
                         System.out.println(TablaDeSimbolos.imprimir());
-                        if (lex != null){
-                          if(lex.getTipo() == TablaTipoToken.getTipoToken("longint")){
-                            if(Integer.parseInt(lex.getAtributo()) > AnalizadorLexico.MAXLONGINT){
-                              erroresSintactico.add(new Error(
-                                AnalizadorLexico.getNumeroLinea(), 
-                                Tipo.ERROR, 
-                                "ERROR SINTACTICO excede rangos."
-                              ));
-                            }
-                          } else if (lex.getTipo() == TablaTipoToken.getTipoToken("single")){
-                            String numero = lex.getAtributo().toString().replace('s', 'e');
-                            float valor = Float.parseFloat(numero);
-                            if(valor > AnalizadorLexico.MAXFLOATPOSITIVO){
-                              erroresSintactico.add(new Error(
-                                AnalizadorLexico.getNumeroLinea(), 
-                                Tipo.ERROR, 
-                                "ERROR SINTACTICO excede rangos."
-                              ));
-                            } else if (valor < AnalizadorLexico.MINFLOATPOSITIVO) {
-                              erroresSintactico.add(new Error(
-                                AnalizadorLexico.getNumeroLinea(), 
-                                Tipo.ERROR, 
-                                "ERROR SINTACTICO excede rangos."
-                              ));}
-                          } else {
-                            if(Double.parseDouble(lex.getAtributo()) > AnalizadorLexico.MAXHEXADECIMAL){
-                              erroresSintactico.add(new Error(
-                                AnalizadorLexico.getNumeroLinea(), 
-                                Tipo.ERROR, 
-                                "ERROR SINTACTICO excede rangos."
-                              ));
-                            } 
-                          }
-                        };
+                        chequearRango(lex);                             //SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER
                       }
           | '-' CONSTANTE {
                             Lexema lex = TablaDeSimbolos.getByID($2.ival);
@@ -123,9 +94,19 @@ constante : CONSTANTE { Lexema lex = TablaDeSimbolos.getByID($1.ival);
 parametro : tipoDato IDENTIFICADOR
 ;
 
-cuerpoFuncion : cuerpo sentenciaRet     //PUEDE NO TENER RET LA FUNCION PERSE?
-              | sentenciaRet
-              | cuerpo
+//cuerpoFuncion : cuerpo sentenciaRet     //PUEDE NO TENER RET LA FUNCION PERSE?
+//              | sentenciaRet
+//              | cuerpo
+//;
+
+cuerpoFuncion : cuerpoFuncion sentenciaConRet
+              | sentenciaConRet
+;
+
+sentenciaConRet : sentenciaDeclarativa ';'
+                | sentenciaEjecutableConRet  ';'
+                | sentenciaDeclarativa {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
+                | sentenciaEjecutableConRet {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 ;
 
 //IF EN FUNCIONES 
@@ -138,6 +119,14 @@ sentenciaEjecutable : asignacion {estructuras.add("Asignacion");}
                     | clausulaBucle {estructuras.add("WHILE");}
                     | goto {estructuras.add("GOTO");}              //TEMA 23
                     | mensajeSalida {estructuras.add("OUTF");} 
+;
+sentenciaEjecutableConRet : asignacion {estructuras.add("Asignacion");}
+                          | clausulaBucle {estructuras.add("WHILE");}
+                          | goto {estructuras.add("GOTO");}              //TEMA 23
+                          | mensajeSalida {estructuras.add("OUTF");} 
+                          | sentenciaRet
+                          | clausulaSeleccionConRet {estructuras.add("IF");}
+                    
 ;
 
 asignacion : IDENTIFICADOR SIMASIGNACION expresion 
@@ -164,8 +153,11 @@ invocacionFuncion : IDENTIFICADOR '(' expresion ')'
                   | IDENTIFICADOR '(' tipoDato expresion ')' //TEMA 27
 ;
 
-clausulaSeleccion : IF '(' condicion ')' THEN bloqueIF END_IF 
-                  | IF '(' condicion ')' THEN bloqueIF ELSE bloqueIF END_IF 
+clausulaSeleccion : IF '(' condicion ')' THEN bloqueSeleccion END_IF 
+                  | IF '(' condicion ')' THEN bloqueSeleccion ELSE bloqueSeleccion END_IF 
+;
+clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSeleccionConRet END_IF 
+                        | IF '(' condicion ')' THEN bloqueSeleccionConRet ELSE bloqueSeleccionConRet END_IF 
 ;
 
 condicion : listaExpresion comparador listaExpresion        
@@ -178,12 +170,16 @@ listaExpresion : expresion          //TEMA 19
 comparador : '<' | '>' | '=' | DISTINTO | MENOR_IGUAL | MAYOR_IGUAL 
 ;
 
-bloqueIF : sentencia        //RENOMBRE A BLOQUECONTROL
-         | sentenciaRet
-         | BEGIN cuerpoFuncion END
+bloqueSeleccion : sentencia        
+                | BEGIN cuerpo END
 ;
 
-clausulaBucle : REPEAT bloqueIF WHILE condicion 
+bloqueSeleccionConRet : sentenciaConRet        
+                      | BEGIN cuerpoFuncion END
+;
+
+
+clausulaBucle : REPEAT bloqueSeleccion WHILE condicion 
 ;
 
 goto : GOTO IDENTIFICADOR '@' 
@@ -208,14 +204,14 @@ public static void main(String[] args) {
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
     Parser parser = new Parser(true);
-    Parser.lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
+    Parser.lex = new AnalizadorLexico("--", matriz, matrizAcciones);
     if (args.length > 1) {
         Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
 
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("codigoFuente.txt", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("---", matriz, matrizAcciones);
         
         parser.run();
         System.out.println("v---------------------------v");
@@ -234,6 +230,43 @@ private int yylex(){
   }
   System.out.println("PARSER: " + yyval.ival);
   return idToken;
+}
+
+private void chequearRango(Lexema lex){
+  if (lex != null){
+    if(lex.getTipo() == TablaTipoToken.getTipoToken("longint")){
+      if(Integer.parseInt(lex.getAtributo()) > AnalizadorLexico.MAXLONGINT){
+        erroresSintactico.add(new Error(
+          AnalizadorLexico.getNumeroLinea(), 
+          Tipo.ERROR, 
+          "ERROR SINTACTICO excede rangos."
+        ));
+      }
+    } else if (lex.getTipo() == TablaTipoToken.getTipoToken("single")){
+      String numero = lex.getAtributo().toString().replace('s', 'e');
+      float valor = Float.parseFloat(numero);
+      if(valor > AnalizadorLexico.MAXFLOATPOSITIVO){
+        erroresSintactico.add(new Error(
+          AnalizadorLexico.getNumeroLinea(), 
+          Tipo.ERROR, 
+          "ERROR SINTACTICO excede rangos."
+        ));
+      } else if (valor < AnalizadorLexico.MINFLOATPOSITIVO) {
+        erroresSintactico.add(new Error(
+          AnalizadorLexico.getNumeroLinea(), 
+          Tipo.ERROR, 
+          "ERROR SINTACTICO excede rangos."
+        ));}
+    } else {
+      if((HexFormat.fromHexDigits(lex.getAtributo().subSequence(2, lex.getAtributo().length()).toString())) > AnalizadorLexico.MAXHEXADECIMAL){
+        erroresSintactico.add(new Error(
+          AnalizadorLexico.getNumeroLinea(), 
+          Tipo.ERROR, 
+          "ERROR SINTACTICO excede rangos."
+        ));
+      } 
+    }
+  };
 }
 private void yyerror(String string) {
   System.out.println("Error: " + string);

@@ -82,7 +82,7 @@ public class AnalizadorLexico {
                 matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
                 estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
             };
-            System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + numeroLinea);
+            System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + (numeroLinea-1));
             if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
                 if(!token.isError()){
                     yylval.ival= token.getReferencia();

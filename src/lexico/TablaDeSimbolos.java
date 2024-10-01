@@ -26,6 +26,7 @@ public class TablaDeSimbolos {
         TablaDeSimbolos.agregarReservada(TablaTipoToken.LONGINT);
         TablaDeSimbolos.agregarReservada(TablaTipoToken.ELSE);
         TablaDeSimbolos.agregarReservada(TablaTipoToken.TRIPLE);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.HEXADECIMAL);
     }
 
     public static int agregarSimbolo(String atributo, int tipo) {
