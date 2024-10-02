@@ -9,7 +9,13 @@ import lexico.Token;
 public class AS9_F implements Accion{
     //myor, menor, mayor_igual, menor_igual
     public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
-        char actual = linea.charAt(pos.get());
+        System.out.println(linea);
+        char actual;
+        if (pos.get() < linea.length()){
+            actual = linea.charAt(pos.get());
+        }else{
+            actual = '\n';
+        }
         if (actual == MapeoCaracteres.IGUAL){
             cadena.append(actual);
             pos.incrementAndGet();

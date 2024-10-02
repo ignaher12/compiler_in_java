@@ -53,6 +53,7 @@ public class AnalizadorLexico {
         while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL && !token.isError()) {       
 
             if (linea.length() != 0){
+                System.out.println(linea);
                 char actual = linea.charAt(index.get());
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
                 System.out.println("leo: " + actual);
@@ -66,10 +67,11 @@ public class AnalizadorLexico {
             if (index.get() == linea.length() && !token.isError()) {     // Salto de línea
                 // Intentar una transición con el carácter de fin de línea (\n)
                 if (estadoActual != ESTADO_FINAL ){
+                    System.out.println(estadoActual);
                     matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
                     estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
-
-                    if (lector.hasNextLine()){
+                    System.out.println(estadoActual);
+                    if (lector.hasNextLine() && (estadoActual == 16 || estadoActual == 14 || estadoActual == 0)){    //no SOLAMENTE SI ESTA EN MODO MULTILINEA
                         linea = lector.nextLine();
                         numeroLinea = numeroLinea + 1;
                         index.set(0);

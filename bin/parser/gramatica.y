@@ -44,6 +44,7 @@ cuerpo : cuerpo sentencia
 
 sentencia : sentenciaDeclarativa ';'
           | sentenciaEjecutable  ';'
+          | etiqueta
           | sentenciaDeclarativa error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
           | sentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 ;
@@ -118,6 +119,7 @@ cuerpoFuncion : cuerpoFuncion sentenciaConRet
 
 sentenciaConRet : sentenciaDeclarativa ';'
                 | sentenciaEjecutableConRet  ';'
+                | etiqueta
                 | sentenciaDeclarativa {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
                 | sentenciaEjecutableConRet {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 ;
@@ -217,7 +219,14 @@ bloqueSentenciaEjecutableConRet : sentenciaEjecutableConRet ';'
 clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' condicion ')'
 ;
 
-goto : GOTO IDENTIFICADOR ':' '@' 
+goto : GOTO etiqueta '@' 
+     | GOTO etiqueta error   {erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO falta '@' luego de los dospuntos."));}
+     | etiqueta '@'    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'goto' luego de los dospuntos."));}
+;
+
+etiqueta : IDENTIFICADOR ':'
+         | error ':'           {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'etiqueta'."));}
+         | IDENTIFICADOR error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ':' luego de la etiqueta."));}
 ;
 
 mensajeSalida : OUTF '(' expresion ')' 
@@ -231,6 +240,8 @@ private static AnalizadorLexico lex;
 public static List<Error> erroresLexico = new ArrayList<Error>();
 public static List<Error> erroresSintactico = new ArrayList<Error>();
 public static List<String> estructuras = new ArrayList<String>();
+
+public static int numeroLineaError = -1;
 public static void main(String[] args) {
     String filePath = "src/MATRIZ DE TRANSICIONES - Hoja 1.csv";
 
@@ -304,5 +315,6 @@ private void chequearRango(Lexema lex){
   };
 }
 private void yyerror(String string) {
+  numeroLineaError = AnalizadorLexico.getNumeroLinea();
   System.out.println("Error: " + string);
 }
