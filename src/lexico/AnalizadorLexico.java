@@ -34,7 +34,7 @@ public class AnalizadorLexico {
     public AnalizadorLexico(String nombreArchivo, int[][] matrizTransicion, Accion[][] matrizAcciones) {
         this.index = new AtomicInteger(0);
         this.linea = null;
-        this.numeroLinea = 1;
+        numeroLinea = 1;
         this.estadoActual = 0;
         this.matrizTransicion = matrizTransicion;
         this.matrizAcciones = matrizAcciones;
@@ -45,7 +45,11 @@ public class AnalizadorLexico {
         StringBuilder cadenaCaracteres = new StringBuilder();
         estadoActual = 0;
         Token token = new Token(-1);
-
+        if (index.get() == linea.length() && lector.hasNextLine()){
+            linea = lector.nextLine();
+            numeroLinea = numeroLinea + 1;
+            index.set(0);
+        };
         while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL && !token.isError()) {       
 
             if (linea.length() != 0){
@@ -53,7 +57,7 @@ public class AnalizadorLexico {
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
                 System.out.println("leo: " + actual);
                 System.out.println("estadoatual:" + estadoActual + "columna: " + columnaMatriz);
-                //System.out.println(matrizAcciones[estadoActual][columnaMatriz]);
+                System.out.println(matrizAcciones[estadoActual][columnaMatriz]);
                 matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
                 estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
                 System.out.println("estadonuevo:" + estadoActual );
@@ -64,13 +68,19 @@ public class AnalizadorLexico {
                 if (estadoActual != ESTADO_FINAL ){
                     matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
                     estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
+
+                    if (lector.hasNextLine()){
+                        linea = lector.nextLine();
+                        numeroLinea = numeroLinea + 1;
+                        index.set(0);
+                    };
                 }
 
-                if (lector.hasNextLine()){
+                /* if (lector.hasNextLine()){
                     linea = lector.nextLine();
                     numeroLinea = numeroLinea + 1;
                     index.set(0);
-                };
+                }; */
             }
         };
 

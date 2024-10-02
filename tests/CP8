@@ -6,5 +6,5 @@ begin
     LONGINT :=;
 
     TYPEDEF TRIPLE <LONGINT> hola;
-    TYPEDEF TRIPLE <!=> hola;
+    TYPEDEF TRIPLE <> hola;
 end

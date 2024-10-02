@@ -1,0 +1,15 @@
+patternMatching
+BEGIN
+
+    ##No tiene errores
+    if ((a, b, c, d) < (10, 11, 12, 13)) then
+        outF ([Satisfacer]);
+    end_if;
+
+    ##falta end_if al final del bloque de Seleccion
+    ##NO LE GUSTAN DOS REGLAS CON ERRORES SEGUIDAS
+    if ((e, f, g, h) = (14, a, 16, 17)) then
+        outF ([Satisfiste]);
+    ;
+
+END

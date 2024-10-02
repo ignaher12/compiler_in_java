@@ -1,0 +1,6 @@
+Subtipos
+BEGIN
+    typedef enterito  := longint[-10,10];
+    typedef flotantito := single[-1.2, 3.5];
+    typedef := longint[-10,10];
+END

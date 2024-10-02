@@ -1,0 +1,18 @@
+repeatWhile
+BEGIN
+    ##No tiene errores
+    repeat
+        a := 3 + 4;
+    while (x > 5);
+
+    repeat
+    BEGIN
+        if ( a > 10) then
+        BEGIN
+            outF ([ Satisfecho]);
+        end
+        end_if
+    END
+    while (x > 5);
+
+END

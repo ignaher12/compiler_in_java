@@ -1,0 +1,8 @@
+gotoPrueba
+BEGIN
+    REPEAT
+    BEGIN
+        GOTO hola@;
+    END
+    WHILE ( satisfaccion > 5)
+END

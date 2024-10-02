@@ -1,0 +1,17 @@
+declaracionTriple
+BEGIN
+    ##Error sintatico: falta todo
+    TYPEDEF TRIPLE <>;
+
+    ##Error sintactico: falta tipo de dato
+    typedef triple <> satisfagan;
+
+    ##Error sintactico: falta nombre del tipo de dato a declarar 
+    typedef triple <longint> ;
+
+    ##Error sintactico: Sin TYPEDEF
+    triple <hexadecimal> satisfagamos;
+
+    ##No hay error
+    typedef triple <hexadecimal> funciona;
+END
