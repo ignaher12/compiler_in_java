@@ -1,6 +1,6 @@
 ignaTrolo
 BEGIN
-pepe := x + 2;
+pepe := ;
 END
 
 

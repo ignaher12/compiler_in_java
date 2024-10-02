@@ -38,6 +38,8 @@ public class MapeoCaracteres {
     public static final char PUNTO_COMA = ';';
     public static final char GUIONBAJO = '_'; //AGREGAR
     public static final char ARROBA = '@'; //AGREGAR
+    public static final char LLAVE_I = '{'; //AGREGAR
+    public static final char LLAVE_D = '}'; //AGREGAR
 
 //,-----,esp,tab,\n,L,A..F,x,0,N,[,s,],#,<,>,!,",",:,"""+""",-,*,/,(,),.,"""=""",c
 
@@ -78,6 +80,8 @@ public class MapeoCaracteres {
         conversion.put(PUNTO_COMA, 27);
         conversion.put(GUIONBAJO, 28);
         conversion.put(ARROBA, 29);
+        conversion.put(LLAVE_I, 30);
+        conversion.put(LLAVE_D, 31);
    }
 
 

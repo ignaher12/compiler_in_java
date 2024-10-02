@@ -61,8 +61,8 @@ typedefDeclaracion : TYPEDEF declaracionSubtipo
                    | TYPEDEF error { erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); } 
 ;
 
-declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato CADENA_MULTI  // TEMA 11
-                   | error SIMASIGNACION tipoDato CADENA_MULTI  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre del tipo de dato nuevo'."));}
+declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante '}'  // TEMA 11
+                   | error SIMASIGNACION tipoDato '{' listaConstante '}'  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre del tipo de dato nuevo'."));}
 ;
 declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR  // TEMA 22
                   |  TRIPLE '<' IDENTIFICADOR '>' IDENTIFICADOR  // TEMA 22 //CHECK
@@ -86,9 +86,9 @@ listaVariable : listaVariable ',' IDENTIFICADOR
               | IDENTIFICADOR
 ;
 
-//listaConstante : listaConstante ',' constante    // TEMA 11
-//               | constante                       // TEMA 11
-//;
+listaConstante : listaConstante ',' constante    // TEMA 11
+               | constante                       // TEMA 11
+;
 
 constante : CONSTANTE { Lexema lex = TablaDeSimbolos.getByID($1.ival);
                         System.out.println($1.ival);
