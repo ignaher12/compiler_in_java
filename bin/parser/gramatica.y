@@ -217,7 +217,7 @@ bloqueSentenciaEjecutableConRet : sentenciaEjecutableConRet ';'
 clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' condicion ')'
 ;
 
-goto : GOTO IDENTIFICADOR '@' 
+goto : GOTO IDENTIFICADOR ':' '@' 
 ;
 
 mensajeSalida : OUTF '(' expresion ')' 

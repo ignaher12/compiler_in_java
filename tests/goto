@@ -4,5 +4,5 @@ BEGIN
     BEGIN
         GOTO hola@;
     END
-    WHILE ( satisfaccion > 5)
+    WHILE ( satisfaccion > 5);
 END

@@ -74,6 +74,7 @@ public class TablaTipoToken {
         tabla.put(String.valueOf(MapeoCaracteres.CORCHETE_D), (int) '[');           // No existe en los shorts, valor sin mapeo
         tabla.put(String.valueOf(MapeoCaracteres.LLAVE_I), (int) '{');           // No existe en los shorts, valor sin mapeo
         tabla.put(String.valueOf(MapeoCaracteres.LLAVE_D), (int) '}');           // No existe en los shorts, valor sin mapeo
+        tabla.put(String.valueOf(MapeoCaracteres.DOSPUNTOS), (int) ':');           // No existe en los shorts, valor sin mapeo
     }
 
     public static int getTipoToken(String cadena){
