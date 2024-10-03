@@ -1,0 +1,37 @@
+testeandoErrores3
+BEGIN
+    ##solo puede ser tipo basico
+    hexadecimal fun hola (longint test) BEGIN
+        x := 3;
+        ret (x);
+    end;
+
+    ## seguir testeando llamado a funciones
+    x := hola ();
+    x := hola (hola , var);
+    x := hola (bien);
+
+
+    outf(hola);
+    ## error no tiene parametro
+    outf();
+
+    ## error cualquier parametro
+    outf(longint a);
+
+    ## error faltan parentesis ##MAS O MENOS EN CUALQUIER LINEA
+    if x>0 then outf([todo no ok]);
+    END_IF;
+
+    ## error faltan parentesis de cierre  ##MAS O MENOS EN CUALQUIER LINEA
+    if (x>-0.4 then outf([error]);
+    END_IF;
+
+    ## error faltan parentesis de apertura  ##MAS O MENOS EN CUALQUIER LINEA
+    if x>-0.234) then outf([error]);
+    END_IF;
+
+
+    repeat outf([hola]); while x > 0;
+
+end

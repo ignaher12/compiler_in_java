@@ -1,5 +1,4 @@
-testfsafasfasfafasfasfassa
-begin
+fasfsafas
     goto algo:@;
     ##reconoce error se espera tipo de objecto a declarar
     typedef triple < triple > hola
@@ -8,6 +7,20 @@ begin
 
     triple < triple > deas ;
 
+    ## ERROR falta nombre de programa ## TIRA CUALQUIER LINEA
+    hexadecimal fun (longint fas) begin
+        longint x;
+        x := 12;
+    end;
 
-    
+    ##NO PUEDO HACER EL RET
+    ## ERROR falta nombre de programa ## TIRA CUALQUIER LINEA
+    ##hexadecimal fun daas (longint fas) begin
+    ##    longint x;
+    ##    x := 12;
+    ##end;
+
+    ##NO PUEDO HACER EL ERROR QUE FALTE UNA COMA
+    longint as  sa ,dsaa;
+
 end

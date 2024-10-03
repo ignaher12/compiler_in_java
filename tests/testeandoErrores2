@@ -1,0 +1,33 @@
+testeandoErrores
+BEGIN
+    longint fun faltaTipo ( variable) BEGIN 
+        x := 2;
+        ret (x + 1);
+    end;
+
+    longint fun faltanombre ( hexadecimal ) BEGIN 
+        x := 2;
+    end;
+
+    longint fun faltanombre ( hexadecimal ) BEGIN 
+        IF (X < 2) THEN RET (X);
+        ELSE
+            X := 2;
+        END_IF;
+    end;
+
+    longint fun faltanombre ( hexadecimal ) BEGIN 
+        IF (X < 2) THEN RET (X);
+        ELSE
+            X := 2;
+        END_IF;
+        RET (X);
+    end;
+
+    longint fun faltanombre ( hexadecimal ) BEGIN 
+        IF (X < 2) THEN RET (X);
+        ELSE
+            ret (a);
+        END_IF;
+    end;
+end
