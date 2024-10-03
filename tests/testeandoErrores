@@ -1,0 +1,13 @@
+testfsafasfasfafasfasfassa
+begin
+    goto algo:@;
+    ##reconoce error se espera tipo de objecto a declarar
+    typedef triple < triple > hola
+    
+    typedef triple < hola > 
+
+    triple < triple > deas ;
+
+
+    
+end

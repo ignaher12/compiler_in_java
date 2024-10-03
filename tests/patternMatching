@@ -12,4 +12,19 @@ BEGIN
         outF ([Satisfiste]);
     ;
 
+    ## error le falta una expresion
+    if ((a, s , g ,) > (-3.1 , c,s,a))then
+    BEGIN
+        outf (5 + 2);
+    end
+    end_if;
+
+
+    ## NO PUDE HACER QUE DETECTE QUE LE FALTA () A LA LISTA DE EXPRESIONES
+    if ((a, s , g ,) > (-3.1 , c,s,a))then
+    BEGIN
+        outf (triple);
+    end
+    end_if;
+
 END

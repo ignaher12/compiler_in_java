@@ -5,6 +5,7 @@ BEGIN
         a := 3 + 4;
     while (x > 5);
 
+    ## Error sintactico falta ;
     repeat
     BEGIN
         if ( a > 10) then
@@ -14,5 +15,19 @@ BEGIN
         end_if
     END
     while (x > 5);
+
+    ##No tiene errores
+    repeat outF ([ Satisfecho]);while (10 < 5);
+
+    ## Error: falta bloque de sentencias ejecutable
+    repeat HEXADECIMAL variableHexa;while (10 < 5);
+    ## Error: falta condicion
+    repeat outF ([ Satisfecho]);while ();
+
+    ## Error: falta bloque de sentencias ejecutable y condicion
+    repeat HEXADECIMAL variableHexa;while ();
+
+    ## Error: falta while ##NO PUDE XD
+    repeat HEXADECIMAL variableHexa;;
 
 END
