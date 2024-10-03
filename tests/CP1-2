@@ -1,0 +1,24 @@
+CP1_2
+begin   
+    etiqueta:
+    ##Falta etiqueta
+    :
+
+    typedef triple <longint> test;
+    
+    ##Falta triple.
+    typedef <longint> test;
+    
+    ##Faltan <>.
+    typedef triple longint test;
+    
+    ##Falta identificador.
+    typedef triple <longint>;
+
+    ##Falta <IDENTIFICADOR>
+    typedef triple test;
+
+    ##Falta typedef
+    triple <longint> test;
+
+END

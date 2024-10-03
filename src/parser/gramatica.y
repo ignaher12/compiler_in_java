@@ -1,5 +1,4 @@
 %{
-package parser;
 
 import lexico.AnalizadorLexico;
 import lexico.TablaDeSimbolos;
@@ -9,10 +8,10 @@ import parser.Error.Tipo;
 import utils.MatrizAccion;
 import utils.MatrizTransicion;
 import java.util.ArrayList;
-import java.util.List;  
+import java.util.List;
 import lexico.Lexema;
 import java.util.HexFormat;
-%} 
+%}
 //DECLARACIONES
 //NUMERO DE TOKEN DE CARACTER ASCII (0-256)
 //MAYOR MENOR IGUAL SUMA RESTA DIVISION MULTIPLICACION PUNTO PUNTO_COMA PARENTESIS_I PARENTESIS_D
@@ -21,7 +20,7 @@ import java.util.HexFormat;
 %token IDENTIFICADOR HEXADECIMAL CADENA_MULTI SIMASIGNACION DISTINTO IF THEN BEGIN
        END END_IF OUTF TYPEDEF FUN RET SINGLE MENOR_IGUAL MAYOR_IGUAL REPEAT WHILE GOTO LONGINT ELSE
        TRIPLE CONSTANTE
-       
+
 %start programa
 
 %left '+' '-'
@@ -60,7 +59,7 @@ typedefDeclaracion : TYPEDEF declaracionSubtipo
                    | TYPEDEF declaracionTriple
                    | error declaracionSubtipo{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'TYPEDEF antes de la declaracion del subtipo'.")); }
                    | error declaracionTriple { erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'TYPEDEF antes de la declaracion del triple'.")); }
-                   | TYPEDEF error { erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); } 
+                   | TYPEDEF error { erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); }
 ;
 
 declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante '}'  // TEMA 11
@@ -72,12 +71,17 @@ declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR  // TEMA 22
                   |  TRIPLE '<' tipoDato '>' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre de objeto a declarar'."));}
                   |  TRIPLE '<' IDENTIFICADOR '>' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre de objeto a declarar'."));}
                   |  TRIPLE '<' error '>' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre y tipo de objeto a declarar'."));}
+                  |  TRIPLE IDENTIFICADOR '>' IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '<' al inicio del identificador'."));} // TEMA 22
+                  |  TRIPLE '<' IDENTIFICADOR IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '>' al final del identificador'."));} // TEMA 22
+                  |  TRIPLE IDENTIFICADOR IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
+                  |  TRIPLE tipoDato IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
+
 ;
 funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END
 ;
 
 
-tipoDato : SINGLE 
+tipoDato : SINGLE
          | LONGINT
          | HEXADECIMAL
          //| IDENTIFICADOR //PARA typedef  // TEMA 11 ..check
@@ -125,26 +129,26 @@ sentenciaConRet : sentenciaDeclarativa ';'
                 | sentenciaEjecutableConRet {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 ;
 
-//IF EN FUNCIONES 
+//IF EN FUNCIONES
 sentenciaRet : RET '(' expresion ')'  {estructuras.add("Retorno");}
 ;
- 
+
 
 sentenciaEjecutable : asignacion {estructuras.add("Asignacion");}
                     | clausulaSeleccion {estructuras.add("IF");}
                     | clausulaBucle {estructuras.add("WHILE");}
                     | goto {estructuras.add("GOTO");}              //TEMA 23
-                    | mensajeSalida {estructuras.add("OUTF");} 
+                    | mensajeSalida {estructuras.add("OUTF");}
 ;
 sentenciaEjecutableConRet : asignacion {estructuras.add("Asignacion");}
                           | clausulaBucle {estructuras.add("WHILE");}
                           | goto {estructuras.add("GOTO");}              //TEMA 23
-                          | mensajeSalida {estructuras.add("OUTF");} 
+                          | mensajeSalida {estructuras.add("OUTF");}
                           | sentenciaRet
                           | clausulaSeleccionConRet {estructuras.add("IF");}
 ;
 
-asignacion : IDENTIFICADOR SIMASIGNACION expresion 
+asignacion : IDENTIFICADOR SIMASIGNACION expresion
            //| IDENTIFICADOR '[' '1' ']' SIMASIGNACION expresion   //TEMA 22
            //| IDENTIFICADOR '[' '2' ']' SIMASIGNACION expresion   //TEMA 22
            //| IDENTIFICADOR '[' '3' ']' SIMASIGNACION expresion   //TEMA 22
@@ -152,8 +156,8 @@ asignacion : IDENTIFICADOR SIMASIGNACION expresion
 
 ;
 
-expresion : operando 
-          | expresion operador operando 
+expresion : operando
+          | expresion operador operando
 
 operador : '+' | '-' | '*' | '/'
 ;
@@ -172,7 +176,7 @@ invocacionFuncion : IDENTIFICADOR '(' expresion ')'
                   | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' //TEMA 27
 ;
 
-clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable END_IF 
+clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable END_IF
                   | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF
                   | IF '(' condicion ')' THEN bloqueSentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
                   | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
@@ -186,8 +190,8 @@ clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable END_IF
                   | IF '(' condicion ')' THEN error ELSE error END_IF  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido."));}
 ;
 
-clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF 
-                        | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF 
+clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF
+                        | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF
                         | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
                         | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
                         | IF '(' condicion  THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion."));}
@@ -201,12 +205,11 @@ clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableCon
 ;
 
 condicion : listaExpresiones comparador listaExpresiones
-          //| listaExpresiones comparador '(' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'parentesis en la expresion de la izquierda'."));}
-          //| '(' listaExpresiones ')' comparador listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'parentesis en la expresion de la derecha'."));}
+          | expresion comparador expresion
 ;
 
 listaExpresiones : '(' listaExpresion ')'
-                 | expresion
+                 | listaExpresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan ()."));}
 ;
 
 listaExpresion : listaExpresion ',' expresion
@@ -215,17 +218,17 @@ listaExpresion : listaExpresion ',' expresion
                | listaExpresion ',' error  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ultima expresion."));}
 ;
 
-comparador : '<' | '>' | '=' | DISTINTO | MENOR_IGUAL | MAYOR_IGUAL 
+comparador : '<' | '>' | '=' | DISTINTO | MENOR_IGUAL | MAYOR_IGUAL
 ;
 
 cuerpoEjecutable  : cuerpoEjecutable sentenciaEjecutable ';'
                   | sentenciaEjecutable ';'
-                  | sentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));} 
+                  | sentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 
 ;
 
 bloqueSentenciaEjecutable : sentenciaEjecutable ';'
-                          | sentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));} 
+                          | sentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
                           | BEGIN cuerpoEjecutable END
 ;
 
@@ -244,7 +247,7 @@ clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' condicion ')'
               | REPEAT error WHILE '(' error ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion y bloque de sentencias ejecutables."));}
 ;
 
-goto : GOTO etiqueta '@' 
+goto : GOTO etiqueta '@'
      | GOTO etiqueta error   {erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO falta '@' luego de los dospuntos."));}
      | etiqueta '@'    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'goto' luego de los dospuntos."));}
 ;
@@ -254,9 +257,9 @@ etiqueta : IDENTIFICADOR ':'
          | IDENTIFICADOR error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ':' luego de la etiqueta."));}
 ;
 
-mensajeSalida : OUTF '(' expresion ')' 
-              | OUTF '(' CADENA_MULTI ')' 
-              | OUTF '(' error ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida."));} 
+mensajeSalida : OUTF '(' expresion ')'
+              | OUTF '(' CADENA_MULTI ')'
+              | OUTF '(' error ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida."));}
 ;
 
 
@@ -283,8 +286,8 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("repeatWhile", matriz, matrizAcciones);
-        
+        Parser.lex = new AnalizadorLexico("CP2-2", matriz, matrizAcciones);
+
         parser.run();
         System.out.println("v---------------------------v");
         for (Error error: erroresSintactico){System.out.println(error);}
@@ -310,8 +313,8 @@ private void chequearRango(Lexema lex){
     if(lex.getTipo() == TablaTipoToken.getTipoToken("longint")){
       if(Integer.parseInt(lex.getAtributo()) > AnalizadorLexico.MAXLONGINT){
         erroresSintactico.add(new Error(
-          AnalizadorLexico.getNumeroLinea(), 
-          Tipo.ERROR, 
+          AnalizadorLexico.getNumeroLinea(),
+          Tipo.ERROR,
           "ERROR SINTACTICO excede rangos."
         ));
       }
@@ -320,24 +323,24 @@ private void chequearRango(Lexema lex){
       float valor = Float.parseFloat(numero);
       if(valor > AnalizadorLexico.MAXFLOATPOSITIVO){
         erroresSintactico.add(new Error(
-          AnalizadorLexico.getNumeroLinea(), 
-          Tipo.ERROR, 
+          AnalizadorLexico.getNumeroLinea(),
+          Tipo.ERROR,
           "ERROR SINTACTICO excede rangos."
         ));
       } else if (valor < AnalizadorLexico.MINFLOATPOSITIVO) {
         erroresSintactico.add(new Error(
-          AnalizadorLexico.getNumeroLinea(), 
-          Tipo.ERROR, 
+          AnalizadorLexico.getNumeroLinea(),
+          Tipo.ERROR,
           "ERROR SINTACTICO excede rangos."
         ));}
     } else {
       if((HexFormat.fromHexDigits(lex.getAtributo().subSequence(2, lex.getAtributo().length()).toString())) > AnalizadorLexico.MAXHEXADECIMAL){
         erroresSintactico.add(new Error(
-          AnalizadorLexico.getNumeroLinea(), 
-          Tipo.ERROR, 
+          AnalizadorLexico.getNumeroLinea(),
+          Tipo.ERROR,
           "ERROR SINTACTICO excede rangos."
         ));
-      } 
+      }
     }
   };
 }
