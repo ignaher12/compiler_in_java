@@ -18,4 +18,6 @@ BEGIN
     if (x > -1) then else end_if;
 
     if (x > -1) then outf([das]); else end_if;
+
+    if (x > -1) then else outf([das]); end_if;
 end

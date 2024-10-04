@@ -1,0 +1,20 @@
+testeandoErrores
+BEGIN
+    ##Error falta operando
+    outf( 3 + 5  3);
+    ##NOSEPUDO
+    ##if ( dsad   dsaddsad) then outf([da]); end_if;
+
+    ##TODO OK
+    typedef triple <longint> intt;
+
+    ## ERROR FALTA EL TIPO BASE
+    typedef triple <> intt;
+
+    ## ERROR FALTA EL NOMBRE DEL TRIPLE
+    typedef triple <longint>;
+
+    OUTF(FAFAS[7]);
+
+
+end
