@@ -9,8 +9,8 @@ import utils.MatrizAccion;
 import utils.MatrizTransicion;
 import java.util.ArrayList;
 import java.util.List;
-import lexico.Lexema;
 import java.util.HexFormat;
+import lexico.TablaDeSimbolos.Contexto;
 %}
 //DECLARACIONES
 //NUMERO DE TOKEN DE CARACTER ASCII (0-256)
@@ -110,15 +110,15 @@ listaConstante : listaConstante ',' constante    // TEMA 11
                | constante                       // TEMA 11
 ;
 
-constante : CONSTANTE { Lexema lex = TablaDeSimbolos.getByID($1.ival);
-                        System.out.println($1.ival);
-                        System.out.println(lex);
+constante : CONSTANTE { Contexto contexto = TablaDeSimbolos.getContexto($1.sval);
+                        System.out.println($1.sval);
+                        System.out.println(contexto);
                         System.out.println(TablaDeSimbolos.imprimir());
-                        chequearRango(lex);                             //SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER
+                        chequearRango(contexto);                             //SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER
                       }
           | '-' CONSTANTE {
-                            Lexema lex = TablaDeSimbolos.getByID($2.ival);
-                            int newLexRef = TablaDeSimbolos.agregarSimbolo("-"+lex.getAtributo(), lex.getTipo());
+                            Contexto contexto = TablaDeSimbolos.getContexto($2.sval);
+                            String newLexRef = TablaDeSimbolos.agregarSimbolo("-"+val_peek(0).sval, contexto.getTipo(), contexto.getValor(), contexto.getRefs());
                             //$2.sval = newLex.
                           }
 ;
@@ -350,18 +350,18 @@ private int yylex(){
   return idToken;
 }
 
-private void chequearRango(Lexema lex){
-  if (lex != null){
-    if(lex.getTipo() == TablaTipoToken.getTipoToken("longint")){
-      if(Integer.parseInt(lex.getAtributo()) > AnalizadorLexico.MAXLONGINT){
+private void chequearRango(Contexto contexto){
+  if (contexto != null){
+    if(contexto.getTipo() == TablaTipoToken.getTipoToken("longint")){
+      if(Integer.parseInt(contexto.getValor()) > AnalizadorLexico.MAXLONGINT){
         erroresSintactico.add(new Error(
           AnalizadorLexico.getNumeroLinea(),
           Tipo.ERROR,
           "ERROR SINTACTICO excede rangos."
         ));
       }
-    } else if (lex.getTipo() == TablaTipoToken.getTipoToken("single")){
-      String numero = lex.getAtributo().toString().replace('s', 'e');
+    } else if (contexto.getTipo() == TablaTipoToken.getTipoToken("single")){
+      String numero = contexto.getValor().toString().replace('s', 'e');
       float valor = Float.parseFloat(numero);
       if(valor > AnalizadorLexico.MAXFLOATPOSITIVO){
         erroresSintactico.add(new Error(
@@ -376,7 +376,7 @@ private void chequearRango(Lexema lex){
           "ERROR SINTACTICO excede rangos."
         ));}
     } else {
-      if((HexFormat.fromHexDigits(lex.getAtributo().subSequence(2, lex.getAtributo().length()).toString())) > AnalizadorLexico.MAXHEXADECIMAL){
+      if((HexFormat.fromHexDigits(contexto.getValor().subSequence(2, contexto.getValor().length()).toString())) > AnalizadorLexico.MAXHEXADECIMAL){
         erroresSintactico.add(new Error(
           AnalizadorLexico.getNumeroLinea(),
           Tipo.ERROR,

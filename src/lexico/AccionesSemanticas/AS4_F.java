@@ -22,7 +22,7 @@ public class AS4_F implements Accion{
         } else {
 
             if (TablaDeSimbolos.existe(cadena.toString()) == null){
-                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.HEXADECIMAL), nro_linea));
+                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.HEXADECIMAL), cadena.toString(), nro_linea));
             }else{
                 TablaDeSimbolos.getContexto(cadena.toString()).setValor(cadena.toString());
                 if (TablaDeSimbolos.getContexto(cadena.toString()).isReservada()){

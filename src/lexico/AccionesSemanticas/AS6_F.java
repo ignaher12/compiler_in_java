@@ -22,7 +22,8 @@ public class AS6_F implements Accion{
             token.setError();
         } else {
             if (TablaDeSimbolos.existe(cadena.toString()) == null){
-                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.LONGINT), nro_linea));
+                System.out.println("VALOR DE CONSTANTE" + cadena.toString());
+                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.LONGINT), cadena.toString(), nro_linea));
             }else{
                 Contexto context = TablaDeSimbolos.getContexto(cadena.toString());
                 context.setValor(cadena.toString());

@@ -30,11 +30,26 @@ public class TablaDeSimbolos {
             this.declarado = false;
             this.reservada = false;
         }
+        public Contexto(int tipo){
+            this.refs = new ArrayList<Integer>();
+            this.tipo = tipo;
+            this.valor = null;
+            this.declarado = false;
+            this.reservada = false;
+        }
         public Contexto(List<Integer> linea, int tipo){
             this.refs = new ArrayList<Integer>();
             this.refs.addAll(linea);
             this.tipo = tipo;
             this.valor = null;
+            this.declarado = false;
+            this.reservada = false;
+        }
+        public Contexto(List<Integer> linea, String valor, int tipo){
+            this.refs = new ArrayList<Integer>();
+            this.refs.addAll(linea);
+            this.tipo = tipo;
+            this.valor = valor;
             this.declarado = false;
             this.reservada = false;
         }
@@ -69,23 +84,23 @@ public class TablaDeSimbolos {
     private static HashMap<String, Contexto> tablaReservada = new HashMap<String, Contexto>();
     
     static {
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.IF, 0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.THEN,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.BEGIN,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.END,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.END_IF,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.OUTF,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.TYPEDEF,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.FUN,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.RET,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.SINGLE,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.REPEAT,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.WHILE,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.GOTO,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.LONGINT,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.ELSE,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.TRIPLE,0);
-        TablaDeSimbolos.agregarReservada(TablaTipoToken.HEXADECIMAL,0);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.IF);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.THEN);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.BEGIN);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.END);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.END_IF);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.OUTF);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.TYPEDEF);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.FUN);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.RET);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.SINGLE);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.REPEAT);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.WHILE);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.GOTO);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.LONGINT);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.ELSE);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.TRIPLE);
+        TablaDeSimbolos.agregarReservada(TablaTipoToken.HEXADECIMAL);
     }
 
     public static String agregarSimbolo(String atributo, int tipo, int linea) {
@@ -93,6 +108,15 @@ public class TablaDeSimbolos {
             tabla.get(atributo).addRef(linea);
         }else{
             Contexto con = new Contexto(linea, tipo);
+            tabla.put(atributo, con);
+        }
+        return atributo;
+    }
+    public static String agregarSimbolo(String atributo, int tipo, String valor, int linea) {
+        if (tabla.get(atributo) != null){
+            tabla.get(atributo).addRef(linea);
+        }else{
+            Contexto con = new Contexto(linea, valor, tipo);
             tabla.put(atributo, con);
         }
         return atributo;
@@ -106,12 +130,31 @@ public class TablaDeSimbolos {
         }
         return atributo;
     }
+    public static String agregarSimbolo(String atributo, int tipo, String valor, List<Integer> refs) {
+        if (tabla.get(atributo) != null){
+            tabla.get(atributo).getRefs().addAll(refs);
+        }else{
+            Contexto con = new Contexto(refs, valor, tipo);
+            tabla.put(atributo, con);
+        }
+        return atributo;
+    }
 
     public static String agregarReservada(String atributo, int linea) {
         if (tablaReservada.get(atributo.toLowerCase()) != null){
             tablaReservada.get(atributo.toLowerCase()).addRef(linea);
         }else{
             Contexto con = new Contexto(linea, TablaTipoToken.getTipoToken(atributo));
+            con.setReservada();
+            tablaReservada.put(atributo, con);
+        }
+        return atributo;
+    }
+    public static String agregarReservada(String atributo) {
+        if (tablaReservada.get(atributo.toLowerCase()) != null){
+            
+        }else{
+            Contexto con = new Contexto(TablaTipoToken.getTipoToken(atributo));
             con.setReservada();
             tablaReservada.put(atributo, con);
         }

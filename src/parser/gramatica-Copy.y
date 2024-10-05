@@ -174,11 +174,14 @@ asignacion : IDENTIFICADOR SIMASIGNACION expresion
 //          //| expresion operando 
 //;
 
-expresion : expresion error operando
-          | expresion '+' operando
-          | error '+' operando
-          | expresion '+' error
-          | operando
+
+expresion: expresion1 operando 
+        | expresion '+' operando
+        | expresion '+' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta un operando"));}
+;
+expresion1: operando operando {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta un operador"));}
+          | operando '+'
+          | '+' operando '+'
 ;
 
 

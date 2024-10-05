@@ -25,7 +25,7 @@ public class AS5_F implements Accion{
             token.setError();
         } else {
             if (TablaDeSimbolos.existe(cadena.toString()) == null){
-                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.SINGLE), nro_linea));
+                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.SINGLE), cadena.toString(), nro_linea));
             }else{
                 Contexto context = TablaDeSimbolos.getContexto(cadena.toString());
                 context.setValor(cadena.toString());
