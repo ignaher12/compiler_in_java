@@ -56,21 +56,21 @@ public class AnalizadorLexico {
                 System.out.println(linea);
                 char actual = linea.charAt(index.get());
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
-                System.out.println("leo: " + actual);
-                System.out.println("estadoatual:" + estadoActual + "columna: " + columnaMatriz);
-                System.out.println(matrizAcciones[estadoActual][columnaMatriz]);
+                //System.out.println("leo: " + actual);
+                //System.out.println("estadoatual:" + estadoActual + "columna: " + columnaMatriz);
+                //System.out.println(matrizAcciones[estadoActual][columnaMatriz]);
                 matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea, numeroLinea); // Activar accion semantica 
                 estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
-                System.out.println("estadonuevo:" + estadoActual );
+                //System.out.println("estadonuevo:" + estadoActual );
             }   
             
             if (index.get() == linea.length() && !token.isError()) {     // Salto de línea
                 // Intentar una transición con el carácter de fin de línea (\n)
                 if (estadoActual != ESTADO_FINAL ){
-                    System.out.println(estadoActual);
+                    //System.out.println(estadoActual);
                     matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea, numeroLinea);
                     estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
-                    System.out.println(estadoActual);
+                    //System.out.println(estadoActual);
                     if (lector.hasNextLine() && (estadoActual == 16 || estadoActual == 14 || estadoActual == 0)){    //no SOLAMENTE SI ESTA EN MODO MULTILINEA
                         linea = lector.nextLine();
                         numeroLinea = numeroLinea + 1;

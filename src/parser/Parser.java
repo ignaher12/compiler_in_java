@@ -851,7 +851,6 @@ private void chequearRango(Contexto con, String atributo){
           "ERROR SINTACTICO excede rangos."
         ));}
     } else {
-      System.out.println("HOLAHOLAHOLAHOLAHOLAHOLA" + atributo);
       if((HexFormat.fromHexDigits(atributo.subSequence(2, atributo.length()).toString())) > AnalizadorLexico.MAXHEXADECIMAL){
         erroresSintactico.add(new Error(
           AnalizadorLexico.getNumeroLinea(),

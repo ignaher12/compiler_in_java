@@ -24,12 +24,8 @@ public class AS4_F implements Accion{
             if (TablaDeSimbolos.existe(cadena.toString()) == null){
                 token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.HEXADECIMAL), nro_linea));
             }else{
-                Contexto context = TablaDeSimbolos.getContexto(cadena.toString());
-                System.out.println(cadena.toString());
-                context.setValor(cadena.toString());
-                context.getValor();
-                TablaDeSimbolos.setContexto(cadena.toString(), context);
-                if (context.isReservada()){
+                TablaDeSimbolos.getContexto(cadena.toString()).setValor(cadena.toString());
+                if (TablaDeSimbolos.getContexto(cadena.toString()).isReservada()){
                     token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
                 }
                 token.setReferencia(cadena.toString());

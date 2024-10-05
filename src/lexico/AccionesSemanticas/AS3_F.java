@@ -19,14 +19,16 @@ public class AS3_F implements Accion{
             cadena = new StringBuilder(cadena.substring(0, AnalizadorLexico.MAXLENGHTINDENTIFICADOR));
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.WARNING, "El identificador" + cadenaLarga + " fue truncado a: " + cadena));
         }
-        System.out.println(cadena.toString());
-        System.out.println(TablaDeSimbolos.existe(cadena.toString()));
         if (TablaDeSimbolos.existe(cadena.toString()) == null){
-            token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador(), nro_linea));
+            TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador(), nro_linea);
+            token.setReferencia(cadena.toString());
         }else{
-            System.out.println(TablaDeSimbolos.getContexto(cadena.toString()).isReservada());
+            System.out.println(cadena.toString());
             if (TablaDeSimbolos.getContexto(cadena.toString()).isReservada()){
+                TablaDeSimbolos.agregarReservada(cadena.toString(), nro_linea);
                 token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
+            }else{
+                TablaDeSimbolos.agregarReferencia(cadena.toString(), nro_linea);
             }
             token.setReferencia(cadena.toString());
         }
