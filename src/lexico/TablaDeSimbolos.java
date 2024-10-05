@@ -1,13 +1,87 @@
 package lexico;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class TablaDeSimbolos {
-    private static HashMap<Integer, Lexema> tabla = new HashMap<Integer, Lexema>();
-    private static HashMap<Integer, Lexema> tablaReservada = new HashMap<Integer, Lexema>();
-    private static int id = 0;
+    public static class Contexto{
+        private List<Integer> refs;
+        private String valor;
+        private boolean declarado;
+        private int tipo;
+        private boolean reservada;
+
+        public Contexto(int linea, String valor, int tipo){
+            this.refs = new ArrayList<Integer>();
+            this.refs.add(linea);
+            this.tipo = tipo;
+            this.valor = valor;
+            this.declarado = false;
+            this.reservada = false;
+        }
+        public Contexto(int linea, int tipo){
+            this.refs = new ArrayList<Integer>();
+            this.refs.add(linea);
+            this.tipo = tipo;
+            this.valor = null;
+            this.declarado = false;
+            this.reservada = false;
+        }
+        public Contexto(int tipo){
+            this.refs = new ArrayList<Integer>();
+            this.tipo = tipo;
+            this.valor = null;
+            this.declarado = false;
+            this.reservada = false;
+        }
+        public Contexto(List<Integer> linea, int tipo){
+            this.refs = new ArrayList<Integer>();
+            this.refs.addAll(linea);
+            this.tipo = tipo;
+            this.valor = null;
+            this.declarado = false;
+            this.reservada = false;
+        }
+        public Contexto(List<Integer> linea, String valor, int tipo){
+            this.refs = new ArrayList<Integer>();
+            this.refs.addAll(linea);
+            this.tipo = tipo;
+            this.valor = valor;
+            this.declarado = false;
+            this.reservada = false;
+        }
+        public void addRef(int linea){
+            this.refs.add(linea);
+        }
+        public void setDeclarado(){
+            this.declarado = true;
+        }
+        public void setReservada(){
+            this.reservada = true;
+        }
+        public void setValor(String valor){
+            this.valor = valor;
+        };
+        public int getTipo(){
+            return this.tipo;
+        }
+        public String getValor(){
+            return this.valor;
+        }
+        public List<Integer> getRefs(){
+            return this.refs;            
+        }
+        public boolean isReservada(){
+            return this.reservada;
+        }
+
+    }
+
+    private static HashMap<String, Contexto> tabla = new HashMap<String, Contexto>();
+    private static HashMap<String, Contexto> tablaReservada = new HashMap<String, Contexto>();
     
     static {
         TablaDeSimbolos.agregarReservada(TablaTipoToken.IF);
@@ -29,24 +103,67 @@ public class TablaDeSimbolos {
         TablaDeSimbolos.agregarReservada(TablaTipoToken.HEXADECIMAL);
     }
 
-    public static int agregarSimbolo(String atributo, int tipo) {
-        id++;
-        Lexema aux = new Lexema(atributo, false, tipo);
-        tabla.put(id, aux);
-        return id;
+    public static String agregarSimbolo(String atributo, int tipo, int linea) {
+        if (tabla.get(atributo) != null){
+            tabla.get(atributo).addRef(linea);
+        }else{
+            Contexto con = new Contexto(linea, tipo);
+            tabla.put(atributo, con);
+        }
+        return atributo;
+    }
+    public static String agregarSimbolo(String atributo, int tipo, String valor, int linea) {
+        if (tabla.get(atributo) != null){
+            tabla.get(atributo).addRef(linea);
+        }else{
+            Contexto con = new Contexto(linea, valor, tipo);
+            tabla.put(atributo, con);
+        }
+        return atributo;
+    }
+    public static String agregarSimbolo(String atributo, int tipo, List<Integer> refs) {
+        if (tabla.get(atributo) != null){
+            tabla.get(atributo).getRefs().addAll(refs);
+        }else{
+            Contexto con = new Contexto(refs, tipo);
+            tabla.put(atributo, con);
+        }
+        return atributo;
+    }
+    public static String agregarSimbolo(String atributo, int tipo, String valor, List<Integer> refs) {
+        if (tabla.get(atributo) != null){
+            tabla.get(atributo).getRefs().addAll(refs);
+        }else{
+            Contexto con = new Contexto(refs, valor, tipo);
+            tabla.put(atributo, con);
+        }
+        return atributo;
     }
 
-    public static Lexema agregarReservada(String atributo) {
-        id++;
-        Lexema aux = new Lexema(atributo, true, 1);
-        aux.setAtributo(atributo);
-        tablaReservada.put(id, aux);
-        return aux;
+    public static String agregarReservada(String atributo, int linea) {
+        if (tablaReservada.get(atributo.toLowerCase()) != null){
+            tablaReservada.get(atributo.toLowerCase()).addRef(linea);
+        }else{
+            Contexto con = new Contexto(linea, TablaTipoToken.getTipoToken(atributo));
+            con.setReservada();
+            tablaReservada.put(atributo, con);
+        }
+        return atributo;
+    }
+    public static String agregarReservada(String atributo) {
+        if (tablaReservada.get(atributo.toLowerCase()) != null){
+            
+        }else{
+            Contexto con = new Contexto(TablaTipoToken.getTipoToken(atributo));
+            con.setReservada();
+            tablaReservada.put(atributo, con);
+        }
+        return atributo;
     }
 
-    public static void editarSimbolo(Lexema lexema, String nuevoLexema){
-        lexema.setAtributo(nuevoLexema);
-    }
+    public static void agregarReferencia(String atributo, int linea){
+        tabla.get(atributo).addRef(linea);
+    } 
     
     public static String imprimir() {
         StringBuilder sb = new StringBuilder();
@@ -54,15 +171,15 @@ public class TablaDeSimbolos {
         sb.append("Tabla de Reservadas:\n");
         sb.append("-------------------\n");
 
-        for (Map.Entry<Integer,Lexema> par : tablaReservada.entrySet()) {
-            sb.append(par.getKey()).append(" - ").append(par.getValue()).append('\n');
+        for (Map.Entry<String,Contexto> par : tablaReservada.entrySet()) {
+            sb.append(par.getKey()).append(" - ").append(par.getValue().getRefs()).append('\n');
         }
         
         sb.append("Tabla de Símbolos:\n");
         sb.append("-------------------\n");
 
-        for (Map.Entry<Integer,Lexema> par : tabla.entrySet()) {
-            sb.append(par.getKey()).append(" - ").append(par.getValue()).append('\n');
+        for (Map.Entry<String, Contexto> par : tabla.entrySet()) {
+            sb.append(par.getKey()).append(" - ").append(par.getValue().valor).append(" - ").append(par.getValue().declarado).append(" - ").append(par.getValue().tipo).append(" - ").append(par.getValue().getRefs()).append('\n');
         }
 
         
@@ -71,33 +188,39 @@ public class TablaDeSimbolos {
     }
 
     //VER TEMA MAYUSCULAS
-    public static int existe(String cadena){
-        Iterator<Map.Entry<Integer, Lexema>> iterator = tablaReservada.entrySet().iterator();
+    public static String existe(String cadena){
+        Iterator<Map.Entry<String, Contexto>> iterator = tablaReservada.entrySet().iterator();
         
         while (iterator.hasNext()) {
-            Map.Entry<Integer, Lexema> par = iterator.next();
+            Map.Entry<String, Contexto> par = iterator.next();
         
-            if (par.getValue().getAtributo().toLowerCase().equals(cadena.toLowerCase())) {
+            if (par.getKey().toLowerCase().equals(cadena.toLowerCase())) {
                 return par.getKey();
             }
         }
 
-        iterator = tabla.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Integer, Lexema> par = iterator.next();
+        Iterator<Map.Entry<String, Contexto>> iterator2 = tabla.entrySet().iterator();
+        while (iterator2.hasNext()) {
+            Map.Entry<String, Contexto> par = iterator2.next();
         
-            if (par.getValue().getAtributo().equals(cadena)) {
+            if (par.getKey().equals(cadena)) {
         
                 return par.getKey();
             }
         }
-        return -1;
+        return null;
         
     }
 
-    public static Lexema getByID(int id){
-        if(tabla.get(id) == null) return tablaReservada.get(id);
-        
-        return tabla.get(id);
+    public static Contexto getContexto(String atributo){
+        if (tabla.get(atributo) == null) { 
+            return tablaReservada.get(atributo.toLowerCase());}
+
+        return tabla.get(atributo);
+    }
+
+    public static void setContexto(String atributo, Contexto contexto){
+        tabla.remove(atributo);
+        tabla.put(atributo, contexto);
     }
 }

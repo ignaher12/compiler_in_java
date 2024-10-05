@@ -8,7 +8,7 @@ import parser.Error.Tipo;
 import parser.Parser;
 
 public class ASE implements Accion {
-    public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
+    public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea, int nro_linea) {
         token.setError();
         
         int errorPos = pos.get();

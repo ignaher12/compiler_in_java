@@ -10,7 +10,7 @@ BEGIN
     typedef triple <longint> ;
 
     ##Error sintactico: Sin TYPEDEF
-    triple <hexadecimal> satisfagamos;
+    triple <hexadecimal> satisfagan;
 
     ##No hay error
     typedef triple <hexadecimal> funciona;

@@ -29,4 +29,22 @@ public class Lexema {
     public String toString(){
         return "[* "+ atributo + " *]";
     }
+
+    @Override
+    public int hashCode() {
+        int result = atributo != null ? atributo.hashCode() : 0;
+        result = 31 * result + Boolean.hashCode(reservada);
+        result = 31 * result + Integer.hashCode(tipo);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Lexema lexema = (Lexema) obj;
+        return reservada == lexema.reservada &&
+               tipo == lexema.tipo &&
+               (atributo != null ? atributo.equals(lexema.atributo) : lexema.atributo == null);
+    }
 }
