@@ -1,0 +1,98 @@
+CP2_2
+begin   
+
+    ## Faltan parentesis a la izquierda
+    if ((a,b < (3,4)) then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    ## Faltan parentesis a la izquierda
+    if (a,b < (3,4)) then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    ## Faltan parentesis a la izquierda
+    if (a,b) < (3,4)) then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    ## Faltan parentesis a la derecha
+    if ((a,b) < 3,4)) then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    ## Faltan parentesis a la derecha
+    if ((a,b) < (3,4) then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    ## Faltan parentesis a la derecha
+    if ((a,b) < (3,4) then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    ## Faltan parentesis en ambos lados
+    if ((a,b < 3,4)) then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    ## Faltan parentesis en ambos lados
+    if (a,b < 3,4 then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    ## Faltan parentesis en ambos lados
+    if a,b < 3,4 then
+        begin
+            a := 2;
+        end
+    end_if;
+
+    if (a = 0xABC123) then
+        begin
+            a:=2;
+        end
+    end_if;
+
+    ##Falta parentesis izquierdo
+    if a = b) then
+        begin
+            a:=2;
+        end
+    end_if;
+
+    ##Falta parentesis derecho
+    if (a = 2.34 then
+        begin
+            a:=2;
+        end
+    end_if;
+
+    ##Condicion invalida
+    if (a) then
+        begin
+            a:=2;
+        end
+    else
+        begin   
+            a:=2;
+        end
+    end_if;
+
+END

@@ -1,7 +1,0 @@
-reservada
-Begin
-
-    HEXADECIMAL hexa; 
-    hexa := -0x600;
-
-END

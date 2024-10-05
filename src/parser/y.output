@@ -1,0 +1,4894 @@
+   0  $accept : programa $end
+
+   1  programa : IDENTIFICADOR BEGIN cuerpo END
+   2           | IDENTIFICADOR BEGIN END
+   3           | IDENTIFICADOR BEGIN cuerpo
+   4           | IDENTIFICADOR error cuerpo END
+   5           | BEGIN cuerpo END
+   6           | IDENTIFICADOR error cuerpo error
+
+   7  cuerpo : cuerpo sentencia
+   8         | sentencia
+
+   9  sentencia : sentenciaDeclarativa ';'
+  10            | sentenciaEjecutable ';'
+  11            | etiqueta
+  12            | sentenciaDeclarativa error
+  13            | sentenciaEjecutable error
+  14            | error ';'
+
+  15  sentenciaDeclarativa : tipoDato listaVariable
+  16                       | typedefDeclaracion
+  17                       | tipoDato funDeclaracion
+  18                       | tipoDato error
+
+  19  typedefDeclaracion : TYPEDEF declaracionSubtipo
+  20                     | TYPEDEF declaracionTriple
+  21                     | error declaracionSubtipo
+  22                     | error declaracionTriple
+  23                     | TYPEDEF error
+
+  24  declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante '}'
+  25                     | error SIMASIGNACION tipoDato '{' listaConstante '}'
+
+  26  declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR
+  27                    | TRIPLE '<' IDENTIFICADOR '>' IDENTIFICADOR
+  28                    | TRIPLE '<' error '>' IDENTIFICADOR
+  29                    | TRIPLE '<' tipoDato '>' error
+  30                    | TRIPLE '<' IDENTIFICADOR '>' error
+  31                    | TRIPLE '<' error '>' error
+  32                    | TRIPLE IDENTIFICADOR '>' IDENTIFICADOR
+  33                    | TRIPLE '<' IDENTIFICADOR IDENTIFICADOR
+  34                    | TRIPLE IDENTIFICADOR IDENTIFICADOR
+  35                    | TRIPLE tipoDato IDENTIFICADOR
+
+  36  funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END
+  37                 | FUN error '(' parametro ')' BEGIN cuerpoFuncion END
+  38                 | FUN IDENTIFICADOR '(' parametro ',' error ')' BEGIN cuerpoFuncion END
+  39                 | FUN IDENTIFICADOR '(' parametro ')' BEGIN error END
+
+  40  tipoDato : SINGLE
+  41           | LONGINT
+  42           | HEXADECIMAL
+
+  43  listaVariable : listaVariable ',' IDENTIFICADOR
+  44                | IDENTIFICADOR
+
+  45  listaConstante : listaConstante ',' constante
+  46                 | constante
+
+  47  constante : CONSTANTE
+  48            | '-' CONSTANTE
+
+  49  parametro : tipoDato IDENTIFICADOR
+  50            | error IDENTIFICADOR
+  51            | tipoDato error
+
+  52  cuerpoFuncion : cuerpoFuncion sentenciaConRet
+  53                | sentenciaConRet
+
+  54  sentenciaConRet : sentenciaDeclarativa ';'
+  55                  | sentenciaEjecutableConRet ';'
+  56                  | etiqueta
+  57                  | sentenciaDeclarativa
+  58                  | sentenciaEjecutableConRet
+
+  59  sentenciaRet : RET '(' expresion ')'
+
+  60  sentenciaEjecutable : asignacion
+  61                      | clausulaSeleccion
+  62                      | clausulaBucle
+  63                      | goto
+  64                      | mensajeSalida
+
+  65  $$1 :
+
+  66  sentenciaEjecutableConRet : asignacion $$1
+
+  67  $$2 :
+
+  68  sentenciaEjecutableConRet : clausulaBucle $$2
+
+  69  $$3 :
+
+  70  sentenciaEjecutableConRet : goto $$3
+
+  71  $$4 :
+
+  72  sentenciaEjecutableConRet : mensajeSalida $$4
+  73                            | sentenciaRet
+  74                            | clausulaSeleccionConRet
+
+  75  asignacion : IDENTIFICADOR SIMASIGNACION expresion
+  76             | IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion
+
+  77  expresion : expresion '+' termino
+  78            | expresion '-' termino
+  79            | expresion '+' error
+  80            | expresion '-' error
+  81            | termino
+
+  82  termino : termino '*' operando
+  83          | termino '/' operando
+  84          | termino '*' error
+  85          | termino '/' error
+  86          | operando
+
+  87  operando : IDENTIFICADOR
+  88           | constante
+  89           | invocacionFuncion
+  90           | IDENTIFICADOR CADENA_MULTI
+  91           | IDENTIFICADOR '1'
+  92           | IDENTIFICADOR '2'
+  93           | IDENTIFICADOR '3'
+
+  94  invocacionFuncion : IDENTIFICADOR '(' expresion ')'
+  95                    | IDENTIFICADOR '(' tipoDato expresion ')'
+  96                    | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')'
+  97                    | IDENTIFICADOR '(' expresion ',' error ')'
+  98                    | IDENTIFICADOR '(' error ')'
+  99                    | IDENTIFICADOR '(' tipoDato expresion ',' error ')'
+ 100                    | IDENTIFICADOR '(' tipoDato '(' expresion ')' ',' error ')'
+
+ 101  clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable END_IF
+ 102                    | IF '(' expresion ')' THEN bloqueSentenciaEjecutable END_IF
+ 103                    | IF '(' expresion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF
+ 104                    | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF
+ 105                    | IF '(' condicion ')' THEN bloqueSentenciaEjecutable error
+ 106                    | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error
+ 107                    | IF '(' condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF
+ 108                    | IF '(' condicion THEN bloqueSentenciaEjecutable END_IF
+ 109                    | IF condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF
+ 110                    | IF condicion ')' THEN bloqueSentenciaEjecutable END_IF
+ 111                    | IF condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF
+ 112                    | IF condicion THEN bloqueSentenciaEjecutable END_IF
+ 113                    | IF '(' condicion ')' THEN error END_IF
+ 114                    | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE error END_IF
+ 115                    | IF '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutable END_IF
+ 116                    | IF '(' condicion ')' THEN error ELSE error END_IF
+
+ 117  clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF
+ 118                          | IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet END_IF
+ 119                          | IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF
+ 120                          | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF
+ 121                          | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet error
+ 122                          | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error
+ 123                          | IF '(' condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF
+ 124                          | IF '(' condicion THEN bloqueSentenciaEjecutableConRet END_IF
+ 125                          | IF condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF
+ 126                          | IF condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF
+ 127                          | IF condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF
+ 128                          | IF condicion THEN bloqueSentenciaEjecutableConRet END_IF
+ 129                          | IF '(' condicion ')' THEN error END_IF
+ 130                          | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE error END_IF
+ 131                          | IF '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutableConRet END_IF
+ 132                          | IF '(' condicion ')' THEN error ELSE error END_IF
+
+ 133  condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'
+ 134            | expresion ',' listaExpresiones comparador expresion ',' listaExpresiones
+ 135            | expresion ',' listaExpresiones comparador '(' expresion ',' listaExpresiones ')'
+ 136            | '(' expresion ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')'
+ 137            | '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error
+ 138            | '(' expresion ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'
+ 139            | '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'
+ 140            | '(' expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'
+ 141            | '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error
+ 142            | expresion comparador expresion
+ 143            | error comparador expresion
+ 144            | expresion comparador error
+ 145            | expresion error expresion
+
+ 146  listaExpresiones : listaExpresiones ',' expresion
+ 147                   | expresion
+ 148                   | listaExpresiones ',' error
+
+ 149  comparador : '<'
+ 150             | '>'
+ 151             | '='
+ 152             | DISTINTO
+ 153             | MENOR_IGUAL
+ 154             | MAYOR_IGUAL
+
+ 155  cuerpoEjecutable : cuerpoEjecutable sentenciaEjecutable ';'
+ 156                   | sentenciaEjecutable ';'
+ 157                   | sentenciaEjecutable error
+
+ 158  bloqueSentenciaEjecutable : sentenciaEjecutable ';'
+ 159                            | sentenciaEjecutable error
+ 160                            | BEGIN cuerpoEjecutable END
+
+ 161  cuerpoEjecutableConRet : cuerpoEjecutableConRet sentenciaEjecutableConRet ';'
+ 162                         | sentenciaEjecutableConRet ';'
+
+ 163  bloqueSentenciaEjecutableConRet : sentenciaEjecutableConRet
+ 164                                  | BEGIN cuerpoEjecutableConRet END
+
+ 165  clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' condicion ')'
+ 166                | REPEAT error WHILE '(' condicion ')'
+ 167                | REPEAT bloqueSentenciaEjecutable WHILE '(' error ')'
+ 168                | REPEAT error WHILE '(' error ')'
+
+ 169  goto : GOTO etiqueta '@'
+ 170       | GOTO etiqueta error
+ 171       | etiqueta '@'
+
+ 172  etiqueta : IDENTIFICADOR ':'
+
+ 173  mensajeSalida : OUTF '(' expresion ')'
+ 174                | OUTF '(' CADENA_MULTI ')'
+ 175                | OUTF '(' error ')'
+
+state 0
+	$accept : . programa $end  (0)
+
+	IDENTIFICADOR  shift 1
+	BEGIN  shift 2
+	.  error
+
+	programa  goto 3
+
+
+state 1
+	programa : IDENTIFICADOR . BEGIN cuerpo END  (1)
+	programa : IDENTIFICADOR . BEGIN END  (2)
+	programa : IDENTIFICADOR . BEGIN cuerpo  (3)
+	programa : IDENTIFICADOR . error cuerpo END  (4)
+	programa : IDENTIFICADOR . error cuerpo error  (6)
+
+	error  shift 4
+	BEGIN  shift 5
+	.  error
+
+
+state 2
+	programa : BEGIN . cuerpo END  (5)
+
+	error  shift 6
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 9
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	cuerpo  goto 16
+	sentencia  goto 17
+	sentenciaDeclarativa  goto 18
+	sentenciaEjecutable  goto 19
+	etiqueta  goto 20
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+
+
+state 3
+	$accept : programa . $end  (0)
+
+	$end  accept
+
+
+state 4
+	programa : IDENTIFICADOR error . cuerpo END  (4)
+	programa : IDENTIFICADOR error . cuerpo error  (6)
+
+	error  shift 6
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 9
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	cuerpo  goto 28
+	sentencia  goto 17
+	sentenciaDeclarativa  goto 18
+	sentenciaEjecutable  goto 19
+	etiqueta  goto 20
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+
+
+state 5
+	programa : IDENTIFICADOR BEGIN . cuerpo END  (1)
+	programa : IDENTIFICADOR BEGIN . END  (2)
+	programa : IDENTIFICADOR BEGIN . cuerpo  (3)
+
+	error  shift 6
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 9
+	END  shift 29
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	cuerpo  goto 30
+	sentencia  goto 17
+	sentenciaDeclarativa  goto 18
+	sentenciaEjecutable  goto 19
+	etiqueta  goto 20
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+
+
+state 6
+	sentencia : error . ';'  (14)
+	typedefDeclaracion : error . declaracionSubtipo  (21)
+	typedefDeclaracion : error . declaracionTriple  (22)
+
+	error  shift 31
+	IDENTIFICADOR  shift 32
+	TRIPLE  shift 33
+	';'  shift 34
+	.  error
+
+	declaracionSubtipo  goto 35
+	declaracionTriple  goto 36
+
+
+state 7
+	asignacion : IDENTIFICADOR . SIMASIGNACION expresion  (75)
+	asignacion : IDENTIFICADOR . CADENA_MULTI SIMASIGNACION expresion  (76)
+	etiqueta : IDENTIFICADOR . ':'  (172)
+
+	CADENA_MULTI  shift 37
+	SIMASIGNACION  shift 38
+	':'  shift 39
+	.  error
+
+
+state 8
+	tipoDato : HEXADECIMAL .  (42)
+
+	.  reduce 42
+
+
+state 9
+	clausulaSeleccion : IF . '(' condicion ')' THEN bloqueSentenciaEjecutable END_IF  (101)
+	clausulaSeleccion : IF . '(' expresion ')' THEN bloqueSentenciaEjecutable END_IF  (102)
+	clausulaSeleccion : IF . '(' expresion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (103)
+	clausulaSeleccion : IF . '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (104)
+	clausulaSeleccion : IF . '(' condicion ')' THEN bloqueSentenciaEjecutable error  (105)
+	clausulaSeleccion : IF . '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error  (106)
+	clausulaSeleccion : IF . '(' condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (107)
+	clausulaSeleccion : IF . '(' condicion THEN bloqueSentenciaEjecutable END_IF  (108)
+	clausulaSeleccion : IF . condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (109)
+	clausulaSeleccion : IF . condicion ')' THEN bloqueSentenciaEjecutable END_IF  (110)
+	clausulaSeleccion : IF . condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (111)
+	clausulaSeleccion : IF . condicion THEN bloqueSentenciaEjecutable END_IF  (112)
+	clausulaSeleccion : IF . '(' condicion ')' THEN error END_IF  (113)
+	clausulaSeleccion : IF . '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE error END_IF  (114)
+	clausulaSeleccion : IF . '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutable END_IF  (115)
+	clausulaSeleccion : IF . '(' condicion ')' THEN error ELSE error END_IF  (116)
+
+	error  shift 40
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	'('  shift 44
+	.  error
+
+	constante  goto 45
+	expresion  goto 46
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	condicion  goto 50
+
+
+state 10
+	mensajeSalida : OUTF . '(' expresion ')'  (173)
+	mensajeSalida : OUTF . '(' CADENA_MULTI ')'  (174)
+	mensajeSalida : OUTF . '(' error ')'  (175)
+
+	'('  shift 51
+	.  error
+
+
+state 11
+	typedefDeclaracion : TYPEDEF . declaracionSubtipo  (19)
+	typedefDeclaracion : TYPEDEF . declaracionTriple  (20)
+	typedefDeclaracion : TYPEDEF . error  (23)
+
+	error  shift 52
+	IDENTIFICADOR  shift 32
+	TRIPLE  shift 33
+	.  error
+
+	declaracionSubtipo  goto 53
+	declaracionTriple  goto 54
+
+
+state 12
+	tipoDato : SINGLE .  (40)
+
+	.  reduce 40
+
+
+state 13
+	clausulaBucle : REPEAT . bloqueSentenciaEjecutable WHILE '(' condicion ')'  (165)
+	clausulaBucle : REPEAT . error WHILE '(' condicion ')'  (166)
+	clausulaBucle : REPEAT . bloqueSentenciaEjecutable WHILE '(' error ')'  (167)
+	clausulaBucle : REPEAT . error WHILE '(' error ')'  (168)
+
+	error  shift 55
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 59
+
+
+state 14
+	goto : GOTO . etiqueta '@'  (169)
+	goto : GOTO . etiqueta error  (170)
+
+	IDENTIFICADOR  shift 60
+	.  error
+
+	etiqueta  goto 61
+
+
+state 15
+	tipoDato : LONGINT .  (41)
+
+	.  reduce 41
+
+
+state 16
+	programa : BEGIN cuerpo . END  (5)
+	cuerpo : cuerpo . sentencia  (7)
+
+	error  shift 6
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 9
+	END  shift 62
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	sentencia  goto 63
+	sentenciaDeclarativa  goto 18
+	sentenciaEjecutable  goto 19
+	etiqueta  goto 20
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+
+
+state 17
+	cuerpo : sentencia .  (8)
+
+	.  reduce 8
+
+
+state 18
+	sentencia : sentenciaDeclarativa . ';'  (9)
+	sentencia : sentenciaDeclarativa . error  (12)
+
+	error  shift 64
+	';'  shift 65
+	.  error
+
+
+state 19
+	sentencia : sentenciaEjecutable . ';'  (10)
+	sentencia : sentenciaEjecutable . error  (13)
+
+	error  shift 66
+	';'  shift 67
+	.  error
+
+
+state 20
+	sentencia : etiqueta .  (11)
+	goto : etiqueta . '@'  (171)
+
+	'@'  shift 68
+	$end  reduce 11
+	error  reduce 11
+	IDENTIFICADOR  reduce 11
+	HEXADECIMAL  reduce 11
+	IF  reduce 11
+	END  reduce 11
+	OUTF  reduce 11
+	TYPEDEF  reduce 11
+	SINGLE  reduce 11
+	REPEAT  reduce 11
+	GOTO  reduce 11
+	LONGINT  reduce 11
+
+
+state 21
+	sentenciaDeclarativa : tipoDato . listaVariable  (15)
+	sentenciaDeclarativa : tipoDato . funDeclaracion  (17)
+	sentenciaDeclarativa : tipoDato . error  (18)
+
+	error  shift 69
+	IDENTIFICADOR  shift 70
+	FUN  shift 71
+	.  error
+
+	listaVariable  goto 72
+	funDeclaracion  goto 73
+
+
+state 22
+	sentenciaDeclarativa : typedefDeclaracion .  (16)
+
+	.  reduce 16
+
+
+state 23
+	sentenciaEjecutable : asignacion .  (60)
+
+	.  reduce 60
+
+
+state 24
+	sentenciaEjecutable : clausulaSeleccion .  (61)
+
+	.  reduce 61
+
+
+state 25
+	sentenciaEjecutable : clausulaBucle .  (62)
+
+	.  reduce 62
+
+
+state 26
+	sentenciaEjecutable : goto .  (63)
+
+	.  reduce 63
+
+
+state 27
+	sentenciaEjecutable : mensajeSalida .  (64)
+
+	.  reduce 64
+
+
+state 28
+	programa : IDENTIFICADOR error cuerpo . END  (4)
+	programa : IDENTIFICADOR error cuerpo . error  (6)
+	cuerpo : cuerpo . sentencia  (7)
+
+	error  shift 74
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 9
+	END  shift 75
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	sentencia  goto 63
+	sentenciaDeclarativa  goto 18
+	sentenciaEjecutable  goto 19
+	etiqueta  goto 20
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+
+
+state 29
+	programa : IDENTIFICADOR BEGIN END .  (2)
+
+	.  reduce 2
+
+
+state 30
+	programa : IDENTIFICADOR BEGIN cuerpo . END  (1)
+	programa : IDENTIFICADOR BEGIN cuerpo .  (3)
+	cuerpo : cuerpo . sentencia  (7)
+
+	error  shift 6
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 9
+	END  shift 76
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	$end  reduce 3
+
+	sentencia  goto 63
+	sentenciaDeclarativa  goto 18
+	sentenciaEjecutable  goto 19
+	etiqueta  goto 20
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+
+
+state 31
+	declaracionSubtipo : error . SIMASIGNACION tipoDato '{' listaConstante '}'  (25)
+
+	SIMASIGNACION  shift 77
+	.  error
+
+
+state 32
+	declaracionSubtipo : IDENTIFICADOR . SIMASIGNACION tipoDato '{' listaConstante '}'  (24)
+
+	SIMASIGNACION  shift 78
+	.  error
+
+
+state 33
+	declaracionTriple : TRIPLE . '<' tipoDato '>' IDENTIFICADOR  (26)
+	declaracionTriple : TRIPLE . '<' IDENTIFICADOR '>' IDENTIFICADOR  (27)
+	declaracionTriple : TRIPLE . '<' error '>' IDENTIFICADOR  (28)
+	declaracionTriple : TRIPLE . '<' tipoDato '>' error  (29)
+	declaracionTriple : TRIPLE . '<' IDENTIFICADOR '>' error  (30)
+	declaracionTriple : TRIPLE . '<' error '>' error  (31)
+	declaracionTriple : TRIPLE . IDENTIFICADOR '>' IDENTIFICADOR  (32)
+	declaracionTriple : TRIPLE . '<' IDENTIFICADOR IDENTIFICADOR  (33)
+	declaracionTriple : TRIPLE . IDENTIFICADOR IDENTIFICADOR  (34)
+	declaracionTriple : TRIPLE . tipoDato IDENTIFICADOR  (35)
+
+	IDENTIFICADOR  shift 79
+	HEXADECIMAL  shift 8
+	SINGLE  shift 12
+	LONGINT  shift 15
+	'<'  shift 80
+	.  error
+
+	tipoDato  goto 81
+
+
+state 34
+	sentencia : error ';' .  (14)
+
+	.  reduce 14
+
+
+state 35
+	typedefDeclaracion : error declaracionSubtipo .  (21)
+
+	.  reduce 21
+
+
+state 36
+	typedefDeclaracion : error declaracionTriple .  (22)
+
+	.  reduce 22
+
+
+state 37
+	asignacion : IDENTIFICADOR CADENA_MULTI . SIMASIGNACION expresion  (76)
+
+	SIMASIGNACION  shift 82
+	.  error
+
+
+state 38
+	asignacion : IDENTIFICADOR SIMASIGNACION . expresion  (75)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 83
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 39
+	etiqueta : IDENTIFICADOR ':' .  (172)
+
+	.  reduce 172
+
+
+state 40
+	condicion : error . comparador expresion  (143)
+
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'<'  shift 87
+	'>'  shift 88
+	'='  shift 89
+	.  error
+
+	comparador  goto 90
+
+
+state 41
+	operando : IDENTIFICADOR .  (87)
+	operando : IDENTIFICADOR . CADENA_MULTI  (90)
+	operando : IDENTIFICADOR . '1'  (91)
+	operando : IDENTIFICADOR . '2'  (92)
+	operando : IDENTIFICADOR . '3'  (93)
+	invocacionFuncion : IDENTIFICADOR . '(' expresion ')'  (94)
+	invocacionFuncion : IDENTIFICADOR . '(' tipoDato expresion ')'  (95)
+	invocacionFuncion : IDENTIFICADOR . '(' tipoDato '(' expresion ')' ')'  (96)
+	invocacionFuncion : IDENTIFICADOR . '(' expresion ',' error ')'  (97)
+	invocacionFuncion : IDENTIFICADOR . '(' error ')'  (98)
+	invocacionFuncion : IDENTIFICADOR . '(' tipoDato expresion ',' error ')'  (99)
+	invocacionFuncion : IDENTIFICADOR . '(' tipoDato '(' expresion ')' ',' error ')'  (100)
+
+	CADENA_MULTI  shift 91
+	'('  shift 92
+	'1'  shift 93
+	'2'  shift 94
+	'3'  shift 95
+	error  reduce 87
+	IDENTIFICADOR  reduce 87
+	HEXADECIMAL  reduce 87
+	DISTINTO  reduce 87
+	IF  reduce 87
+	THEN  reduce 87
+	END  reduce 87
+	END_IF  reduce 87
+	OUTF  reduce 87
+	TYPEDEF  reduce 87
+	RET  reduce 87
+	SINGLE  reduce 87
+	MENOR_IGUAL  reduce 87
+	MAYOR_IGUAL  reduce 87
+	REPEAT  reduce 87
+	GOTO  reduce 87
+	LONGINT  reduce 87
+	ELSE  reduce 87
+	'+'  reduce 87
+	'-'  reduce 87
+	'*'  reduce 87
+	'/'  reduce 87
+	';'  reduce 87
+	'<'  reduce 87
+	'>'  reduce 87
+	')'  reduce 87
+	','  reduce 87
+	'='  reduce 87
+
+
+state 42
+	constante : CONSTANTE .  (47)
+
+	.  reduce 47
+
+
+state 43
+	constante : '-' . CONSTANTE  (48)
+
+	CONSTANTE  shift 96
+	.  error
+
+
+state 44
+	clausulaSeleccion : IF '(' . condicion ')' THEN bloqueSentenciaEjecutable END_IF  (101)
+	clausulaSeleccion : IF '(' . expresion ')' THEN bloqueSentenciaEjecutable END_IF  (102)
+	clausulaSeleccion : IF '(' . expresion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (103)
+	clausulaSeleccion : IF '(' . condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (104)
+	clausulaSeleccion : IF '(' . condicion ')' THEN bloqueSentenciaEjecutable error  (105)
+	clausulaSeleccion : IF '(' . condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error  (106)
+	clausulaSeleccion : IF '(' . condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (107)
+	clausulaSeleccion : IF '(' . condicion THEN bloqueSentenciaEjecutable END_IF  (108)
+	clausulaSeleccion : IF '(' . condicion ')' THEN error END_IF  (113)
+	clausulaSeleccion : IF '(' . condicion ')' THEN bloqueSentenciaEjecutable ELSE error END_IF  (114)
+	clausulaSeleccion : IF '(' . condicion ')' THEN error ELSE bloqueSentenciaEjecutable END_IF  (115)
+	clausulaSeleccion : IF '(' . condicion ')' THEN error ELSE error END_IF  (116)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' . expresion ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' . expresion ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' . expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error  (141)
+
+	error  shift 40
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	'('  shift 97
+	.  error
+
+	constante  goto 45
+	expresion  goto 98
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	condicion  goto 99
+
+
+state 45
+	operando : constante .  (88)
+
+	.  reduce 88
+
+
+state 46
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : expresion . ',' listaExpresiones comparador expresion ',' listaExpresiones  (134)
+	condicion : expresion . ',' listaExpresiones comparador '(' expresion ',' listaExpresiones ')'  (135)
+	condicion : expresion . comparador expresion  (142)
+	condicion : expresion . comparador error  (144)
+	condicion : expresion . error expresion  (145)
+
+	error  shift 100
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'+'  shift 101
+	'-'  shift 102
+	'<'  shift 87
+	'>'  shift 88
+	','  shift 103
+	'='  shift 89
+	.  error
+
+	comparador  goto 104
+
+
+state 47
+	expresion : termino .  (81)
+	termino : termino . '*' operando  (82)
+	termino : termino . '/' operando  (83)
+	termino : termino . '*' error  (84)
+	termino : termino . '/' error  (85)
+
+	'*'  shift 105
+	'/'  shift 106
+	error  reduce 81
+	IDENTIFICADOR  reduce 81
+	HEXADECIMAL  reduce 81
+	DISTINTO  reduce 81
+	IF  reduce 81
+	THEN  reduce 81
+	END  reduce 81
+	END_IF  reduce 81
+	OUTF  reduce 81
+	TYPEDEF  reduce 81
+	RET  reduce 81
+	SINGLE  reduce 81
+	MENOR_IGUAL  reduce 81
+	MAYOR_IGUAL  reduce 81
+	REPEAT  reduce 81
+	GOTO  reduce 81
+	LONGINT  reduce 81
+	ELSE  reduce 81
+	'+'  reduce 81
+	'-'  reduce 81
+	';'  reduce 81
+	'<'  reduce 81
+	'>'  reduce 81
+	')'  reduce 81
+	','  reduce 81
+	'='  reduce 81
+
+
+state 48
+	termino : operando .  (86)
+
+	.  reduce 86
+
+
+state 49
+	operando : invocacionFuncion .  (89)
+
+	.  reduce 89
+
+
+state 50
+	clausulaSeleccion : IF condicion . ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (109)
+	clausulaSeleccion : IF condicion . ')' THEN bloqueSentenciaEjecutable END_IF  (110)
+	clausulaSeleccion : IF condicion . THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (111)
+	clausulaSeleccion : IF condicion . THEN bloqueSentenciaEjecutable END_IF  (112)
+
+	THEN  shift 107
+	')'  shift 108
+	.  error
+
+
+state 51
+	mensajeSalida : OUTF '(' . expresion ')'  (173)
+	mensajeSalida : OUTF '(' . CADENA_MULTI ')'  (174)
+	mensajeSalida : OUTF '(' . error ')'  (175)
+
+	error  shift 109
+	IDENTIFICADOR  shift 41
+	CADENA_MULTI  shift 110
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 111
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 52
+	typedefDeclaracion : TYPEDEF error .  (23)
+	declaracionSubtipo : error . SIMASIGNACION tipoDato '{' listaConstante '}'  (25)
+
+	SIMASIGNACION  shift 77
+	error  reduce 23
+	IDENTIFICADOR  reduce 23
+	HEXADECIMAL  reduce 23
+	IF  reduce 23
+	END  reduce 23
+	OUTF  reduce 23
+	TYPEDEF  reduce 23
+	RET  reduce 23
+	SINGLE  reduce 23
+	REPEAT  reduce 23
+	GOTO  reduce 23
+	LONGINT  reduce 23
+	';'  reduce 23
+
+
+state 53
+	typedefDeclaracion : TYPEDEF declaracionSubtipo .  (19)
+
+	.  reduce 19
+
+
+state 54
+	typedefDeclaracion : TYPEDEF declaracionTriple .  (20)
+
+	.  reduce 20
+
+
+state 55
+	clausulaBucle : REPEAT error . WHILE '(' condicion ')'  (166)
+	clausulaBucle : REPEAT error . WHILE '(' error ')'  (168)
+
+	WHILE  shift 112
+	.  error
+
+
+state 56
+	bloqueSentenciaEjecutable : BEGIN . cuerpoEjecutable END  (160)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 113
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	cuerpoEjecutable  goto 114
+
+
+state 57
+	bloqueSentenciaEjecutable : sentenciaEjecutable . ';'  (158)
+	bloqueSentenciaEjecutable : sentenciaEjecutable . error  (159)
+
+	error  shift 115
+	';'  shift 116
+	.  error
+
+
+state 58
+	goto : etiqueta . '@'  (171)
+
+	'@'  shift 68
+	.  error
+
+
+state 59
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable . WHILE '(' condicion ')'  (165)
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable . WHILE '(' error ')'  (167)
+
+	WHILE  shift 117
+	.  error
+
+
+state 60
+	etiqueta : IDENTIFICADOR . ':'  (172)
+
+	':'  shift 39
+	.  error
+
+
+state 61
+	goto : GOTO etiqueta . '@'  (169)
+	goto : GOTO etiqueta . error  (170)
+
+	error  shift 118
+	'@'  shift 119
+	.  error
+
+
+state 62
+	programa : BEGIN cuerpo END .  (5)
+
+	.  reduce 5
+
+
+state 63
+	cuerpo : cuerpo sentencia .  (7)
+
+	.  reduce 7
+
+
+state 64
+	sentencia : sentenciaDeclarativa error .  (12)
+
+	.  reduce 12
+
+
+state 65
+	sentencia : sentenciaDeclarativa ';' .  (9)
+
+	.  reduce 9
+
+
+state 66
+	sentencia : sentenciaEjecutable error .  (13)
+
+	.  reduce 13
+
+
+state 67
+	sentencia : sentenciaEjecutable ';' .  (10)
+
+	.  reduce 10
+
+
+state 68
+	goto : etiqueta '@' .  (171)
+
+	.  reduce 171
+
+
+state 69
+	sentenciaDeclarativa : tipoDato error .  (18)
+
+	.  reduce 18
+
+
+state 70
+	listaVariable : IDENTIFICADOR .  (44)
+
+	.  reduce 44
+
+
+state 71
+	funDeclaracion : FUN . IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END  (36)
+	funDeclaracion : FUN . error '(' parametro ')' BEGIN cuerpoFuncion END  (37)
+	funDeclaracion : FUN . IDENTIFICADOR '(' parametro ',' error ')' BEGIN cuerpoFuncion END  (38)
+	funDeclaracion : FUN . IDENTIFICADOR '(' parametro ')' BEGIN error END  (39)
+
+	error  shift 120
+	IDENTIFICADOR  shift 121
+	.  error
+
+
+state 72
+	sentenciaDeclarativa : tipoDato listaVariable .  (15)
+	listaVariable : listaVariable . ',' IDENTIFICADOR  (43)
+
+	','  shift 122
+	error  reduce 15
+	IDENTIFICADOR  reduce 15
+	HEXADECIMAL  reduce 15
+	IF  reduce 15
+	END  reduce 15
+	OUTF  reduce 15
+	TYPEDEF  reduce 15
+	RET  reduce 15
+	SINGLE  reduce 15
+	REPEAT  reduce 15
+	GOTO  reduce 15
+	LONGINT  reduce 15
+	';'  reduce 15
+
+
+state 73
+	sentenciaDeclarativa : tipoDato funDeclaracion .  (17)
+
+	.  reduce 17
+
+
+state 74
+	programa : IDENTIFICADOR error cuerpo error .  (6)
+	sentencia : error . ';'  (14)
+	typedefDeclaracion : error . declaracionSubtipo  (21)
+	typedefDeclaracion : error . declaracionTriple  (22)
+
+	error  shift 31
+	IDENTIFICADOR  shift 32
+	TRIPLE  shift 33
+	';'  shift 34
+	$end  reduce 6
+
+	declaracionSubtipo  goto 35
+	declaracionTriple  goto 36
+
+
+state 75
+	programa : IDENTIFICADOR error cuerpo END .  (4)
+
+	.  reduce 4
+
+
+state 76
+	programa : IDENTIFICADOR BEGIN cuerpo END .  (1)
+
+	.  reduce 1
+
+
+state 77
+	declaracionSubtipo : error SIMASIGNACION . tipoDato '{' listaConstante '}'  (25)
+
+	HEXADECIMAL  shift 8
+	SINGLE  shift 12
+	LONGINT  shift 15
+	.  error
+
+	tipoDato  goto 123
+
+
+state 78
+	declaracionSubtipo : IDENTIFICADOR SIMASIGNACION . tipoDato '{' listaConstante '}'  (24)
+
+	HEXADECIMAL  shift 8
+	SINGLE  shift 12
+	LONGINT  shift 15
+	.  error
+
+	tipoDato  goto 124
+
+
+state 79
+	declaracionTriple : TRIPLE IDENTIFICADOR . '>' IDENTIFICADOR  (32)
+	declaracionTriple : TRIPLE IDENTIFICADOR . IDENTIFICADOR  (34)
+
+	IDENTIFICADOR  shift 125
+	'>'  shift 126
+	.  error
+
+
+state 80
+	declaracionTriple : TRIPLE '<' . tipoDato '>' IDENTIFICADOR  (26)
+	declaracionTriple : TRIPLE '<' . IDENTIFICADOR '>' IDENTIFICADOR  (27)
+	declaracionTriple : TRIPLE '<' . error '>' IDENTIFICADOR  (28)
+	declaracionTriple : TRIPLE '<' . tipoDato '>' error  (29)
+	declaracionTriple : TRIPLE '<' . IDENTIFICADOR '>' error  (30)
+	declaracionTriple : TRIPLE '<' . error '>' error  (31)
+	declaracionTriple : TRIPLE '<' . IDENTIFICADOR IDENTIFICADOR  (33)
+
+	error  shift 127
+	IDENTIFICADOR  shift 128
+	HEXADECIMAL  shift 8
+	SINGLE  shift 12
+	LONGINT  shift 15
+	.  error
+
+	tipoDato  goto 129
+
+
+state 81
+	declaracionTriple : TRIPLE tipoDato . IDENTIFICADOR  (35)
+
+	IDENTIFICADOR  shift 130
+	.  error
+
+
+state 82
+	asignacion : IDENTIFICADOR CADENA_MULTI SIMASIGNACION . expresion  (76)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 131
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 83
+	asignacion : IDENTIFICADOR SIMASIGNACION expresion .  (75)
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+
+	'+'  shift 101
+	'-'  shift 102
+	error  reduce 75
+	IDENTIFICADOR  reduce 75
+	HEXADECIMAL  reduce 75
+	IF  reduce 75
+	END  reduce 75
+	END_IF  reduce 75
+	OUTF  reduce 75
+	TYPEDEF  reduce 75
+	RET  reduce 75
+	SINGLE  reduce 75
+	REPEAT  reduce 75
+	GOTO  reduce 75
+	LONGINT  reduce 75
+	ELSE  reduce 75
+	';'  reduce 75
+
+
+state 84
+	comparador : DISTINTO .  (152)
+
+	.  reduce 152
+
+
+state 85
+	comparador : MENOR_IGUAL .  (153)
+
+	.  reduce 153
+
+
+state 86
+	comparador : MAYOR_IGUAL .  (154)
+
+	.  reduce 154
+
+
+state 87
+	comparador : '<' .  (149)
+
+	.  reduce 149
+
+
+state 88
+	comparador : '>' .  (150)
+
+	.  reduce 150
+
+
+state 89
+	comparador : '=' .  (151)
+
+	.  reduce 151
+
+
+state 90
+	condicion : error comparador . expresion  (143)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 132
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 91
+	operando : IDENTIFICADOR CADENA_MULTI .  (90)
+
+	.  reduce 90
+
+
+state 92
+	invocacionFuncion : IDENTIFICADOR '(' . expresion ')'  (94)
+	invocacionFuncion : IDENTIFICADOR '(' . tipoDato expresion ')'  (95)
+	invocacionFuncion : IDENTIFICADOR '(' . tipoDato '(' expresion ')' ')'  (96)
+	invocacionFuncion : IDENTIFICADOR '(' . expresion ',' error ')'  (97)
+	invocacionFuncion : IDENTIFICADOR '(' . error ')'  (98)
+	invocacionFuncion : IDENTIFICADOR '(' . tipoDato expresion ',' error ')'  (99)
+	invocacionFuncion : IDENTIFICADOR '(' . tipoDato '(' expresion ')' ',' error ')'  (100)
+
+	error  shift 133
+	IDENTIFICADOR  shift 41
+	HEXADECIMAL  shift 8
+	SINGLE  shift 12
+	LONGINT  shift 15
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	tipoDato  goto 134
+	constante  goto 45
+	expresion  goto 135
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 93
+	operando : IDENTIFICADOR '1' .  (91)
+
+	.  reduce 91
+
+
+state 94
+	operando : IDENTIFICADOR '2' .  (92)
+
+	.  reduce 92
+
+
+state 95
+	operando : IDENTIFICADOR '3' .  (93)
+
+	.  reduce 93
+
+
+state 96
+	constante : '-' CONSTANTE .  (48)
+
+	.  reduce 48
+
+
+state 97
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' . expresion ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' . expresion ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' . expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error  (141)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 136
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 98
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	clausulaSeleccion : IF '(' expresion . ')' THEN bloqueSentenciaEjecutable END_IF  (102)
+	clausulaSeleccion : IF '(' expresion . ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (103)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : expresion . ',' listaExpresiones comparador expresion ',' listaExpresiones  (134)
+	condicion : expresion . ',' listaExpresiones comparador '(' expresion ',' listaExpresiones ')'  (135)
+	condicion : '(' expresion . ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion . ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion . ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error  (141)
+	condicion : expresion . comparador expresion  (142)
+	condicion : expresion . comparador error  (144)
+	condicion : expresion . error expresion  (145)
+
+	error  shift 100
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'+'  shift 101
+	'-'  shift 102
+	'<'  shift 87
+	'>'  shift 88
+	')'  shift 137
+	','  shift 138
+	'='  shift 89
+	.  error
+
+	comparador  goto 104
+
+
+state 99
+	clausulaSeleccion : IF '(' condicion . ')' THEN bloqueSentenciaEjecutable END_IF  (101)
+	clausulaSeleccion : IF '(' condicion . ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (104)
+	clausulaSeleccion : IF '(' condicion . ')' THEN bloqueSentenciaEjecutable error  (105)
+	clausulaSeleccion : IF '(' condicion . ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error  (106)
+	clausulaSeleccion : IF '(' condicion . THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (107)
+	clausulaSeleccion : IF '(' condicion . THEN bloqueSentenciaEjecutable END_IF  (108)
+	clausulaSeleccion : IF '(' condicion . ')' THEN error END_IF  (113)
+	clausulaSeleccion : IF '(' condicion . ')' THEN bloqueSentenciaEjecutable ELSE error END_IF  (114)
+	clausulaSeleccion : IF '(' condicion . ')' THEN error ELSE bloqueSentenciaEjecutable END_IF  (115)
+	clausulaSeleccion : IF '(' condicion . ')' THEN error ELSE error END_IF  (116)
+
+	THEN  shift 139
+	')'  shift 140
+	.  error
+
+
+state 100
+	condicion : expresion error . expresion  (145)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 141
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 101
+	expresion : expresion '+' . termino  (77)
+	expresion : expresion '+' . error  (79)
+
+	error  shift 142
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	termino  goto 143
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 102
+	expresion : expresion '-' . termino  (78)
+	expresion : expresion '-' . error  (80)
+
+	error  shift 144
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	termino  goto 145
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 103
+	condicion : expresion ',' . listaExpresiones comparador expresion ',' listaExpresiones  (134)
+	condicion : expresion ',' . listaExpresiones comparador '(' expresion ',' listaExpresiones ')'  (135)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 147
+
+
+state 104
+	condicion : expresion comparador . expresion  (142)
+	condicion : expresion comparador . error  (144)
+
+	error  shift 148
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 149
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 105
+	termino : termino '*' . operando  (82)
+	termino : termino '*' . error  (84)
+
+	error  shift 150
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	operando  goto 151
+	invocacionFuncion  goto 49
+
+
+state 106
+	termino : termino '/' . operando  (83)
+	termino : termino '/' . error  (85)
+
+	error  shift 152
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	operando  goto 153
+	invocacionFuncion  goto 49
+
+
+state 107
+	clausulaSeleccion : IF condicion THEN . bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (111)
+	clausulaSeleccion : IF condicion THEN . bloqueSentenciaEjecutable END_IF  (112)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 154
+
+
+state 108
+	clausulaSeleccion : IF condicion ')' . THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (109)
+	clausulaSeleccion : IF condicion ')' . THEN bloqueSentenciaEjecutable END_IF  (110)
+
+	THEN  shift 155
+	.  error
+
+
+state 109
+	mensajeSalida : OUTF '(' error . ')'  (175)
+
+	')'  shift 156
+	.  error
+
+
+state 110
+	mensajeSalida : OUTF '(' CADENA_MULTI . ')'  (174)
+
+	')'  shift 157
+	.  error
+
+
+state 111
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	mensajeSalida : OUTF '(' expresion . ')'  (173)
+
+	'+'  shift 101
+	'-'  shift 102
+	')'  shift 158
+	.  error
+
+
+state 112
+	clausulaBucle : REPEAT error WHILE . '(' condicion ')'  (166)
+	clausulaBucle : REPEAT error WHILE . '(' error ')'  (168)
+
+	'('  shift 159
+	.  error
+
+
+state 113
+	cuerpoEjecutable : sentenciaEjecutable . ';'  (156)
+	cuerpoEjecutable : sentenciaEjecutable . error  (157)
+
+	error  shift 160
+	';'  shift 161
+	.  error
+
+
+state 114
+	cuerpoEjecutable : cuerpoEjecutable . sentenciaEjecutable ';'  (155)
+	bloqueSentenciaEjecutable : BEGIN cuerpoEjecutable . END  (160)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	END  shift 162
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 163
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+
+
+state 115
+	bloqueSentenciaEjecutable : sentenciaEjecutable error .  (159)
+
+	.  reduce 159
+
+
+state 116
+	bloqueSentenciaEjecutable : sentenciaEjecutable ';' .  (158)
+
+	.  reduce 158
+
+
+state 117
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE . '(' condicion ')'  (165)
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE . '(' error ')'  (167)
+
+	'('  shift 164
+	.  error
+
+
+state 118
+	goto : GOTO etiqueta error .  (170)
+
+	.  reduce 170
+
+
+state 119
+	goto : GOTO etiqueta '@' .  (169)
+
+	.  reduce 169
+
+
+state 120
+	funDeclaracion : FUN error . '(' parametro ')' BEGIN cuerpoFuncion END  (37)
+
+	'('  shift 165
+	.  error
+
+
+state 121
+	funDeclaracion : FUN IDENTIFICADOR . '(' parametro ')' BEGIN cuerpoFuncion END  (36)
+	funDeclaracion : FUN IDENTIFICADOR . '(' parametro ',' error ')' BEGIN cuerpoFuncion END  (38)
+	funDeclaracion : FUN IDENTIFICADOR . '(' parametro ')' BEGIN error END  (39)
+
+	'('  shift 166
+	.  error
+
+
+state 122
+	listaVariable : listaVariable ',' . IDENTIFICADOR  (43)
+
+	IDENTIFICADOR  shift 167
+	.  error
+
+
+state 123
+	declaracionSubtipo : error SIMASIGNACION tipoDato . '{' listaConstante '}'  (25)
+
+	'{'  shift 168
+	.  error
+
+
+state 124
+	declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato . '{' listaConstante '}'  (24)
+
+	'{'  shift 169
+	.  error
+
+
+state 125
+	declaracionTriple : TRIPLE IDENTIFICADOR IDENTIFICADOR .  (34)
+
+	.  reduce 34
+
+
+state 126
+	declaracionTriple : TRIPLE IDENTIFICADOR '>' . IDENTIFICADOR  (32)
+
+	IDENTIFICADOR  shift 170
+	.  error
+
+
+state 127
+	declaracionTriple : TRIPLE '<' error . '>' IDENTIFICADOR  (28)
+	declaracionTriple : TRIPLE '<' error . '>' error  (31)
+
+	'>'  shift 171
+	.  error
+
+
+state 128
+	declaracionTriple : TRIPLE '<' IDENTIFICADOR . '>' IDENTIFICADOR  (27)
+	declaracionTriple : TRIPLE '<' IDENTIFICADOR . '>' error  (30)
+	declaracionTriple : TRIPLE '<' IDENTIFICADOR . IDENTIFICADOR  (33)
+
+	IDENTIFICADOR  shift 172
+	'>'  shift 173
+	.  error
+
+
+state 129
+	declaracionTriple : TRIPLE '<' tipoDato . '>' IDENTIFICADOR  (26)
+	declaracionTriple : TRIPLE '<' tipoDato . '>' error  (29)
+
+	'>'  shift 174
+	.  error
+
+
+state 130
+	declaracionTriple : TRIPLE tipoDato IDENTIFICADOR .  (35)
+
+	.  reduce 35
+
+
+state 131
+	asignacion : IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion .  (76)
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+
+	'+'  shift 101
+	'-'  shift 102
+	error  reduce 76
+	IDENTIFICADOR  reduce 76
+	HEXADECIMAL  reduce 76
+	IF  reduce 76
+	END  reduce 76
+	END_IF  reduce 76
+	OUTF  reduce 76
+	TYPEDEF  reduce 76
+	RET  reduce 76
+	SINGLE  reduce 76
+	REPEAT  reduce 76
+	GOTO  reduce 76
+	LONGINT  reduce 76
+	ELSE  reduce 76
+	';'  reduce 76
+
+
+state 132
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : error comparador expresion .  (143)
+
+	'+'  shift 101
+	'-'  shift 102
+	THEN  reduce 143
+	')'  reduce 143
+
+
+state 133
+	invocacionFuncion : IDENTIFICADOR '(' error . ')'  (98)
+
+	')'  shift 175
+	.  error
+
+
+state 134
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato . expresion ')'  (95)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato . '(' expresion ')' ')'  (96)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato . expresion ',' error ')'  (99)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato . '(' expresion ')' ',' error ')'  (100)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	'('  shift 176
+	.  error
+
+	constante  goto 45
+	expresion  goto 177
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 135
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	invocacionFuncion : IDENTIFICADOR '(' expresion . ')'  (94)
+	invocacionFuncion : IDENTIFICADOR '(' expresion . ',' error ')'  (97)
+
+	'+'  shift 101
+	'-'  shift 102
+	')'  shift 178
+	','  shift 179
+	.  error
+
+
+state 136
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' expresion . ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion . ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion . ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error  (141)
+
+	'+'  shift 101
+	'-'  shift 102
+	','  shift 180
+	.  error
+
+
+state 137
+	clausulaSeleccion : IF '(' expresion ')' . THEN bloqueSentenciaEjecutable END_IF  (102)
+	clausulaSeleccion : IF '(' expresion ')' . THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (103)
+
+	THEN  shift 181
+	.  error
+
+
+state 138
+	condicion : '(' expresion ',' . listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : expresion ',' . listaExpresiones comparador expresion ',' listaExpresiones  (134)
+	condicion : expresion ',' . listaExpresiones comparador '(' expresion ',' listaExpresiones ')'  (135)
+	condicion : '(' expresion ',' . listaExpresiones error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion ',' . listaExpresiones ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion ',' . listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' expresion ',' . listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion ',' . listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' expresion ',' . listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error  (141)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 182
+
+
+state 139
+	clausulaSeleccion : IF '(' condicion THEN . bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (107)
+	clausulaSeleccion : IF '(' condicion THEN . bloqueSentenciaEjecutable END_IF  (108)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 183
+
+
+state 140
+	clausulaSeleccion : IF '(' condicion ')' . THEN bloqueSentenciaEjecutable END_IF  (101)
+	clausulaSeleccion : IF '(' condicion ')' . THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (104)
+	clausulaSeleccion : IF '(' condicion ')' . THEN bloqueSentenciaEjecutable error  (105)
+	clausulaSeleccion : IF '(' condicion ')' . THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error  (106)
+	clausulaSeleccion : IF '(' condicion ')' . THEN error END_IF  (113)
+	clausulaSeleccion : IF '(' condicion ')' . THEN bloqueSentenciaEjecutable ELSE error END_IF  (114)
+	clausulaSeleccion : IF '(' condicion ')' . THEN error ELSE bloqueSentenciaEjecutable END_IF  (115)
+	clausulaSeleccion : IF '(' condicion ')' . THEN error ELSE error END_IF  (116)
+
+	THEN  shift 184
+	.  error
+
+
+state 141
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : expresion error expresion .  (145)
+
+	'+'  shift 101
+	'-'  shift 102
+	THEN  reduce 145
+	')'  reduce 145
+
+
+state 142
+	expresion : expresion '+' error .  (79)
+
+	.  reduce 79
+
+
+state 143
+	expresion : expresion '+' termino .  (77)
+	termino : termino . '*' operando  (82)
+	termino : termino . '/' operando  (83)
+	termino : termino . '*' error  (84)
+	termino : termino . '/' error  (85)
+
+	'*'  shift 105
+	'/'  shift 106
+	error  reduce 77
+	IDENTIFICADOR  reduce 77
+	HEXADECIMAL  reduce 77
+	DISTINTO  reduce 77
+	IF  reduce 77
+	THEN  reduce 77
+	END  reduce 77
+	END_IF  reduce 77
+	OUTF  reduce 77
+	TYPEDEF  reduce 77
+	RET  reduce 77
+	SINGLE  reduce 77
+	MENOR_IGUAL  reduce 77
+	MAYOR_IGUAL  reduce 77
+	REPEAT  reduce 77
+	GOTO  reduce 77
+	LONGINT  reduce 77
+	ELSE  reduce 77
+	'+'  reduce 77
+	'-'  reduce 77
+	';'  reduce 77
+	'<'  reduce 77
+	'>'  reduce 77
+	')'  reduce 77
+	','  reduce 77
+	'='  reduce 77
+
+
+state 144
+	expresion : expresion '-' error .  (80)
+
+	.  reduce 80
+
+
+state 145
+	expresion : expresion '-' termino .  (78)
+	termino : termino . '*' operando  (82)
+	termino : termino . '/' operando  (83)
+	termino : termino . '*' error  (84)
+	termino : termino . '/' error  (85)
+
+	'*'  shift 105
+	'/'  shift 106
+	error  reduce 78
+	IDENTIFICADOR  reduce 78
+	HEXADECIMAL  reduce 78
+	DISTINTO  reduce 78
+	IF  reduce 78
+	THEN  reduce 78
+	END  reduce 78
+	END_IF  reduce 78
+	OUTF  reduce 78
+	TYPEDEF  reduce 78
+	RET  reduce 78
+	SINGLE  reduce 78
+	MENOR_IGUAL  reduce 78
+	MAYOR_IGUAL  reduce 78
+	REPEAT  reduce 78
+	GOTO  reduce 78
+	LONGINT  reduce 78
+	ELSE  reduce 78
+	'+'  reduce 78
+	'-'  reduce 78
+	';'  reduce 78
+	'<'  reduce 78
+	'>'  reduce 78
+	')'  reduce 78
+	','  reduce 78
+	'='  reduce 78
+
+
+state 146
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	listaExpresiones : expresion .  (147)
+
+	'+'  shift 101
+	'-'  shift 102
+	error  reduce 147
+	DISTINTO  reduce 147
+	THEN  reduce 147
+	MENOR_IGUAL  reduce 147
+	MAYOR_IGUAL  reduce 147
+	'<'  reduce 147
+	'>'  reduce 147
+	')'  reduce 147
+	','  reduce 147
+	'='  reduce 147
+
+
+state 147
+	condicion : expresion ',' listaExpresiones . comparador expresion ',' listaExpresiones  (134)
+	condicion : expresion ',' listaExpresiones . comparador '(' expresion ',' listaExpresiones ')'  (135)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'<'  shift 87
+	'>'  shift 88
+	','  shift 185
+	'='  shift 89
+	.  error
+
+	comparador  goto 186
+
+
+state 148
+	condicion : expresion comparador error .  (144)
+
+	.  reduce 144
+
+
+state 149
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : expresion comparador expresion .  (142)
+
+	'+'  shift 101
+	'-'  shift 102
+	THEN  reduce 142
+	')'  reduce 142
+
+
+state 150
+	termino : termino '*' error .  (84)
+
+	.  reduce 84
+
+
+state 151
+	termino : termino '*' operando .  (82)
+
+	.  reduce 82
+
+
+state 152
+	termino : termino '/' error .  (85)
+
+	.  reduce 85
+
+
+state 153
+	termino : termino '/' operando .  (83)
+
+	.  reduce 83
+
+
+state 154
+	clausulaSeleccion : IF condicion THEN bloqueSentenciaEjecutable . ELSE bloqueSentenciaEjecutable END_IF  (111)
+	clausulaSeleccion : IF condicion THEN bloqueSentenciaEjecutable . END_IF  (112)
+
+	END_IF  shift 187
+	ELSE  shift 188
+	.  error
+
+
+state 155
+	clausulaSeleccion : IF condicion ')' THEN . bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (109)
+	clausulaSeleccion : IF condicion ')' THEN . bloqueSentenciaEjecutable END_IF  (110)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 189
+
+
+state 156
+	mensajeSalida : OUTF '(' error ')' .  (175)
+
+	.  reduce 175
+
+
+state 157
+	mensajeSalida : OUTF '(' CADENA_MULTI ')' .  (174)
+
+	.  reduce 174
+
+
+state 158
+	mensajeSalida : OUTF '(' expresion ')' .  (173)
+
+	.  reduce 173
+
+
+state 159
+	clausulaBucle : REPEAT error WHILE '(' . condicion ')'  (166)
+	clausulaBucle : REPEAT error WHILE '(' . error ')'  (168)
+
+	error  shift 190
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	'('  shift 97
+	.  error
+
+	constante  goto 45
+	expresion  goto 46
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	condicion  goto 191
+
+
+state 160
+	cuerpoEjecutable : sentenciaEjecutable error .  (157)
+
+	.  reduce 157
+
+
+state 161
+	cuerpoEjecutable : sentenciaEjecutable ';' .  (156)
+
+	.  reduce 156
+
+
+state 162
+	bloqueSentenciaEjecutable : BEGIN cuerpoEjecutable END .  (160)
+
+	.  reduce 160
+
+
+state 163
+	cuerpoEjecutable : cuerpoEjecutable sentenciaEjecutable . ';'  (155)
+
+	';'  shift 192
+	.  error
+
+
+state 164
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' . condicion ')'  (165)
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' . error ')'  (167)
+
+	error  shift 193
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	'('  shift 97
+	.  error
+
+	constante  goto 45
+	expresion  goto 46
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	condicion  goto 194
+
+
+state 165
+	funDeclaracion : FUN error '(' . parametro ')' BEGIN cuerpoFuncion END  (37)
+
+	error  shift 195
+	HEXADECIMAL  shift 8
+	SINGLE  shift 12
+	LONGINT  shift 15
+	.  error
+
+	tipoDato  goto 196
+	parametro  goto 197
+
+
+state 166
+	funDeclaracion : FUN IDENTIFICADOR '(' . parametro ')' BEGIN cuerpoFuncion END  (36)
+	funDeclaracion : FUN IDENTIFICADOR '(' . parametro ',' error ')' BEGIN cuerpoFuncion END  (38)
+	funDeclaracion : FUN IDENTIFICADOR '(' . parametro ')' BEGIN error END  (39)
+
+	error  shift 195
+	HEXADECIMAL  shift 8
+	SINGLE  shift 12
+	LONGINT  shift 15
+	.  error
+
+	tipoDato  goto 196
+	parametro  goto 198
+
+
+state 167
+	listaVariable : listaVariable ',' IDENTIFICADOR .  (43)
+
+	.  reduce 43
+
+
+state 168
+	declaracionSubtipo : error SIMASIGNACION tipoDato '{' . listaConstante '}'  (25)
+
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	listaConstante  goto 199
+	constante  goto 200
+
+
+state 169
+	declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' . listaConstante '}'  (24)
+
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	listaConstante  goto 201
+	constante  goto 200
+
+
+state 170
+	declaracionTriple : TRIPLE IDENTIFICADOR '>' IDENTIFICADOR .  (32)
+
+	.  reduce 32
+
+
+state 171
+	declaracionTriple : TRIPLE '<' error '>' . IDENTIFICADOR  (28)
+	declaracionTriple : TRIPLE '<' error '>' . error  (31)
+
+	error  shift 202
+	IDENTIFICADOR  shift 203
+	.  error
+
+
+state 172
+	declaracionTriple : TRIPLE '<' IDENTIFICADOR IDENTIFICADOR .  (33)
+
+	.  reduce 33
+
+
+state 173
+	declaracionTriple : TRIPLE '<' IDENTIFICADOR '>' . IDENTIFICADOR  (27)
+	declaracionTriple : TRIPLE '<' IDENTIFICADOR '>' . error  (30)
+
+	error  shift 204
+	IDENTIFICADOR  shift 205
+	.  error
+
+
+state 174
+	declaracionTriple : TRIPLE '<' tipoDato '>' . IDENTIFICADOR  (26)
+	declaracionTriple : TRIPLE '<' tipoDato '>' . error  (29)
+
+	error  shift 206
+	IDENTIFICADOR  shift 207
+	.  error
+
+
+state 175
+	invocacionFuncion : IDENTIFICADOR '(' error ')' .  (98)
+
+	.  reduce 98
+
+
+state 176
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' . expresion ')' ')'  (96)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' . expresion ')' ',' error ')'  (100)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 208
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 177
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato expresion . ')'  (95)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato expresion . ',' error ')'  (99)
+
+	'+'  shift 101
+	'-'  shift 102
+	')'  shift 209
+	','  shift 210
+	.  error
+
+
+state 178
+	invocacionFuncion : IDENTIFICADOR '(' expresion ')' .  (94)
+
+	.  reduce 94
+
+
+state 179
+	invocacionFuncion : IDENTIFICADOR '(' expresion ',' . error ')'  (97)
+
+	error  shift 211
+	.  error
+
+
+state 180
+	condicion : '(' expresion ',' . listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' expresion ',' . listaExpresiones error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion ',' . listaExpresiones ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion ',' . listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' expresion ',' . listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion ',' . listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' expresion ',' . listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error  (141)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 212
+
+
+state 181
+	clausulaSeleccion : IF '(' expresion ')' THEN . bloqueSentenciaEjecutable END_IF  (102)
+	clausulaSeleccion : IF '(' expresion ')' THEN . bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (103)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 213
+
+
+state 182
+	condicion : '(' expresion ',' listaExpresiones . ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : expresion ',' listaExpresiones . comparador expresion ',' listaExpresiones  (134)
+	condicion : expresion ',' listaExpresiones . comparador '(' expresion ',' listaExpresiones ')'  (135)
+	condicion : '(' expresion ',' listaExpresiones . error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion ',' listaExpresiones . ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion ',' listaExpresiones . error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' expresion ',' listaExpresiones . ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion ',' listaExpresiones . ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' expresion ',' listaExpresiones . ')' comparador '(' expresion ',' listaExpresiones error  (141)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	error  shift 214
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'<'  shift 87
+	'>'  shift 88
+	')'  shift 215
+	','  shift 185
+	'='  shift 89
+	.  error
+
+	comparador  goto 186
+
+
+state 183
+	clausulaSeleccion : IF '(' condicion THEN bloqueSentenciaEjecutable . ELSE bloqueSentenciaEjecutable END_IF  (107)
+	clausulaSeleccion : IF '(' condicion THEN bloqueSentenciaEjecutable . END_IF  (108)
+
+	END_IF  shift 216
+	ELSE  shift 217
+	.  error
+
+
+state 184
+	clausulaSeleccion : IF '(' condicion ')' THEN . bloqueSentenciaEjecutable END_IF  (101)
+	clausulaSeleccion : IF '(' condicion ')' THEN . bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF  (104)
+	clausulaSeleccion : IF '(' condicion ')' THEN . bloqueSentenciaEjecutable error  (105)
+	clausulaSeleccion : IF '(' condicion ')' THEN . bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error  (106)
+	clausulaSeleccion : IF '(' condicion ')' THEN . error END_IF  (113)
+	clausulaSeleccion : IF '(' condicion ')' THEN . bloqueSentenciaEjecutable ELSE error END_IF  (114)
+	clausulaSeleccion : IF '(' condicion ')' THEN . error ELSE bloqueSentenciaEjecutable END_IF  (115)
+	clausulaSeleccion : IF '(' condicion ')' THEN . error ELSE error END_IF  (116)
+
+	error  shift 218
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 219
+
+
+state 185
+	listaExpresiones : listaExpresiones ',' . expresion  (146)
+	listaExpresiones : listaExpresiones ',' . error  (148)
+
+	error  shift 220
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 221
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 186
+	condicion : expresion ',' listaExpresiones comparador . expresion ',' listaExpresiones  (134)
+	condicion : expresion ',' listaExpresiones comparador . '(' expresion ',' listaExpresiones ')'  (135)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	'('  shift 222
+	.  error
+
+	constante  goto 45
+	expresion  goto 223
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 187
+	clausulaSeleccion : IF condicion THEN bloqueSentenciaEjecutable END_IF .  (112)
+
+	.  reduce 112
+
+
+state 188
+	clausulaSeleccion : IF condicion THEN bloqueSentenciaEjecutable ELSE . bloqueSentenciaEjecutable END_IF  (111)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 224
+
+
+state 189
+	clausulaSeleccion : IF condicion ')' THEN bloqueSentenciaEjecutable . ELSE bloqueSentenciaEjecutable END_IF  (109)
+	clausulaSeleccion : IF condicion ')' THEN bloqueSentenciaEjecutable . END_IF  (110)
+
+	END_IF  shift 225
+	ELSE  shift 226
+	.  error
+
+
+state 190
+	condicion : error . comparador expresion  (143)
+	clausulaBucle : REPEAT error WHILE '(' error . ')'  (168)
+
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'<'  shift 87
+	'>'  shift 88
+	')'  shift 227
+	'='  shift 89
+	.  error
+
+	comparador  goto 90
+
+
+state 191
+	clausulaBucle : REPEAT error WHILE '(' condicion . ')'  (166)
+
+	')'  shift 228
+	.  error
+
+
+state 192
+	cuerpoEjecutable : cuerpoEjecutable sentenciaEjecutable ';' .  (155)
+
+	.  reduce 155
+
+
+state 193
+	condicion : error . comparador expresion  (143)
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' error . ')'  (167)
+
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'<'  shift 87
+	'>'  shift 88
+	')'  shift 229
+	'='  shift 89
+	.  error
+
+	comparador  goto 90
+
+
+state 194
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' condicion . ')'  (165)
+
+	')'  shift 230
+	.  error
+
+
+state 195
+	parametro : error . IDENTIFICADOR  (50)
+
+	IDENTIFICADOR  shift 231
+	.  error
+
+
+state 196
+	parametro : tipoDato . IDENTIFICADOR  (49)
+	parametro : tipoDato . error  (51)
+
+	error  shift 232
+	IDENTIFICADOR  shift 233
+	.  error
+
+
+state 197
+	funDeclaracion : FUN error '(' parametro . ')' BEGIN cuerpoFuncion END  (37)
+
+	')'  shift 234
+	.  error
+
+
+state 198
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro . ')' BEGIN cuerpoFuncion END  (36)
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro . ',' error ')' BEGIN cuerpoFuncion END  (38)
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro . ')' BEGIN error END  (39)
+
+	')'  shift 235
+	','  shift 236
+	.  error
+
+
+state 199
+	declaracionSubtipo : error SIMASIGNACION tipoDato '{' listaConstante . '}'  (25)
+	listaConstante : listaConstante . ',' constante  (45)
+
+	'}'  shift 237
+	','  shift 238
+	.  error
+
+
+state 200
+	listaConstante : constante .  (46)
+
+	.  reduce 46
+
+
+state 201
+	declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante . '}'  (24)
+	listaConstante : listaConstante . ',' constante  (45)
+
+	'}'  shift 239
+	','  shift 238
+	.  error
+
+
+state 202
+	declaracionTriple : TRIPLE '<' error '>' error .  (31)
+
+	.  reduce 31
+
+
+state 203
+	declaracionTriple : TRIPLE '<' error '>' IDENTIFICADOR .  (28)
+
+	.  reduce 28
+
+
+state 204
+	declaracionTriple : TRIPLE '<' IDENTIFICADOR '>' error .  (30)
+
+	.  reduce 30
+
+
+state 205
+	declaracionTriple : TRIPLE '<' IDENTIFICADOR '>' IDENTIFICADOR .  (27)
+
+	.  reduce 27
+
+
+state 206
+	declaracionTriple : TRIPLE '<' tipoDato '>' error .  (29)
+
+	.  reduce 29
+
+
+state 207
+	declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR .  (26)
+
+	.  reduce 26
+
+
+state 208
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' expresion . ')' ')'  (96)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' expresion . ')' ',' error ')'  (100)
+
+	'+'  shift 101
+	'-'  shift 102
+	')'  shift 240
+	.  error
+
+
+state 209
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato expresion ')' .  (95)
+
+	.  reduce 95
+
+
+state 210
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato expresion ',' . error ')'  (99)
+
+	error  shift 241
+	.  error
+
+
+state 211
+	invocacionFuncion : IDENTIFICADOR '(' expresion ',' error . ')'  (97)
+
+	')'  shift 242
+	.  error
+
+
+state 212
+	condicion : '(' expresion ',' listaExpresiones . ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' expresion ',' listaExpresiones . error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion ',' listaExpresiones . ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion ',' listaExpresiones . error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' expresion ',' listaExpresiones . ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion ',' listaExpresiones . ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' expresion ',' listaExpresiones . ')' comparador '(' expresion ',' listaExpresiones error  (141)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	error  shift 214
+	')'  shift 215
+	','  shift 185
+	.  error
+
+
+state 213
+	clausulaSeleccion : IF '(' expresion ')' THEN bloqueSentenciaEjecutable . END_IF  (102)
+	clausulaSeleccion : IF '(' expresion ')' THEN bloqueSentenciaEjecutable . ELSE bloqueSentenciaEjecutable END_IF  (103)
+
+	END_IF  shift 243
+	ELSE  shift 244
+	.  error
+
+
+state 214
+	condicion : '(' expresion ',' listaExpresiones error . comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion ',' listaExpresiones error . comparador '(' expresion ',' listaExpresiones ')'  (138)
+
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'<'  shift 87
+	'>'  shift 88
+	'='  shift 89
+	.  error
+
+	comparador  goto 245
+
+
+state 215
+	condicion : '(' expresion ',' listaExpresiones ')' . comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' expresion ',' listaExpresiones ')' . comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion ',' listaExpresiones ')' . comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion ',' listaExpresiones ')' . error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' expresion ',' listaExpresiones ')' . comparador '(' expresion ',' listaExpresiones error  (141)
+
+	error  shift 246
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'<'  shift 87
+	'>'  shift 88
+	'='  shift 89
+	.  error
+
+	comparador  goto 247
+
+
+state 216
+	clausulaSeleccion : IF '(' condicion THEN bloqueSentenciaEjecutable END_IF .  (108)
+
+	.  reduce 108
+
+
+state 217
+	clausulaSeleccion : IF '(' condicion THEN bloqueSentenciaEjecutable ELSE . bloqueSentenciaEjecutable END_IF  (107)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 248
+
+
+state 218
+	clausulaSeleccion : IF '(' condicion ')' THEN error . END_IF  (113)
+	clausulaSeleccion : IF '(' condicion ')' THEN error . ELSE bloqueSentenciaEjecutable END_IF  (115)
+	clausulaSeleccion : IF '(' condicion ')' THEN error . ELSE error END_IF  (116)
+
+	END_IF  shift 249
+	ELSE  shift 250
+	.  error
+
+
+state 219
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable . END_IF  (101)
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable . ELSE bloqueSentenciaEjecutable END_IF  (104)
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable . error  (105)
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable . ELSE bloqueSentenciaEjecutable error  (106)
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable . ELSE error END_IF  (114)
+
+	error  shift 251
+	END_IF  shift 252
+	ELSE  shift 253
+	.  error
+
+
+state 220
+	listaExpresiones : listaExpresiones ',' error .  (148)
+
+	.  reduce 148
+
+
+state 221
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	listaExpresiones : listaExpresiones ',' expresion .  (146)
+
+	'+'  shift 101
+	'-'  shift 102
+	error  reduce 146
+	DISTINTO  reduce 146
+	THEN  reduce 146
+	MENOR_IGUAL  reduce 146
+	MAYOR_IGUAL  reduce 146
+	'<'  reduce 146
+	'>'  reduce 146
+	')'  reduce 146
+	','  reduce 146
+	'='  reduce 146
+
+
+state 222
+	condicion : expresion ',' listaExpresiones comparador '(' . expresion ',' listaExpresiones ')'  (135)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 254
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 223
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : expresion ',' listaExpresiones comparador expresion . ',' listaExpresiones  (134)
+
+	'+'  shift 101
+	'-'  shift 102
+	','  shift 255
+	.  error
+
+
+state 224
+	clausulaSeleccion : IF condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable . END_IF  (111)
+
+	END_IF  shift 256
+	.  error
+
+
+state 225
+	clausulaSeleccion : IF condicion ')' THEN bloqueSentenciaEjecutable END_IF .  (110)
+
+	.  reduce 110
+
+
+state 226
+	clausulaSeleccion : IF condicion ')' THEN bloqueSentenciaEjecutable ELSE . bloqueSentenciaEjecutable END_IF  (109)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 257
+
+
+state 227
+	clausulaBucle : REPEAT error WHILE '(' error ')' .  (168)
+
+	.  reduce 168
+
+
+state 228
+	clausulaBucle : REPEAT error WHILE '(' condicion ')' .  (166)
+
+	.  reduce 166
+
+
+state 229
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' error ')' .  (167)
+
+	.  reduce 167
+
+
+state 230
+	clausulaBucle : REPEAT bloqueSentenciaEjecutable WHILE '(' condicion ')' .  (165)
+
+	.  reduce 165
+
+
+state 231
+	parametro : error IDENTIFICADOR .  (50)
+
+	.  reduce 50
+
+
+state 232
+	parametro : tipoDato error .  (51)
+
+	.  reduce 51
+
+
+state 233
+	parametro : tipoDato IDENTIFICADOR .  (49)
+
+	.  reduce 49
+
+
+state 234
+	funDeclaracion : FUN error '(' parametro ')' . BEGIN cuerpoFuncion END  (37)
+
+	BEGIN  shift 258
+	.  error
+
+
+state 235
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' . BEGIN cuerpoFuncion END  (36)
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' . BEGIN error END  (39)
+
+	BEGIN  shift 259
+	.  error
+
+
+state 236
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ',' . error ')' BEGIN cuerpoFuncion END  (38)
+
+	error  shift 260
+	.  error
+
+
+state 237
+	declaracionSubtipo : error SIMASIGNACION tipoDato '{' listaConstante '}' .  (25)
+
+	.  reduce 25
+
+
+state 238
+	listaConstante : listaConstante ',' . constante  (45)
+
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 261
+
+
+state 239
+	declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante '}' .  (24)
+
+	.  reduce 24
+
+
+state 240
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' expresion ')' . ')'  (96)
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' expresion ')' . ',' error ')'  (100)
+
+	')'  shift 262
+	','  shift 263
+	.  error
+
+
+state 241
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato expresion ',' error . ')'  (99)
+
+	')'  shift 264
+	.  error
+
+
+state 242
+	invocacionFuncion : IDENTIFICADOR '(' expresion ',' error ')' .  (97)
+
+	.  reduce 97
+
+
+state 243
+	clausulaSeleccion : IF '(' expresion ')' THEN bloqueSentenciaEjecutable END_IF .  (102)
+
+	.  reduce 102
+
+
+state 244
+	clausulaSeleccion : IF '(' expresion ')' THEN bloqueSentenciaEjecutable ELSE . bloqueSentenciaEjecutable END_IF  (103)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 265
+
+
+state 245
+	condicion : '(' expresion ',' listaExpresiones error comparador . error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion ',' listaExpresiones error comparador . '(' expresion ',' listaExpresiones ')'  (138)
+
+	error  shift 266
+	'('  shift 267
+	.  error
+
+
+state 246
+	condicion : '(' expresion ',' listaExpresiones ')' error . '(' expresion ',' listaExpresiones ')'  (140)
+
+	'('  shift 268
+	.  error
+
+
+state 247
+	condicion : '(' expresion ',' listaExpresiones ')' comparador . '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador . error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador . error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador . '(' expresion ',' listaExpresiones error  (141)
+
+	error  shift 269
+	'('  shift 270
+	.  error
+
+
+state 248
+	clausulaSeleccion : IF '(' condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable . END_IF  (107)
+
+	END_IF  shift 271
+	.  error
+
+
+state 249
+	clausulaSeleccion : IF '(' condicion ')' THEN error END_IF .  (113)
+
+	.  reduce 113
+
+
+state 250
+	clausulaSeleccion : IF '(' condicion ')' THEN error ELSE . bloqueSentenciaEjecutable END_IF  (115)
+	clausulaSeleccion : IF '(' condicion ')' THEN error ELSE . error END_IF  (116)
+
+	error  shift 272
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 273
+
+
+state 251
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable error .  (105)
+
+	.  reduce 105
+
+
+state 252
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable END_IF .  (101)
+
+	.  reduce 101
+
+
+state 253
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE . bloqueSentenciaEjecutable END_IF  (104)
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE . bloqueSentenciaEjecutable error  (106)
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE . error END_IF  (114)
+
+	error  shift 274
+	IDENTIFICADOR  shift 7
+	IF  shift 9
+	BEGIN  shift 56
+	OUTF  shift 10
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	sentenciaEjecutable  goto 57
+	etiqueta  goto 58
+	asignacion  goto 23
+	clausulaSeleccion  goto 24
+	clausulaBucle  goto 25
+	goto  goto 26
+	mensajeSalida  goto 27
+	bloqueSentenciaEjecutable  goto 275
+
+
+state 254
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : expresion ',' listaExpresiones comparador '(' expresion . ',' listaExpresiones ')'  (135)
+
+	'+'  shift 101
+	'-'  shift 102
+	','  shift 276
+	.  error
+
+
+state 255
+	condicion : expresion ',' listaExpresiones comparador expresion ',' . listaExpresiones  (134)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 277
+
+
+state 256
+	clausulaSeleccion : IF condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF .  (111)
+
+	.  reduce 111
+
+
+state 257
+	clausulaSeleccion : IF condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable . END_IF  (109)
+
+	END_IF  shift 278
+	.  error
+
+
+state 258
+	funDeclaracion : FUN error '(' parametro ')' BEGIN . cuerpoFuncion END  (37)
+
+	error  shift 279
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 280
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	RET  shift 281
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	sentenciaDeclarativa  goto 282
+	etiqueta  goto 283
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	cuerpoFuncion  goto 284
+	sentenciaConRet  goto 285
+	sentenciaEjecutableConRet  goto 286
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+
+
+state 259
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN . cuerpoFuncion END  (36)
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN . error END  (39)
+
+	error  shift 293
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 280
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	RET  shift 281
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	sentenciaDeclarativa  goto 282
+	etiqueta  goto 283
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	cuerpoFuncion  goto 294
+	sentenciaConRet  goto 285
+	sentenciaEjecutableConRet  goto 286
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+
+
+state 260
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ',' error . ')' BEGIN cuerpoFuncion END  (38)
+
+	')'  shift 295
+	.  error
+
+
+state 261
+	listaConstante : listaConstante ',' constante .  (45)
+
+	.  reduce 45
+
+
+state 262
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' .  (96)
+
+	.  reduce 96
+
+
+state 263
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' expresion ')' ',' . error ')'  (100)
+
+	error  shift 296
+	.  error
+
+
+state 264
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato expresion ',' error ')' .  (99)
+
+	.  reduce 99
+
+
+state 265
+	clausulaSeleccion : IF '(' expresion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable . END_IF  (103)
+
+	END_IF  shift 297
+	.  error
+
+
+state 266
+	condicion : '(' expresion ',' listaExpresiones error comparador error . expresion ',' listaExpresiones ')'  (136)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 298
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 267
+	condicion : '(' expresion ',' listaExpresiones error comparador '(' . expresion ',' listaExpresiones ')'  (138)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 299
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 268
+	condicion : '(' expresion ',' listaExpresiones ')' error '(' . expresion ',' listaExpresiones ')'  (140)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 300
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 269
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error . expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error . expresion ',' listaExpresiones ')'  (139)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 301
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 270
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' . expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' . expresion ',' listaExpresiones error  (141)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 302
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 271
+	clausulaSeleccion : IF '(' condicion THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF .  (107)
+
+	.  reduce 107
+
+
+state 272
+	clausulaSeleccion : IF '(' condicion ')' THEN error ELSE error . END_IF  (116)
+
+	END_IF  shift 303
+	.  error
+
+
+state 273
+	clausulaSeleccion : IF '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutable . END_IF  (115)
+
+	END_IF  shift 304
+	.  error
+
+
+state 274
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE error . END_IF  (114)
+
+	END_IF  shift 305
+	.  error
+
+
+state 275
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable . END_IF  (104)
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable . error  (106)
+
+	error  shift 306
+	END_IF  shift 307
+	.  error
+
+
+state 276
+	condicion : expresion ',' listaExpresiones comparador '(' expresion ',' . listaExpresiones ')'  (135)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 308
+
+
+state 277
+	condicion : expresion ',' listaExpresiones comparador expresion ',' listaExpresiones .  (134)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	','  shift 185
+	THEN  reduce 134
+	')'  reduce 134
+
+
+state 278
+	clausulaSeleccion : IF condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF .  (109)
+
+	.  reduce 109
+
+
+state 279
+	typedefDeclaracion : error . declaracionSubtipo  (21)
+	typedefDeclaracion : error . declaracionTriple  (22)
+
+	error  shift 31
+	IDENTIFICADOR  shift 32
+	TRIPLE  shift 33
+	.  error
+
+	declaracionSubtipo  goto 35
+	declaracionTriple  goto 36
+
+
+state 280
+	clausulaSeleccionConRet : IF . '(' condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF  (117)
+	clausulaSeleccionConRet : IF . '(' expresion ')' THEN bloqueSentenciaEjecutableConRet END_IF  (118)
+	clausulaSeleccionConRet : IF . '(' expresion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (119)
+	clausulaSeleccionConRet : IF . '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (120)
+	clausulaSeleccionConRet : IF . '(' condicion ')' THEN bloqueSentenciaEjecutableConRet error  (121)
+	clausulaSeleccionConRet : IF . '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error  (122)
+	clausulaSeleccionConRet : IF . '(' condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (123)
+	clausulaSeleccionConRet : IF . '(' condicion THEN bloqueSentenciaEjecutableConRet END_IF  (124)
+	clausulaSeleccionConRet : IF . condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (125)
+	clausulaSeleccionConRet : IF . condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF  (126)
+	clausulaSeleccionConRet : IF . condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (127)
+	clausulaSeleccionConRet : IF . condicion THEN bloqueSentenciaEjecutableConRet END_IF  (128)
+	clausulaSeleccionConRet : IF . '(' condicion ')' THEN error END_IF  (129)
+	clausulaSeleccionConRet : IF . '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE error END_IF  (130)
+	clausulaSeleccionConRet : IF . '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutableConRet END_IF  (131)
+	clausulaSeleccionConRet : IF . '(' condicion ')' THEN error ELSE error END_IF  (132)
+
+	error  shift 40
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	'('  shift 309
+	.  error
+
+	constante  goto 45
+	expresion  goto 46
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	condicion  goto 310
+
+
+state 281
+	sentenciaRet : RET . '(' expresion ')'  (59)
+
+	'('  shift 311
+	.  error
+
+
+state 282
+	sentenciaConRet : sentenciaDeclarativa . ';'  (54)
+	sentenciaConRet : sentenciaDeclarativa .  (57)
+
+	';'  shift 312
+	error  reduce 57
+	IDENTIFICADOR  reduce 57
+	HEXADECIMAL  reduce 57
+	IF  reduce 57
+	END  reduce 57
+	OUTF  reduce 57
+	TYPEDEF  reduce 57
+	RET  reduce 57
+	SINGLE  reduce 57
+	REPEAT  reduce 57
+	GOTO  reduce 57
+	LONGINT  reduce 57
+
+
+state 283
+	sentenciaConRet : etiqueta .  (56)
+	goto : etiqueta . '@'  (171)
+
+	'@'  shift 68
+	error  reduce 56
+	IDENTIFICADOR  reduce 56
+	HEXADECIMAL  reduce 56
+	IF  reduce 56
+	END  reduce 56
+	OUTF  reduce 56
+	TYPEDEF  reduce 56
+	RET  reduce 56
+	SINGLE  reduce 56
+	REPEAT  reduce 56
+	GOTO  reduce 56
+	LONGINT  reduce 56
+
+
+state 284
+	funDeclaracion : FUN error '(' parametro ')' BEGIN cuerpoFuncion . END  (37)
+	cuerpoFuncion : cuerpoFuncion . sentenciaConRet  (52)
+
+	error  shift 279
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 280
+	END  shift 313
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	RET  shift 281
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	sentenciaDeclarativa  goto 282
+	etiqueta  goto 283
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	sentenciaConRet  goto 314
+	sentenciaEjecutableConRet  goto 286
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+
+
+state 285
+	cuerpoFuncion : sentenciaConRet .  (53)
+
+	.  reduce 53
+
+
+state 286
+	sentenciaConRet : sentenciaEjecutableConRet . ';'  (55)
+	sentenciaConRet : sentenciaEjecutableConRet .  (58)
+
+	';'  shift 315
+	error  reduce 58
+	IDENTIFICADOR  reduce 58
+	HEXADECIMAL  reduce 58
+	IF  reduce 58
+	END  reduce 58
+	OUTF  reduce 58
+	TYPEDEF  reduce 58
+	RET  reduce 58
+	SINGLE  reduce 58
+	REPEAT  reduce 58
+	GOTO  reduce 58
+	LONGINT  reduce 58
+
+
+state 287
+	sentenciaEjecutableConRet : sentenciaRet .  (73)
+
+	.  reduce 73
+
+
+state 288
+	sentenciaEjecutableConRet : asignacion . $$1  (66)
+	$$1 : .  (65)
+
+	.  reduce 65
+
+	$$1  goto 316
+
+
+state 289
+	sentenciaEjecutableConRet : clausulaBucle . $$2  (68)
+	$$2 : .  (67)
+
+	.  reduce 67
+
+	$$2  goto 317
+
+
+state 290
+	sentenciaEjecutableConRet : goto . $$3  (70)
+	$$3 : .  (69)
+
+	.  reduce 69
+
+	$$3  goto 318
+
+
+state 291
+	sentenciaEjecutableConRet : mensajeSalida . $$4  (72)
+	$$4 : .  (71)
+
+	.  reduce 71
+
+	$$4  goto 319
+
+
+state 292
+	sentenciaEjecutableConRet : clausulaSeleccionConRet .  (74)
+
+	.  reduce 74
+
+
+state 293
+	typedefDeclaracion : error . declaracionSubtipo  (21)
+	typedefDeclaracion : error . declaracionTriple  (22)
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN error . END  (39)
+
+	error  shift 31
+	IDENTIFICADOR  shift 32
+	END  shift 320
+	TRIPLE  shift 33
+	.  error
+
+	declaracionSubtipo  goto 35
+	declaracionTriple  goto 36
+
+
+state 294
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion . END  (36)
+	cuerpoFuncion : cuerpoFuncion . sentenciaConRet  (52)
+
+	error  shift 279
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 280
+	END  shift 321
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	RET  shift 281
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	sentenciaDeclarativa  goto 282
+	etiqueta  goto 283
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	sentenciaConRet  goto 314
+	sentenciaEjecutableConRet  goto 286
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+
+
+state 295
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ',' error ')' . BEGIN cuerpoFuncion END  (38)
+
+	BEGIN  shift 322
+	.  error
+
+
+state 296
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' expresion ')' ',' error . ')'  (100)
+
+	')'  shift 323
+	.  error
+
+
+state 297
+	clausulaSeleccion : IF '(' expresion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF .  (103)
+
+	.  reduce 103
+
+
+state 298
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : '(' expresion ',' listaExpresiones error comparador error expresion . ',' listaExpresiones ')'  (136)
+
+	'+'  shift 101
+	'-'  shift 102
+	','  shift 324
+	.  error
+
+
+state 299
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : '(' expresion ',' listaExpresiones error comparador '(' expresion . ',' listaExpresiones ')'  (138)
+
+	'+'  shift 101
+	'-'  shift 102
+	','  shift 325
+	.  error
+
+
+state 300
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : '(' expresion ',' listaExpresiones ')' error '(' expresion . ',' listaExpresiones ')'  (140)
+
+	'+'  shift 101
+	'-'  shift 102
+	','  shift 326
+	.  error
+
+
+state 301
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error expresion . ',' listaExpresiones error  (137)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error expresion . ',' listaExpresiones ')'  (139)
+
+	'+'  shift 101
+	'-'  shift 102
+	','  shift 327
+	.  error
+
+
+state 302
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion . ',' listaExpresiones ')'  (133)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion . ',' listaExpresiones error  (141)
+
+	'+'  shift 101
+	'-'  shift 102
+	','  shift 328
+	.  error
+
+
+state 303
+	clausulaSeleccion : IF '(' condicion ')' THEN error ELSE error END_IF .  (116)
+
+	.  reduce 116
+
+
+state 304
+	clausulaSeleccion : IF '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutable END_IF .  (115)
+
+	.  reduce 115
+
+
+state 305
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE error END_IF .  (114)
+
+	.  reduce 114
+
+
+state 306
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error .  (106)
+
+	.  reduce 106
+
+
+state 307
+	clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF .  (104)
+
+	.  reduce 104
+
+
+state 308
+	condicion : expresion ',' listaExpresiones comparador '(' expresion ',' listaExpresiones . ')'  (135)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	')'  shift 329
+	','  shift 185
+	.  error
+
+
+state 309
+	clausulaSeleccionConRet : IF '(' . condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF  (117)
+	clausulaSeleccionConRet : IF '(' . expresion ')' THEN bloqueSentenciaEjecutableConRet END_IF  (118)
+	clausulaSeleccionConRet : IF '(' . expresion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (119)
+	clausulaSeleccionConRet : IF '(' . condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (120)
+	clausulaSeleccionConRet : IF '(' . condicion ')' THEN bloqueSentenciaEjecutableConRet error  (121)
+	clausulaSeleccionConRet : IF '(' . condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error  (122)
+	clausulaSeleccionConRet : IF '(' . condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (123)
+	clausulaSeleccionConRet : IF '(' . condicion THEN bloqueSentenciaEjecutableConRet END_IF  (124)
+	clausulaSeleccionConRet : IF '(' . condicion ')' THEN error END_IF  (129)
+	clausulaSeleccionConRet : IF '(' . condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE error END_IF  (130)
+	clausulaSeleccionConRet : IF '(' . condicion ')' THEN error ELSE bloqueSentenciaEjecutableConRet END_IF  (131)
+	clausulaSeleccionConRet : IF '(' . condicion ')' THEN error ELSE error END_IF  (132)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : '(' . expresion ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' . expresion ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' . expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' . expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error  (141)
+
+	error  shift 40
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	'('  shift 97
+	.  error
+
+	constante  goto 45
+	expresion  goto 330
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	condicion  goto 331
+
+
+state 310
+	clausulaSeleccionConRet : IF condicion . ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (125)
+	clausulaSeleccionConRet : IF condicion . ')' THEN bloqueSentenciaEjecutableConRet END_IF  (126)
+	clausulaSeleccionConRet : IF condicion . THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (127)
+	clausulaSeleccionConRet : IF condicion . THEN bloqueSentenciaEjecutableConRet END_IF  (128)
+
+	THEN  shift 332
+	')'  shift 333
+	.  error
+
+
+state 311
+	sentenciaRet : RET '(' . expresion ')'  (59)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 334
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+
+
+state 312
+	sentenciaConRet : sentenciaDeclarativa ';' .  (54)
+
+	.  reduce 54
+
+
+state 313
+	funDeclaracion : FUN error '(' parametro ')' BEGIN cuerpoFuncion END .  (37)
+
+	.  reduce 37
+
+
+state 314
+	cuerpoFuncion : cuerpoFuncion sentenciaConRet .  (52)
+
+	.  reduce 52
+
+
+state 315
+	sentenciaConRet : sentenciaEjecutableConRet ';' .  (55)
+
+	.  reduce 55
+
+
+state 316
+	sentenciaEjecutableConRet : asignacion $$1 .  (66)
+
+	.  reduce 66
+
+
+state 317
+	sentenciaEjecutableConRet : clausulaBucle $$2 .  (68)
+
+	.  reduce 68
+
+
+state 318
+	sentenciaEjecutableConRet : goto $$3 .  (70)
+
+	.  reduce 70
+
+
+state 319
+	sentenciaEjecutableConRet : mensajeSalida $$4 .  (72)
+
+	.  reduce 72
+
+
+state 320
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN error END .  (39)
+
+	.  reduce 39
+
+
+state 321
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END .  (36)
+
+	.  reduce 36
+
+
+state 322
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ',' error ')' BEGIN . cuerpoFuncion END  (38)
+
+	error  shift 279
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 280
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	RET  shift 281
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	sentenciaDeclarativa  goto 282
+	etiqueta  goto 283
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	cuerpoFuncion  goto 335
+	sentenciaConRet  goto 285
+	sentenciaEjecutableConRet  goto 286
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+
+
+state 323
+	invocacionFuncion : IDENTIFICADOR '(' tipoDato '(' expresion ')' ',' error ')' .  (100)
+
+	.  reduce 100
+
+
+state 324
+	condicion : '(' expresion ',' listaExpresiones error comparador error expresion ',' . listaExpresiones ')'  (136)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 336
+
+
+state 325
+	condicion : '(' expresion ',' listaExpresiones error comparador '(' expresion ',' . listaExpresiones ')'  (138)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 337
+
+
+state 326
+	condicion : '(' expresion ',' listaExpresiones ')' error '(' expresion ',' . listaExpresiones ')'  (140)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 338
+
+
+state 327
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error expresion ',' . listaExpresiones error  (137)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error expresion ',' . listaExpresiones ')'  (139)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 339
+
+
+state 328
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' . listaExpresiones ')'  (133)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' . listaExpresiones error  (141)
+
+	IDENTIFICADOR  shift 41
+	CONSTANTE  shift 42
+	'-'  shift 43
+	.  error
+
+	constante  goto 45
+	expresion  goto 146
+	termino  goto 47
+	operando  goto 48
+	invocacionFuncion  goto 49
+	listaExpresiones  goto 340
+
+
+state 329
+	condicion : expresion ',' listaExpresiones comparador '(' expresion ',' listaExpresiones ')' .  (135)
+
+	.  reduce 135
+
+
+state 330
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+	clausulaSeleccionConRet : IF '(' expresion . ')' THEN bloqueSentenciaEjecutableConRet END_IF  (118)
+	clausulaSeleccionConRet : IF '(' expresion . ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (119)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'  (133)
+	condicion : expresion . ',' listaExpresiones comparador expresion ',' listaExpresiones  (134)
+	condicion : expresion . ',' listaExpresiones comparador '(' expresion ',' listaExpresiones ')'  (135)
+	condicion : '(' expresion . ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')'  (136)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error  (137)
+	condicion : '(' expresion . ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'  (138)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'  (139)
+	condicion : '(' expresion . ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')'  (140)
+	condicion : '(' expresion . ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error  (141)
+	condicion : expresion . comparador expresion  (142)
+	condicion : expresion . comparador error  (144)
+	condicion : expresion . error expresion  (145)
+
+	error  shift 100
+	DISTINTO  shift 84
+	MENOR_IGUAL  shift 85
+	MAYOR_IGUAL  shift 86
+	'+'  shift 101
+	'-'  shift 102
+	'<'  shift 87
+	'>'  shift 88
+	')'  shift 341
+	','  shift 138
+	'='  shift 89
+	.  error
+
+	comparador  goto 104
+
+
+state 331
+	clausulaSeleccionConRet : IF '(' condicion . ')' THEN bloqueSentenciaEjecutableConRet END_IF  (117)
+	clausulaSeleccionConRet : IF '(' condicion . ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (120)
+	clausulaSeleccionConRet : IF '(' condicion . ')' THEN bloqueSentenciaEjecutableConRet error  (121)
+	clausulaSeleccionConRet : IF '(' condicion . ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error  (122)
+	clausulaSeleccionConRet : IF '(' condicion . THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (123)
+	clausulaSeleccionConRet : IF '(' condicion . THEN bloqueSentenciaEjecutableConRet END_IF  (124)
+	clausulaSeleccionConRet : IF '(' condicion . ')' THEN error END_IF  (129)
+	clausulaSeleccionConRet : IF '(' condicion . ')' THEN bloqueSentenciaEjecutableConRet ELSE error END_IF  (130)
+	clausulaSeleccionConRet : IF '(' condicion . ')' THEN error ELSE bloqueSentenciaEjecutableConRet END_IF  (131)
+	clausulaSeleccionConRet : IF '(' condicion . ')' THEN error ELSE error END_IF  (132)
+
+	THEN  shift 342
+	')'  shift 343
+	.  error
+
+
+state 332
+	clausulaSeleccionConRet : IF condicion THEN . bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (127)
+	clausulaSeleccionConRet : IF condicion THEN . bloqueSentenciaEjecutableConRet END_IF  (128)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 346
+
+
+state 333
+	clausulaSeleccionConRet : IF condicion ')' . THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (125)
+	clausulaSeleccionConRet : IF condicion ')' . THEN bloqueSentenciaEjecutableConRet END_IF  (126)
+
+	THEN  shift 347
+	.  error
+
+
+state 334
+	sentenciaRet : RET '(' expresion . ')'  (59)
+	expresion : expresion . '+' termino  (77)
+	expresion : expresion . '-' termino  (78)
+	expresion : expresion . '+' error  (79)
+	expresion : expresion . '-' error  (80)
+
+	'+'  shift 101
+	'-'  shift 102
+	')'  shift 348
+	.  error
+
+
+state 335
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ',' error ')' BEGIN cuerpoFuncion . END  (38)
+	cuerpoFuncion : cuerpoFuncion . sentenciaConRet  (52)
+
+	error  shift 279
+	IDENTIFICADOR  shift 7
+	HEXADECIMAL  shift 8
+	IF  shift 280
+	END  shift 349
+	OUTF  shift 10
+	TYPEDEF  shift 11
+	RET  shift 281
+	SINGLE  shift 12
+	REPEAT  shift 13
+	GOTO  shift 14
+	LONGINT  shift 15
+	.  error
+
+	sentenciaDeclarativa  goto 282
+	etiqueta  goto 283
+	tipoDato  goto 21
+	typedefDeclaracion  goto 22
+	sentenciaConRet  goto 314
+	sentenciaEjecutableConRet  goto 286
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+
+
+state 336
+	condicion : '(' expresion ',' listaExpresiones error comparador error expresion ',' listaExpresiones . ')'  (136)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	')'  shift 350
+	','  shift 185
+	.  error
+
+
+state 337
+	condicion : '(' expresion ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones . ')'  (138)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	')'  shift 351
+	','  shift 185
+	.  error
+
+
+state 338
+	condicion : '(' expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones . ')'  (140)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	')'  shift 352
+	','  shift 185
+	.  error
+
+
+state 339
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones . error  (137)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones . ')'  (139)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	error  shift 353
+	')'  shift 354
+	','  shift 185
+	.  error
+
+
+state 340
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones . ')'  (133)
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones . error  (141)
+	listaExpresiones : listaExpresiones . ',' expresion  (146)
+	listaExpresiones : listaExpresiones . ',' error  (148)
+
+	error  shift 355
+	')'  shift 356
+	','  shift 185
+	.  error
+
+
+state 341
+	clausulaSeleccionConRet : IF '(' expresion ')' . THEN bloqueSentenciaEjecutableConRet END_IF  (118)
+	clausulaSeleccionConRet : IF '(' expresion ')' . THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (119)
+
+	THEN  shift 357
+	.  error
+
+
+state 342
+	clausulaSeleccionConRet : IF '(' condicion THEN . bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (123)
+	clausulaSeleccionConRet : IF '(' condicion THEN . bloqueSentenciaEjecutableConRet END_IF  (124)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 358
+
+
+state 343
+	clausulaSeleccionConRet : IF '(' condicion ')' . THEN bloqueSentenciaEjecutableConRet END_IF  (117)
+	clausulaSeleccionConRet : IF '(' condicion ')' . THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (120)
+	clausulaSeleccionConRet : IF '(' condicion ')' . THEN bloqueSentenciaEjecutableConRet error  (121)
+	clausulaSeleccionConRet : IF '(' condicion ')' . THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error  (122)
+	clausulaSeleccionConRet : IF '(' condicion ')' . THEN error END_IF  (129)
+	clausulaSeleccionConRet : IF '(' condicion ')' . THEN bloqueSentenciaEjecutableConRet ELSE error END_IF  (130)
+	clausulaSeleccionConRet : IF '(' condicion ')' . THEN error ELSE bloqueSentenciaEjecutableConRet END_IF  (131)
+	clausulaSeleccionConRet : IF '(' condicion ')' . THEN error ELSE error END_IF  (132)
+
+	THEN  shift 359
+	.  error
+
+
+state 344
+	bloqueSentenciaEjecutableConRet : BEGIN . cuerpoEjecutableConRet END  (164)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 360
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	cuerpoEjecutableConRet  goto 361
+
+
+state 345
+	bloqueSentenciaEjecutableConRet : sentenciaEjecutableConRet .  (163)
+
+	.  reduce 163
+
+
+state 346
+	clausulaSeleccionConRet : IF condicion THEN bloqueSentenciaEjecutableConRet . ELSE bloqueSentenciaEjecutableConRet END_IF  (127)
+	clausulaSeleccionConRet : IF condicion THEN bloqueSentenciaEjecutableConRet . END_IF  (128)
+
+	END_IF  shift 362
+	ELSE  shift 363
+	.  error
+
+
+state 347
+	clausulaSeleccionConRet : IF condicion ')' THEN . bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (125)
+	clausulaSeleccionConRet : IF condicion ')' THEN . bloqueSentenciaEjecutableConRet END_IF  (126)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 364
+
+
+state 348
+	sentenciaRet : RET '(' expresion ')' .  (59)
+
+	.  reduce 59
+
+
+state 349
+	funDeclaracion : FUN IDENTIFICADOR '(' parametro ',' error ')' BEGIN cuerpoFuncion END .  (38)
+
+	.  reduce 38
+
+
+state 350
+	condicion : '(' expresion ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')' .  (136)
+
+	.  reduce 136
+
+
+state 351
+	condicion : '(' expresion ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')' .  (138)
+
+	.  reduce 138
+
+
+state 352
+	condicion : '(' expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')' .  (140)
+
+	.  reduce 140
+
+
+state 353
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error .  (137)
+
+	.  reduce 137
+
+
+state 354
+	condicion : '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')' .  (139)
+
+	.  reduce 139
+
+
+state 355
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error .  (141)
+
+	.  reduce 141
+
+
+state 356
+	condicion : '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')' .  (133)
+
+	.  reduce 133
+
+
+state 357
+	clausulaSeleccionConRet : IF '(' expresion ')' THEN . bloqueSentenciaEjecutableConRet END_IF  (118)
+	clausulaSeleccionConRet : IF '(' expresion ')' THEN . bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (119)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 365
+
+
+state 358
+	clausulaSeleccionConRet : IF '(' condicion THEN bloqueSentenciaEjecutableConRet . ELSE bloqueSentenciaEjecutableConRet END_IF  (123)
+	clausulaSeleccionConRet : IF '(' condicion THEN bloqueSentenciaEjecutableConRet . END_IF  (124)
+
+	END_IF  shift 366
+	ELSE  shift 367
+	.  error
+
+
+state 359
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN . bloqueSentenciaEjecutableConRet END_IF  (117)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN . bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF  (120)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN . bloqueSentenciaEjecutableConRet error  (121)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN . bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error  (122)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN . error END_IF  (129)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN . bloqueSentenciaEjecutableConRet ELSE error END_IF  (130)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN . error ELSE bloqueSentenciaEjecutableConRet END_IF  (131)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN . error ELSE error END_IF  (132)
+
+	error  shift 368
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 369
+
+
+state 360
+	cuerpoEjecutableConRet : sentenciaEjecutableConRet . ';'  (162)
+
+	';'  shift 370
+	.  error
+
+
+state 361
+	cuerpoEjecutableConRet : cuerpoEjecutableConRet . sentenciaEjecutableConRet ';'  (161)
+	bloqueSentenciaEjecutableConRet : BEGIN cuerpoEjecutableConRet . END  (164)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	END  shift 371
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 372
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+
+
+state 362
+	clausulaSeleccionConRet : IF condicion THEN bloqueSentenciaEjecutableConRet END_IF .  (128)
+
+	.  reduce 128
+
+
+state 363
+	clausulaSeleccionConRet : IF condicion THEN bloqueSentenciaEjecutableConRet ELSE . bloqueSentenciaEjecutableConRet END_IF  (127)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 373
+
+
+state 364
+	clausulaSeleccionConRet : IF condicion ')' THEN bloqueSentenciaEjecutableConRet . ELSE bloqueSentenciaEjecutableConRet END_IF  (125)
+	clausulaSeleccionConRet : IF condicion ')' THEN bloqueSentenciaEjecutableConRet . END_IF  (126)
+
+	END_IF  shift 374
+	ELSE  shift 375
+	.  error
+
+
+state 365
+	clausulaSeleccionConRet : IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet . END_IF  (118)
+	clausulaSeleccionConRet : IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet . ELSE bloqueSentenciaEjecutableConRet END_IF  (119)
+
+	END_IF  shift 376
+	ELSE  shift 377
+	.  error
+
+
+state 366
+	clausulaSeleccionConRet : IF '(' condicion THEN bloqueSentenciaEjecutableConRet END_IF .  (124)
+
+	.  reduce 124
+
+
+state 367
+	clausulaSeleccionConRet : IF '(' condicion THEN bloqueSentenciaEjecutableConRet ELSE . bloqueSentenciaEjecutableConRet END_IF  (123)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 378
+
+
+state 368
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error . END_IF  (129)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error . ELSE bloqueSentenciaEjecutableConRet END_IF  (131)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error . ELSE error END_IF  (132)
+
+	END_IF  shift 379
+	ELSE  shift 380
+	.  error
+
+
+state 369
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet . END_IF  (117)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet . ELSE bloqueSentenciaEjecutableConRet END_IF  (120)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet . error  (121)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet . ELSE bloqueSentenciaEjecutableConRet error  (122)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet . ELSE error END_IF  (130)
+
+	error  shift 381
+	END_IF  shift 382
+	ELSE  shift 383
+	.  error
+
+
+state 370
+	cuerpoEjecutableConRet : sentenciaEjecutableConRet ';' .  (162)
+
+	.  reduce 162
+
+
+state 371
+	bloqueSentenciaEjecutableConRet : BEGIN cuerpoEjecutableConRet END .  (164)
+
+	.  reduce 164
+
+
+state 372
+	cuerpoEjecutableConRet : cuerpoEjecutableConRet sentenciaEjecutableConRet . ';'  (161)
+
+	';'  shift 384
+	.  error
+
+
+state 373
+	clausulaSeleccionConRet : IF condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet . END_IF  (127)
+
+	END_IF  shift 385
+	.  error
+
+
+state 374
+	clausulaSeleccionConRet : IF condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF .  (126)
+
+	.  reduce 126
+
+
+state 375
+	clausulaSeleccionConRet : IF condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE . bloqueSentenciaEjecutableConRet END_IF  (125)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 386
+
+
+state 376
+	clausulaSeleccionConRet : IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet END_IF .  (118)
+
+	.  reduce 118
+
+
+state 377
+	clausulaSeleccionConRet : IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet ELSE . bloqueSentenciaEjecutableConRet END_IF  (119)
+
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 387
+
+
+state 378
+	clausulaSeleccionConRet : IF '(' condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet . END_IF  (123)
+
+	END_IF  shift 388
+	.  error
+
+
+state 379
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error END_IF .  (129)
+
+	.  reduce 129
+
+
+state 380
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error ELSE . bloqueSentenciaEjecutableConRet END_IF  (131)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error ELSE . error END_IF  (132)
+
+	error  shift 389
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 390
+
+
+state 381
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet error .  (121)
+
+	.  reduce 121
+
+
+state 382
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF .  (117)
+
+	.  reduce 117
+
+
+state 383
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE . bloqueSentenciaEjecutableConRet END_IF  (120)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE . bloqueSentenciaEjecutableConRet error  (122)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE . error END_IF  (130)
+
+	error  shift 391
+	IDENTIFICADOR  shift 7
+	IF  shift 280
+	BEGIN  shift 344
+	OUTF  shift 10
+	RET  shift 281
+	REPEAT  shift 13
+	GOTO  shift 14
+	.  error
+
+	etiqueta  goto 58
+	sentenciaEjecutableConRet  goto 345
+	sentenciaRet  goto 287
+	asignacion  goto 288
+	clausulaBucle  goto 289
+	goto  goto 290
+	mensajeSalida  goto 291
+	clausulaSeleccionConRet  goto 292
+	bloqueSentenciaEjecutableConRet  goto 392
+
+
+state 384
+	cuerpoEjecutableConRet : cuerpoEjecutableConRet sentenciaEjecutableConRet ';' .  (161)
+
+	.  reduce 161
+
+
+state 385
+	clausulaSeleccionConRet : IF condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF .  (127)
+
+	.  reduce 127
+
+
+state 386
+	clausulaSeleccionConRet : IF condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet . END_IF  (125)
+
+	END_IF  shift 393
+	.  error
+
+
+state 387
+	clausulaSeleccionConRet : IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet . END_IF  (119)
+
+	END_IF  shift 394
+	.  error
+
+
+state 388
+	clausulaSeleccionConRet : IF '(' condicion THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF .  (123)
+
+	.  reduce 123
+
+
+state 389
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error ELSE error . END_IF  (132)
+
+	END_IF  shift 395
+	.  error
+
+
+state 390
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutableConRet . END_IF  (131)
+
+	END_IF  shift 396
+	.  error
+
+
+state 391
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE error . END_IF  (130)
+
+	END_IF  shift 397
+	.  error
+
+
+state 392
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet . END_IF  (120)
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet . error  (122)
+
+	error  shift 398
+	END_IF  shift 399
+	.  error
+
+
+state 393
+	clausulaSeleccionConRet : IF condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF .  (125)
+
+	.  reduce 125
+
+
+state 394
+	clausulaSeleccionConRet : IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF .  (119)
+
+	.  reduce 119
+
+
+state 395
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error ELSE error END_IF .  (132)
+
+	.  reduce 132
+
+
+state 396
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutableConRet END_IF .  (131)
+
+	.  reduce 131
+
+
+state 397
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE error END_IF .  (130)
+
+	.  reduce 130
+
+
+state 398
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error .  (122)
+
+	.  reduce 122
+
+
+state 399
+	clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF .  (120)
+
+	.  reduce 120
+
+
+44 terminals, 41 nonterminals
+176 grammar rules, 400 states

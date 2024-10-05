@@ -1,9 +1,0 @@
-CP2_2
-begin   
-    ##Pattern Matching
-    if ((a,b,d) = (2,3,4)) then
-        begin
-            a := 2;
-        end
-    end_if;
-END

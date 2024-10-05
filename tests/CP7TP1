@@ -1,0 +1,20 @@
+cadenas
+begin
+
+    ## Cadenas bien escritas.
+    outF ([cadena
+    Multilinea]);
+
+    outF ([[Cadena 
+    
+    
+    multilinea]);
+    outF ([ Cadena[[[]]] 
+    
+    Multilinea/n]);
+
+    ## Cadenas con errores. No tienen cierres o aperturas.
+    outF ([ Cadena Multilinea con error);
+    outF ( Cadena Multilinea con error]);
+
+end

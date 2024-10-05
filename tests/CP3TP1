@@ -1,0 +1,22 @@
+singles
+BEGIN
+
+    ## Parte entera con parte decimal
+    single b;
+    b := 2.2;
+
+    ## Parte entera sin parte decimal (error, la parte decimal y el '.' son obligatorios)
+    b:= 2;
+
+    ## Parte decimal sin parte entera (error, la parte entera es obligatoria)
+    b:= .2;
+    
+    ## Parte entera con parte decimal con exponente positivo y negativo
+    b:= 2.21s14;
+    b:= 2.21s-14;
+
+    ## Parte decimal con exponente positivo y negativo
+    b:= .21s14;
+    b:= .21s-14;
+
+END

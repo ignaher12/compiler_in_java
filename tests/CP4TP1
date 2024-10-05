@@ -1,0 +1,19 @@
+identificadores
+begin
+    ## Identificador con menos de 15 caracteres.
+    single menosDe15Char;
+
+    ## Identificador con mas de 15 caracteres. (Warning, debe ser truncado)
+    single masDe15Caracteres;
+
+    ## Identificadores con letras, digitos y '_'
+    single pr_Ueba;
+    single pr_Ueba2;
+
+    ## Incluir en el nombrede un identificador un caracter no reconocido (errores).
+    single $ErrorNumero;
+    single ErrorS^imbolo;
+    single Erro#rSimbolo2;
+    single 32ABC;
+
+end

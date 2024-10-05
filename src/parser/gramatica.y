@@ -78,14 +78,13 @@ declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR  // TEMA 22
                   |  TRIPLE '<' IDENTIFICADOR IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '>' al final del identificador'."));} // TEMA 22
                   |  TRIPLE IDENTIFICADOR IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
                   |  TRIPLE tipoDato IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
-
 ;
+
 funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END {if ($7.sval.equals("false"))erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}
                | FUN error '(' parametro ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));}
                | FUN IDENTIFICADOR '(' parametro ','  error ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));}
                | FUN IDENTIFICADOR '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));}
 ;
-
 
 tipoDato : SINGLE
          | LONGINT
@@ -121,10 +120,6 @@ parametro : tipoDato IDENTIFICADOR
           | tipoDato error      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre en el parametro."));}
 ;
 
-//cuerpoFuncion : cuerpo sentenciaRet     //PUEDE NO TENER RET LA FUNCION PERSE?
-//              | sentenciaRet
-//              | cuerpo
-//;
 
 cuerpoFuncion : cuerpoFuncion sentenciaConRet   { if ($1.sval.equals("true") || $2.sval.equals("true")) $$.sval = "true"; else $$.sval = "false";}
               | sentenciaConRet                 {$$.sval = $1.sval;}
@@ -164,14 +159,21 @@ asignacion : IDENTIFICADOR SIMASIGNACION expresion
 
 ;
 
-expresion : operando 
-          | expresion operador operando 
-          | expresion operador error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta un operando"));}
-          | error operador operando {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta un operando"));}
-;
+expresion : expresion '+' termino
+          | expresion '-' termino 
+          | expresion '+' error
+          | expresion '-' error
+          | termino
 
-operador : '+' | '-' | '*' | '/'
+termino : termino '*' operando
+        | termino '/' operando
+        | termino '*' error
+        | termino '/' error
+        //| termino error operando
+        | operando
 ;
+//operador : '+' | '-' | '*' | '/' 
+//;
 
 operando : IDENTIFICADOR    //SE TIENE QUE CHEQUEAR QUE EL IDENTIFICADOR NO SEA UN TRIPLE YA QUE FALTARIA EL RANGO
          | constante
@@ -192,6 +194,8 @@ invocacionFuncion : IDENTIFICADOR '(' expresion ')'
 ;
 
 clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable END_IF
+                  | IF '(' expresion ')' THEN bloqueSentenciaEjecutable END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));}
+                  | IF '(' expresion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));}                  
                   | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF
                   | IF '(' condicion ')' THEN bloqueSentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
                   | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
@@ -202,13 +206,15 @@ clausulaSeleccion : IF '(' condicion ')' THEN bloqueSentenciaEjecutable END_IF
                   | IF  condicion  THEN bloqueSentenciaEjecutable ELSE bloqueSentenciaEjecutable END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion."));}
                   | IF  condicion  THEN bloqueSentenciaEjecutable END_IF  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion."));}
                   | IF '(' condicion ')' THEN error END_IF  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido."));}
-                  | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE error END_IF    {$$.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido ."));}
-                  | IF '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutable END_IF    {$$.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido ."));}
+                  | IF '(' condicion ')' THEN bloqueSentenciaEjecutable ELSE error END_IF    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido ."));}
+                  | IF '(' condicion ')' THEN error ELSE bloqueSentenciaEjecutable END_IF    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido ."));}
                   | IF '(' condicion ')' THEN error ELSE error END_IF  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas."));}
 
 ;
 
 clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF    {$$.sval = "false";}
+                        | IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); $$.sval = "false";}
+                        | IF '(' expresion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));if ($6.sval.equals("true") && $8.sval.equals("true")) $$.sval = "true"; else $$.sval = "false";}                  
                         | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet END_IF   { if ($6.sval.equals("true") && $8.sval.equals("true")) $$.sval = "true"; else $$.sval = "false";}
                         | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet error {$$.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
                         | IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet ELSE bloqueSentenciaEjecutableConRet error {if ($6.sval.equals("true") && $8.sval.equals("true")) $$.sval = "true"; else $$.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));} 
@@ -224,22 +230,32 @@ clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableCon
                         | IF '(' condicion ')' THEN error ELSE error END_IF {$$.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas."));}
 ;
 
-condicion : listaExpresiones comparador listaExpresiones
-          | listaExpresiones comparador error            {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta listaExpresiones a la derecha del comparador."));}
-          | error comparador listaExpresiones             {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta listaExpresiones a la izquierda del comparador."));}
-          | listaExpresiones error                        {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta listaExpresiones a la izquierda del comparador."));}
-          //| listaExpresiones comparador '(' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'parentesis en la expresion de la izquierda'."));}
-          //| '(' listaExpresiones ')' comparador listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'parentesis en la expresion de la derecha'."));}
-;
+condicion: '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')'
+         | expresion ',' listaExpresiones comparador expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '( )' a las listas de expresiones."));}
+         | expresion ',' listaExpresiones comparador '(' expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         | '(' expresion ',' listaExpresiones error comparador error expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         | '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         | '(' expresion ',' listaExpresiones error comparador '(' expresion ',' listaExpresiones ')'{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         | '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         | '(' expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
+         | '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 
-listaExpresiones : '(' listaExpresion ')'
-                 | listaExpresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan ()."));}
+         | expresion comparador expresion 
+         | error comparador expresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la izquierda del comparador."));}
+         | expresion comparador error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la derecha del comparador."));}
+         | expresion error expresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
 ;
+         //| expresion ',' listaExpresiones ')' comparador expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         //| expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         //| '(' expresion ',' listaExpresiones comparador '(' expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));} //))
+/*((*/   //| expresion ',' listaExpresiones ')' comparador expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+/*(*/    //| expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+/*(*/    //| expresion ',' listaExpresiones comparador expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         //| expresion ',' listaExpresiones comparador '(' expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 
-listaExpresion : listaExpresion ',' expresion
-               | expresion //TEMA 19
-               | error ',' expresion       {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta expresion."));}
-               | listaExpresion ',' error  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ultima expresion."));}
+listaExpresiones : listaExpresiones ',' expresion
+                 | expresion
+                 | listaExpresiones ',' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion despues de la coma."));}
 ;
 
 comparador : '<' | '>' | '=' | DISTINTO | MENOR_IGUAL | MAYOR_IGUAL
@@ -277,8 +293,8 @@ goto : GOTO etiqueta '@'
 ;
 
 etiqueta : IDENTIFICADOR ':'
-         | error ':'           {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'etiqueta'."));}
-         | IDENTIFICADOR error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ':' luego de la etiqueta."));}
+         //| error ':'           {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'etiqueta'."));}
+         //| IDENTIFICADOR error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ':' luego de la etiqueta."));}
 ;
 
 mensajeSalida : OUTF '(' expresion ')'
@@ -310,7 +326,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("testeandoErrores5", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("CP3-2", matriz, matrizAcciones);
         
         parser.run();
         System.out.println("v---------------------------v");
