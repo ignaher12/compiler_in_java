@@ -1,9 +1,7 @@
 package lexico.AccionesSemanticas;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import lexico.AnalizadorLexico;
-import lexico.Lexema;
 import lexico.TablaDeSimbolos;
 import lexico.TablaTipoToken;
 import lexico.Token;
@@ -13,7 +11,7 @@ import parser.Error;
 
 public class AS3_F implements Accion{
     //Verifica si es palabra reservada, sino devuelve token con identificador
-    public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea) {
+    public void activar(Token token, StringBuilder cadena, AtomicInteger pos, String linea, int nro_linea) {
         token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.IDENTIFICADOR));
         
         if (cadena.length() > AnalizadorLexico.MAXLENGHTINDENTIFICADOR){ //truncar
@@ -21,16 +19,16 @@ public class AS3_F implements Accion{
             cadena = new StringBuilder(cadena.substring(0, AnalizadorLexico.MAXLENGHTINDENTIFICADOR));
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.WARNING, "El identificador" + cadenaLarga + " fue truncado a: " + cadena));
         }
-
-        int ref = TablaDeSimbolos.existe(cadena.toString());
-        if (ref == -1){
-            token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador()));
+        System.out.println(cadena.toString());
+        System.out.println(TablaDeSimbolos.existe(cadena.toString()));
+        if (TablaDeSimbolos.existe(cadena.toString()) == null){
+            token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador(), nro_linea));
         }else{
-            System.out.println(TablaDeSimbolos.getByID(ref).isReservada());
-            if (TablaDeSimbolos.getByID(ref).isReservada()){
+            System.out.println(TablaDeSimbolos.getContexto(cadena.toString()).isReservada());
+            if (TablaDeSimbolos.getContexto(cadena.toString()).isReservada()){
                 token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
             }
-            token.setReferencia(ref);
+            token.setReferencia(cadena.toString());
         }
 
     }

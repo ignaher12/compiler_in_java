@@ -20,6 +20,7 @@ package parser;
 //#line 2 "gramatica.y"
 import lexico.AnalizadorLexico;
 import lexico.TablaDeSimbolos;
+import lexico.TablaDeSimbolos.Contexto;
 import lexico.TablaTipoToken;
 import lexico.AccionesSemanticas.Accion;
 import parser.Error.Tipo;
@@ -794,14 +795,14 @@ public static void main(String[] args) {
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
     Parser parser = new Parser(true);
-    Parser.lex = new AnalizadorLexico("--", matriz, matrizAcciones);
+    //Parser.lex = new AnalizadorLexico("--", matriz, matrizAcciones);
     if (args.length > 1) {
         Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
 
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("testeandoErrores5", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("CP2", matriz, matrizAcciones);
         
         parser.run();
         System.out.println("v---------------------------v");
@@ -823,18 +824,19 @@ private int yylex(){
   return idToken;
 }
 
-private void chequearRango(Lexema lex){
-  if (lex != null){
-    if(lex.getTipo() == TablaTipoToken.getTipoToken("longint")){
-      if(Integer.parseInt(lex.getAtributo()) > AnalizadorLexico.MAXLONGINT){
+private void chequearRango(Contexto con, String atributo){
+  if (atributo != null){
+    System.out.println(con.getTipo());
+    if(con.getTipo() == TablaTipoToken.getTipoToken("longint")){
+      if(Long.parseLong(atributo) > AnalizadorLexico.MAXLONGINT){
         erroresSintactico.add(new Error(
           AnalizadorLexico.getNumeroLinea(),
           Tipo.ERROR,
           "ERROR SINTACTICO excede rangos."
         ));
       }
-    } else if (lex.getTipo() == TablaTipoToken.getTipoToken("single")){
-      String numero = lex.getAtributo().toString().replace('s', 'e');
+    } else if (con.getTipo() == TablaTipoToken.getTipoToken("single")){
+      String numero = atributo.replace('s', 'e');
       float valor = Float.parseFloat(numero);
       if(valor > AnalizadorLexico.MAXFLOATPOSITIVO){
         erroresSintactico.add(new Error(
@@ -849,7 +851,8 @@ private void chequearRango(Lexema lex){
           "ERROR SINTACTICO excede rangos."
         ));}
     } else {
-      if((HexFormat.fromHexDigits(lex.getAtributo().subSequence(2, lex.getAtributo().length()).toString())) > AnalizadorLexico.MAXHEXADECIMAL){
+      System.out.println("HOLAHOLAHOLAHOLAHOLAHOLA" + atributo);
+      if((HexFormat.fromHexDigits(atributo.subSequence(2, atributo.length()).toString())) > AnalizadorLexico.MAXHEXADECIMAL){
         erroresSintactico.add(new Error(
           AnalizadorLexico.getNumeroLinea(),
           Tipo.ERROR,
@@ -1115,18 +1118,18 @@ case 35:
 break;
 case 43:
 //#line 99 "gramatica.y"
-{ Lexema lex = TablaDeSimbolos.getByID(val_peek(0).ival);
-                        System.out.println(val_peek(0).ival);
-                        System.out.println(lex);
+{ Contexto contexto = TablaDeSimbolos.getContexto(val_peek(0).sval);
+                        System.out.println(val_peek(0).sval);
+                        System.out.println(contexto);
                         System.out.println(TablaDeSimbolos.imprimir());
-                        chequearRango(lex);                             /*SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER*/
+                        chequearRango(contexto, val_peek(0).sval);                             /*SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER*/
                       }
 break;
 case 44:
 //#line 105 "gramatica.y"
 {
-                            Lexema lex = TablaDeSimbolos.getByID(val_peek(0).ival);
-                            int newLexRef = TablaDeSimbolos.agregarSimbolo("-"+lex.getAtributo(), lex.getTipo());
+                            Contexto con = TablaDeSimbolos.getContexto(val_peek(0).sval);
+                            String newLex = TablaDeSimbolos.agregarSimbolo("-"+con.getValor(), con.getTipo(), con.getRefs());
                             /*$2.sval = newLex.*/
                           }
 break;

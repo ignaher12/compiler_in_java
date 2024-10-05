@@ -59,7 +59,7 @@ public class AnalizadorLexico {
                 System.out.println("leo: " + actual);
                 System.out.println("estadoatual:" + estadoActual + "columna: " + columnaMatriz);
                 System.out.println(matrizAcciones[estadoActual][columnaMatriz]);
-                matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea); // Activar accion semantica 
+                matrizAcciones[estadoActual][columnaMatriz].activar(token, cadenaCaracteres, index, linea, numeroLinea); // Activar accion semantica 
                 estadoActual = matrizTransicion[estadoActual][columnaMatriz]; // Avanzar al siguiente estadoActual
                 System.out.println("estadonuevo:" + estadoActual );
             }   
@@ -68,7 +68,7 @@ public class AnalizadorLexico {
                 // Intentar una transición con el carácter de fin de línea (\n)
                 if (estadoActual != ESTADO_FINAL ){
                     System.out.println(estadoActual);
-                    matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
+                    matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea, numeroLinea);
                     estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
                     System.out.println(estadoActual);
                     if (lector.hasNextLine() && (estadoActual == 16 || estadoActual == 14 || estadoActual == 0)){    //no SOLAMENTE SI ESTA EN MODO MULTILINEA
@@ -91,17 +91,17 @@ public class AnalizadorLexico {
         }else{
             // Verifica quee no se haya llegado a estado final y hace transicion con salto de linea
             if (estadoActual != ESTADO_FINAL && !token.isError()) {
-                matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea);
+                matrizAcciones[estadoActual][MapeoCaracteres.getConversion('\n')].activar(token, cadenaCaracteres, index, linea, numeroLinea);
                 estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
             };
             System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + (numeroLinea-1));
             if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
                 if(!token.isError()){
-                    yylval.ival= token.getReferencia();
-                    System.out.println("ival pasado | " + token.getReferencia());
+                    yylval.sval= token.getReferencia();
+                    System.out.println("sval pasado | " + token.getReferencia());
                 }
             };
-            yylval.ival= token.getReferencia();
+            yylval.sval= token.getReferencia();
         }
         
         return token.getIdentificador();
