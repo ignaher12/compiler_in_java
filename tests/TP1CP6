@@ -1,0 +1,12 @@
+comentarios
+begin
+
+    ## Comentario bien escrito.
+
+    # Comentario mal escrito. 
+
+    #    # Comentario mal escrito.
+
+
+    
+end

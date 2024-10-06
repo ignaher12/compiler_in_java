@@ -1,0 +1,18 @@
+CPE2
+BEGIN
+    ##Formato valido
+    typedef enterito := longint{-10,10};
+    
+    ##Error falta nombre
+    typedef := single{-1.2, 3.5};
+    
+    ##Error falta typedef
+    a:= longint{-10,10};
+
+    ##Error falta tipo
+    typedef enterito := {-10,10};
+
+    ##Error falta rango
+    typedef enterito := single{};
+
+END

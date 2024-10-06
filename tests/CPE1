@@ -1,0 +1,36 @@
+CPE1
+BEGIN
+    ## Funcion con return, formato valido.
+    longint FUN test ( longint x ) begin
+        RET (c + 0);
+    END;
+
+    ## Error funcion sin return.
+    longint FUN test ( longint x ) begin
+        a:= 2;
+    END;
+
+    ## Funcion con return dentro de IF, formato invalido (no siempre va a retornar algo).
+    longint FUN test ( longint x ) begin
+        if ( x > 0 ) then
+            Begin
+                RET (c + 0);
+            end
+        end_if;
+    END;
+
+    ## Funcion con return dentro de IF y ELSE, formato valido.
+    longint FUN test ( longint x ) begin
+        if ( x > 0 ) then
+            Begin
+                RET (c + 0);
+            end
+        ELSE
+        RET (c + 0);
+        end_if;
+    END;
+
+    ## Error return dentro del cuerpo del programa.
+    RET (c + 0);
+
+end

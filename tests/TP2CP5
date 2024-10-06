@@ -1,0 +1,17 @@
+
+BEGIN
+    ## Forma correcta.
+    a[2] := b;
+
+    ## Error, falta de rango.
+    a[] := 2;
+
+    ## Error, exceso de rango.
+    a[5] := -2;
+
+    ## Error, falta de nombre definido.
+    typedef triple <longint> ;
+
+    ## Error, falta de tipo base.
+    typedef triple <> test ;
+END

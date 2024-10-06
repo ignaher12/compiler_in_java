@@ -140,6 +140,9 @@ public class TablaDeSimbolos {
         return atributo;
     }
 
+    public static void borrarSimbolo(String atributo) {	
+        tabla.remove(atributo);
+    }
     public static String agregarReservada(String atributo, int linea) {
         if (tablaReservada.get(atributo.toLowerCase()) != null){
             tablaReservada.get(atributo.toLowerCase()).addRef(linea);
@@ -213,6 +216,7 @@ public class TablaDeSimbolos {
     }
 
     public static Contexto getContexto(String atributo){
+        System.out.println(atributo);
         if (tabla.get(atributo) == null) { 
             return tablaReservada.get(atributo.toLowerCase());}
 

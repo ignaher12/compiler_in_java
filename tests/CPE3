@@ -1,0 +1,14 @@
+CPE3
+BEGIN
+    ##Reconoce resta
+    x := 2 -4;
+
+    ##Reconoce resta de constante negativa
+    x := 2 --4;
+
+    ##Reconoce resta
+    x := 2 - 4;
+
+    ##Reconoce asignacion de constante negativa
+    x := -4;
+END

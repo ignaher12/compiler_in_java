@@ -1,0 +1,9 @@
+reservada
+## Palabras reservadas escritas en mayusculas y minusculas
+BeGin
+    iF (a>2) THEN
+    BEgin
+        hexa := -0x600;
+    end
+    END_if;
+END

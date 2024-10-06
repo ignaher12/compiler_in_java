@@ -1,6 +1,7 @@
 package lexico;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HexFormat;
 import java.util.Scanner; 
 import java.util.concurrent.atomic.AtomicInteger;
 import lexico.AccionesSemanticas.Accion;
@@ -24,8 +25,8 @@ public class AnalizadorLexico {
     public static final int MAXLENGHTINDENTIFICADOR = 15;
     public static final int MAXLONGINT = 2147483647;                // 2^31 – 1
     public static final int MINLONGINT = -2147483648;                     // -231
-    public static final double MAXHEXADECIMAL = 0x7FFFFFFF;
-    public static final double MINHEXADECIMAL = -0x80000000 ;
+    public static final long MAXHEXADECIMAL = 0x7FFFFFFFL;
+    public static final long MINHEXADECIMAL = -0x80000000L ;
     public static final float MAXFLOATPOSITIVO = 3.40282347e38f;
     public static final float MINFLOATPOSITIVO = 1.17549435e-38f;
     public static final float MAXFLOATNEGATIVO = -1.17549435e-38f;
@@ -98,10 +99,14 @@ public class AnalizadorLexico {
             if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
                 if(!token.isError()){
                     yylval.sval= token.getReferencia();
+                    //yylval = new ParserVal(token.getReferencia());
+                    System.out.println(yylval);
                     System.out.println("sval pasado | " + token.getReferencia());
+                    //yylval = new ParserVal(new String(token.getReferencia()));
+                    //System.out.println("sval pasado | " + token.getReferencia());
                 }
             };
-            yylval.sval= token.getReferencia();
+           
         }
         
         return token.getIdentificador();

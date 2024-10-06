@@ -1,0 +1,13 @@
+CP4
+BEGIN
+    REPEAT
+    BEGIN
+        ##Error sintatico: faltan :
+        GOTO hola@;
+    END
+    WHILE ( satisfaccion > 5);
+    
+    ##Error sintatico: faltan @
+    goto prueba:
+    ;
+END

@@ -1,0 +1,27 @@
+CP1_2
+begin  
+    ##Formato valido  
+    etiqueta:
+    
+    ##Falta etiqueta
+    :
+    
+    ##Formato valido
+    typedef triple <longint> test;
+    
+    ##Falta triple.
+    typedef <longint> test;
+    
+    ##Faltan <>.
+    typedef triple longint test;
+    
+    ##Falta identificador.
+    typedef triple <longint>;
+
+    ##Falta <tipo base>
+    typedef triple test;
+
+    ##Falta typedef
+    triple <longint> test;
+
+END

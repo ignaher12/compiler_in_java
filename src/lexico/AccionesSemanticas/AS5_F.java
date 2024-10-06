@@ -14,27 +14,22 @@ public class AS5_F implements Accion{
         token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.CONSTANTE));
         //chequear rangos
         String cadenaExponente = cadena.toString().replace('s', 'e');
-        float numero = Float.parseFloat(cadenaExponente);
-        if (numero > AnalizadorLexico.MAXFLOATPOSITIVO){
+        Double numero = Double.parseDouble(cadenaExponente);
+        if (cadenaExponente.startsWith(".")) Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Falta parte entera en el tipo single"));
+        else if ((numero > AnalizadorLexico.MAXFLOATPOSITIVO || numero < AnalizadorLexico.MINFLOATPOSITIVO) && numero != 0.0){
             //Error - Constante de tipo Float fuera de rango
-            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));
-            token.setError();
-        } else if (numero < AnalizadorLexico.MINFLOATPOSITIVO){
-            //Error - Constante de tipo Float fuera de rango
-            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Float fuera de rango"));
-            token.setError();
-        } else {
-            if (TablaDeSimbolos.existe(cadena.toString()) == null){
-                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.SINGLE), cadena.toString(), nro_linea));
-            }else{
-                Contexto context = TablaDeSimbolos.getContexto(cadena.toString());
-                context.setValor(cadena.toString());
-                TablaDeSimbolos.setContexto(cadena.toString(), context);
-                if (context.isReservada()){
-                    token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
-                }
-                token.setReferencia(cadena.toString());
+            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Single fuera de rango"));
+        }
+        if (TablaDeSimbolos.existe(cadena.toString()) == null){
+            token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.SINGLE), cadena.toString(), nro_linea));
+        }else{
+            Contexto context = TablaDeSimbolos.getContexto(cadena.toString());
+            context.setValor(cadena.toString());
+            TablaDeSimbolos.setContexto(cadena.toString(), context);
+            if (context.isReservada()){
+                token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
             }
+            token.setReferencia(cadena.toString());
         }
     }
 }

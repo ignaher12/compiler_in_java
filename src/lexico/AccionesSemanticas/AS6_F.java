@@ -19,32 +19,18 @@ public class AS6_F implements Accion{
         if (valor > -rango){//VALOR MAS ALTO POSITIVO
             //ERROR - Constante de tipo LongInt fuera de rango
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo LongInt fuera de rango"));
-            token.setError();
-        } else {
-            if (TablaDeSimbolos.existe(cadena.toString()) == null){
-                System.out.println("VALOR DE CONSTANTE" + cadena.toString());
-                token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.LONGINT), cadena.toString(), nro_linea));
-            }else{
-                Contexto context = TablaDeSimbolos.getContexto(cadena.toString());
-                context.setValor(cadena.toString());
-                TablaDeSimbolos.setContexto(cadena.toString(), context);
-                if (TablaDeSimbolos.getContexto(cadena.toString()).isReservada()){
-                    token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
-                }
-                token.setReferencia(cadena.toString());
-            }
         }
-
-
-        
-
-        
-        
-        
-        
-        
-        
-        
-        
+        if (TablaDeSimbolos.existe(cadena.toString()) == null){
+            System.out.println("VALOR DE CONSTANTE" + cadena.toString());
+            token.setReferencia(TablaDeSimbolos.agregarSimbolo(cadena.toString(), TablaTipoToken.getTipoToken(TablaTipoToken.LONGINT), cadena.toString(), nro_linea));
+        }else{
+            Contexto context = TablaDeSimbolos.getContexto(cadena.toString());
+            context.setValor(cadena.toString());
+            TablaDeSimbolos.agregarReferencia(cadena.toString(), nro_linea);
+            if (TablaDeSimbolos.getContexto(cadena.toString()).isReservada()){
+                token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));
+            }
+            token.setReferencia(cadena.toString());
+        }
     }
 }

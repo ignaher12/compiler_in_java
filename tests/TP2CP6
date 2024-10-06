@@ -1,0 +1,20 @@
+TP2CP6
+BEGIN
+
+    ##Errores falta de comparador.
+    if (dsad   dsaddsad) 
+        then 
+            outf([da]); 
+    end_if;
+
+    REPEAT outf([da]);
+    WHILE (ave maria);
+
+    ## Errores falta de operando.
+    a := + 3;
+    a := 2 + ;
+    a:= 2 + 3 -;
+    a := 2 + / 4;
+    a := 2 - 3;
+
+end
