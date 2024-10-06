@@ -922,31 +922,24 @@ public static List<String> estructuras = new ArrayList<String>();
 public static int numeroLineaError = -1;
 public static void main(String[] args) {
     String filePath = "src/MATRIZ DE TRANSICIONES - Hoja 1.csv";
-
     int[][] matriz = MatrizTransicion.leerMatrizDesdeCSV(filePath);
+
     filePath = "src/MATRIZ DE TRANSICIONES - Hoja 2.csv";
-
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
-    Parser parser = new Parser(true);
-    Parser.lex = new AnalizadorLexico("--", matriz, matrizAcciones);
-    if (args.length > 1) {
-        Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
 
-        parser.run();
-        for (Error error: erroresLexico){System.out.println(error);}
-    } else {
-        Parser.lex = new AnalizadorLexico("TP1CP3", matriz, matrizAcciones);
-        
-        parser.run();
-        System.out.println("v---------------------------v");
-        for (Error error: erroresLexico){System.out.println(error);}
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        for (Error error: erroresSintactico){System.out.println(error);}
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        for (String estructura: estructuras){System.out.println(estructura);}
-        System.out.println("^---------------------------^");
-        //System.out.println("No se especifico el archivo a compilar");
-    }
+
+    Parser parser = new Parser();
+    Parser.lex = new AnalizadorLexico("TP1CP1", matriz, matrizAcciones);
+    
+    parser.run();
+    System.out.println("v---------------------------v");
+    for (Error error: erroresLexico){System.out.println(error);}
+    System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    for (Error error: erroresSintactico){System.out.println(error);}
+    System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    for (String estructura: estructuras){System.out.println(estructura);}
+    System.out.println("^---------------------------^");
+    
     System.out.println(TablaDeSimbolos.imprimir());
 }
 private int yylex(){
@@ -955,7 +948,7 @@ private int yylex(){
   if (!lex.end()){
     idToken = lex.getNextToken(yylval);
   }
-  System.out.println("PARSER: " + yyval.ival);
+  //System.out.println("PARSER: " + yyval.ival);
   return idToken;
 }
 

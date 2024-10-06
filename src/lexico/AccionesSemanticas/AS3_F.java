@@ -23,7 +23,7 @@ public class AS3_F implements Accion{
             TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador(), nro_linea);
             token.setReferencia(cadena.toString());
         }else{
-            System.out.println(cadena.toString());
+            //System.out.println(cadena.toString());
             if (TablaDeSimbolos.getContexto(cadena.toString()).isReservada()){
                 TablaDeSimbolos.agregarReservada(cadena.toString(), nro_linea);
                 token.setIdentificador(TablaTipoToken.getTipoToken(cadena.toString()));

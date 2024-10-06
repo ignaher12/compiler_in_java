@@ -54,7 +54,7 @@ public class AnalizadorLexico {
         while ( (lector.hasNextLine() || (index.get() < linea.length())) && estadoActual != ESTADO_FINAL && !token.isError()) {       
 
             if (linea.length() != 0){
-                System.out.println(linea);
+                //System.out.println(linea);
                 char actual = linea.charAt(index.get());
                 int columnaMatriz = MapeoCaracteres.getConversion(actual);
                 //System.out.println("leo: " + actual);
@@ -98,8 +98,8 @@ public class AnalizadorLexico {
             System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + (numeroLinea-1));
             if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
                 if(!token.isError()){
-                    System.out.println(yylval);
-                    System.out.println("sval pasado | " + token.getReferencia());
+                    //System.out.println(yylval);
+                    //System.out.println("sval pasado | " + token.getReferencia());
                 }
             };
             yylval.sval= token.getReferencia();

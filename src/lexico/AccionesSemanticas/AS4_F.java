@@ -15,7 +15,6 @@ public class AS4_F implements Accion{
         token.setIdentificador(TablaTipoToken.getTipoToken(TablaTipoToken.CONSTANTE));
 
         long valor = Long.parseLong(cadena.substring(2), 16);
-        System.out.println(valor + "dasasasasasasasasasasasasasasas");
         if (valor >  -AnalizadorLexico.MINHEXADECIMAL){ //VALOR MAS ALTO POSITIVO
             //ERROR - Constante de tipo Hexadecimal fuera de rango
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "Constante de tipo Hexadecimal fuera de rango"));
