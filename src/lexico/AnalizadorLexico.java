@@ -98,14 +98,11 @@ public class AnalizadorLexico {
             System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + (numeroLinea-1));
             if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
                 if(!token.isError()){
-                    yylval.sval= token.getReferencia();
-                    //yylval = new ParserVal(token.getReferencia());
                     System.out.println(yylval);
                     System.out.println("sval pasado | " + token.getReferencia());
-                    //yylval = new ParserVal(new String(token.getReferencia()));
-                    //System.out.println("sval pasado | " + token.getReferencia());
                 }
             };
+            yylval.sval= token.getReferencia();
            
         }
         

@@ -912,7 +912,7 @@ final static String yyrule[] = {
 "mensajeSalida : OUTF '(' error ')'",
 };
 
-//#line 326 "gramatica.y"
+//#line 320 "gramatica.y"
 //FUNCIONES
 private static AnalizadorLexico lex;
 public static List<Error> erroresLexico = new ArrayList<Error>();
@@ -935,14 +935,15 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("TP1CP7", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("TP1CP3", matriz, matrizAcciones);
         
         parser.run();
         System.out.println("v---------------------------v");
-        for (Error error: erroresSintactico){System.out.println(error);}
         for (Error error: erroresLexico){System.out.println(error);}
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        for (Error error: erroresSintactico){System.out.println(error);}
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         for (String estructura: estructuras){System.out.println(estructura);}
-        System.out.println("FALTA AGREGAR NUMERO DE LINEA PARA CADA ESTRUCTURA");
         System.out.println("^---------------------------^");
         //System.out.println("No se especifico el archivo a compilar");
     }
@@ -1173,485 +1174,522 @@ case 14:
 break;
 case 15:
 //#line 56 "gramatica.y"
-{estructuras.add("Declaracion");}
+{estructuras.add("Linea "+ val_peek(2).ival +": "+"Declaracion");}
 break;
 case 16:
 //#line 57 "gramatica.y"
-{estructuras.add("Declaracion");}
+{estructuras.add("Linea "+ val_peek(4).ival +": "+"Declaracion");}
 break;
 case 17:
 //#line 58 "gramatica.y"
-{estructuras.add("Declaracion"); erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera IDENTIFICADOR."));}
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera IDENTIFICADOR.")); estructuras.add("Linea "+ val_peek(4).ival +": "+"Declaracion");}
 break;
 case 18:
 //#line 59 "gramatica.y"
-{estructuras.add("Declaracion"); erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','."));}
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); estructuras.add("Linea "+ val_peek(5).ival +": "+"Declaracion");}
 break;
 case 19:
 //#line 60 "gramatica.y"
-{estructuras.add("Declaracion");erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); }
-break;
-case 20:
-//#line 62 "gramatica.y"
-{estructuras.add("Declaracion de typedef");}
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); }
 break;
 case 21:
-//#line 63 "gramatica.y"
-{estructuras.add("Declaracion de typedef"); erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera ';'.")); }
+//#line 62 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera ';'.")); }
 break;
 case 22:
-//#line 64 "gramatica.y"
+//#line 63 "gramatica.y"
 {estructuras.add("Declaracion de funcion");}
 break;
+case 23:
+//#line 68 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de subtipo");}
+break;
+case 24:
+//#line 69 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de triple");}
+break;
 case 25:
-//#line 71 "gramatica.y"
-{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'TYPEDEF antes de la declaracion del subtipo'.")); }
+//#line 70 "gramatica.y"
+{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'TYPEDEF antes de la declaracion del subtipo'.")); estructuras.add("Linea "+ ": "+"Declaracion de subtipo");}
 break;
 case 26:
-//#line 72 "gramatica.y"
-{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'TYPEDEF antes de la declaracion del triple'.")); }
+//#line 71 "gramatica.y"
+{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'TYPEDEF antes de la declaracion del triple'.")); estructuras.add("Linea "+ ": "+"Declaracion de triple");}
 break;
 case 27:
-//#line 73 "gramatica.y"
-{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); }
+//#line 72 "gramatica.y"
+{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de subtipo"); }
 break;
 case 29:
-//#line 77 "gramatica.y"
+//#line 76 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre del tipo de dato nuevo'."));}
 break;
 case 30:
-//#line 78 "gramatica.y"
+//#line 77 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera declaracion de subrangos."));}
 break;
 case 33:
-//#line 82 "gramatica.y"
+//#line 81 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'tipo de objeto a declarar'."));}
 break;
 case 34:
-//#line 83 "gramatica.y"
+//#line 82 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre de objeto a declarar'."));}
 break;
 case 35:
-//#line 84 "gramatica.y"
+//#line 83 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre de objeto a declarar'."));}
 break;
 case 36:
-//#line 85 "gramatica.y"
+//#line 84 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre y tipo de objeto a declarar'."));}
 break;
 case 37:
-//#line 86 "gramatica.y"
+//#line 85 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '<' al inicio del identificador'."));}
 break;
 case 38:
-//#line 87 "gramatica.y"
+//#line 86 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '>' al final del identificador'."));}
 break;
 case 39:
-//#line 88 "gramatica.y"
+//#line 87 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));}
 break;
 case 40:
-//#line 89 "gramatica.y"
+//#line 88 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));}
 break;
 case 41:
-//#line 92 "gramatica.y"
-{if (val_peek(1).sval.equals("false"))erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}
+//#line 91 "gramatica.y"
+{if (val_peek(1).sval.equals("false"))erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 break;
 case 42:
-//#line 93 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));}
+//#line 92 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 break;
 case 43:
-//#line 94 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));}
+//#line 93 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(9).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 break;
 case 44:
-//#line 95 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));}
+//#line 94 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
+break;
+case 45:
+//#line 97 "gramatica.y"
+{yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval).popRef();}
+break;
+case 46:
+//#line 98 "gramatica.y"
+{yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval).popRef();}
+break;
+case 47:
+//#line 99 "gramatica.y"
+{yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval).popRef();}
 break;
 case 49:
-//#line 106 "gramatica.y"
+//#line 105 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta identificador despues de la coma."));}
 break;
 case 53:
-//#line 115 "gramatica.y"
+//#line 114 "gramatica.y"
 { Contexto contexto = TablaDeSimbolos.getContexto(val_peek(0).sval);
                         chequearRango(contexto);                             /*SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER*/
                       }
 break;
 case 54:
-//#line 118 "gramatica.y"
+//#line 117 "gramatica.y"
 {
-                            System.out.println(val_peek(1));
-                            System.out.println(val_peek(0) + " CONSTANTE CONSTANTE CONSTNATE");
                             Contexto contexto = TablaDeSimbolos.getContexto(val_peek(0).sval);
-                            if (contexto.getRefs().size() == 1) TablaDeSimbolos.borrarSimbolo(val_peek(0).sval); else contexto.getRefs().remove(contexto.getRefs().size()-1);   /**/
                             String newLexRef = TablaDeSimbolos.agregarSimbolo("-"+val_peek(0).sval, contexto.getTipo(), "-"+val_peek(0).sval, AnalizadorLexico.getNumeroLinea());
                           }
 break;
 case 56:
-//#line 129 "gramatica.y"
+//#line 125 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta tipo de dato en el parametro."));}
 break;
 case 57:
-//#line 130 "gramatica.y"
+//#line 126 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre en el parametro."));}
 break;
 case 58:
-//#line 134 "gramatica.y"
+//#line 130 "gramatica.y"
 { if (val_peek(1).sval.equals("true") || val_peek(0).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";}
 break;
 case 59:
-//#line 135 "gramatica.y"
+//#line 131 "gramatica.y"
 {yyval.sval = val_peek(0).sval;}
 break;
 case 60:
-//#line 138 "gramatica.y"
+//#line 134 "gramatica.y"
 {yyval.sval = "false";}
 break;
 case 61:
-//#line 139 "gramatica.y"
+//#line 135 "gramatica.y"
 {yyval.sval = val_peek(1).sval;}
 break;
 case 62:
-//#line 140 "gramatica.y"
+//#line 136 "gramatica.y"
 {yyval.sval = "false";}
 break;
 case 63:
-//#line 141 "gramatica.y"
+//#line 137 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'." )); yyval.sval = val_peek(0).sval;}
 break;
 case 64:
-//#line 145 "gramatica.y"
-{estructuras.add("Retorno");}
-break;
-case 65:
-//#line 149 "gramatica.y"
-{estructuras.add("Asignacion");}
-break;
-case 66:
-//#line 150 "gramatica.y"
-{estructuras.add("IF");}
-break;
-case 67:
-//#line 151 "gramatica.y"
-{estructuras.add("WHILE");}
-break;
-case 68:
-//#line 152 "gramatica.y"
-{estructuras.add("GOTO");}
-break;
-case 69:
-//#line 153 "gramatica.y"
-{estructuras.add("OUTF");}
+//#line 141 "gramatica.y"
+{estructuras.add("Retorno"); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Retorno");}
 break;
 case 70:
-//#line 155 "gramatica.y"
-{estructuras.add("Asignacion"); yyval.sval = "false";}
+//#line 151 "gramatica.y"
+{yyval.sval = "false";}
 break;
 case 71:
-//#line 156 "gramatica.y"
-{estructuras.add("WHILE");yyval.sval = "false";}
+//#line 152 "gramatica.y"
+{yyval.sval = "false";}
 break;
 case 72:
-//#line 157 "gramatica.y"
-{estructuras.add("GOTO");yyval.sval = "false";}
+//#line 153 "gramatica.y"
+{yyval.sval = "false";}
 break;
 case 73:
-//#line 158 "gramatica.y"
-{estructuras.add("OUTF");yyval.sval = "false";}
+//#line 154 "gramatica.y"
+{yyval.sval = "false";}
 break;
 case 74:
-//#line 159 "gramatica.y"
+//#line 155 "gramatica.y"
 {yyval.sval = "true";}
 break;
 case 75:
-//#line 160 "gramatica.y"
-{estructuras.add("IF"); yyval.sval = val_peek(0).sval;}
+//#line 156 "gramatica.y"
+{yyval.sval = val_peek(0).sval;}
+break;
+case 76:
+//#line 159 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 77:
-//#line 167 "gramatica.y"
-{System.out.println(val_peek(2).sval + " ---------------------------"); if (!val_peek(2).sval.equals("[1]") && !val_peek(2).sval.equals("[2]") && !val_peek(2).sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); }
+//#line 163 "gramatica.y"
+{ if (!val_peek(2).sval.equals("[1]") && !val_peek(2).sval.equals("[2]") && !val_peek(2).sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3."));Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 78:
-//#line 168 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango"));}
+//#line 164 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 80:
-//#line 181 "gramatica.y"
+//#line 175 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 81:
-//#line 182 "gramatica.y"
+//#line 176 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
+case 94:
+//#line 192 "gramatica.y"
+{ Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+break;
+case 95:
+//#line 193 "gramatica.y"
+{ Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+break;
+case 96:
+//#line 194 "gramatica.y"
+{ Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+break;
 case 97:
-//#line 201 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion."));}
+//#line 195 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 98:
-//#line 202 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta expresion en el llamado a funcion."));}
+//#line 196 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta expresion en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 99:
-//#line 203 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion."));}
+//#line 197 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 100:
-//#line 204 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresion esinvalido en el llamado a funcion."));}
+//#line 198 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresion esinvalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+break;
+case 101:
+//#line 201 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 102:
-//#line 208 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));}
+//#line 202 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 103:
-//#line 209 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));}
+//#line 203 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");;}
+break;
+case 104:
+//#line 204 "gramatica.y"
+{ Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 105:
-//#line 211 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
+//#line 205 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 106:
-//#line 212 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
+//#line 206 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 107:
-//#line 213 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion."));}
+//#line 207 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 108:
-//#line 214 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion."));}
+//#line 208 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 109:
-//#line 215 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion."));}
+//#line 209 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 110:
-//#line 216 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion."));}
+//#line 210 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 111:
-//#line 217 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion."));}
+//#line 211 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 112:
-//#line 218 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion."));}
+//#line 212 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 113:
-//#line 219 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido."));}
+//#line 213 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 114:
-//#line 220 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido en el ELSE."));}
+//#line 214 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 115:
-//#line 221 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido en el THEN."));}
+//#line 215 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 116:
-//#line 222 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas."));}
+//#line 216 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 117:
-//#line 226 "gramatica.y"
-{yyval.sval = "false";}
+//#line 220 "gramatica.y"
+{yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 118:
-//#line 227 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); yyval.sval = "false";}
+//#line 221 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); yyval.sval = "false";  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 119:
-//#line 228 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";}
+//#line 222 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 120:
-//#line 229 "gramatica.y"
-{ if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";}
+//#line 223 "gramatica.y"
+{ if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 121:
-//#line 230 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
+//#line 224 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 122:
-//#line 231 "gramatica.y"
-{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'."));}
+//#line 225 "gramatica.y"
+{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 123:
-//#line 232 "gramatica.y"
-{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion."));}
+//#line 226 "gramatica.y"
+{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 124:
-//#line 233 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion."));}
+//#line 227 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 125:
-//#line 234 "gramatica.y"
-{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion."));}
+//#line 228 "gramatica.y"
+{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 126:
-//#line 235 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion."));}
+//#line 229 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 127:
-//#line 236 "gramatica.y"
-{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion."));}
+//#line 230 "gramatica.y"
+{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 128:
-//#line 237 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion."));}
+//#line 231 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 129:
-//#line 238 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido."));}
+//#line 232 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 130:
-//#line 239 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido en el ELSE."));}
+//#line 233 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 131:
-//#line 240 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido valido en el THEN."));}
+//#line 234 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 132:
-//#line 241 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas."));}
+//#line 235 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 134:
-//#line 245 "gramatica.y"
+//#line 239 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '( )' a las listas de expresiones."));}
 break;
 case 135:
-//#line 246 "gramatica.y"
+//#line 240 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 136:
-//#line 247 "gramatica.y"
+//#line 241 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 137:
-//#line 248 "gramatica.y"
+//#line 242 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 138:
-//#line 249 "gramatica.y"
+//#line 243 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 139:
-//#line 250 "gramatica.y"
+//#line 244 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 140:
-//#line 251 "gramatica.y"
+//#line 245 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
 break;
 case 141:
-//#line 252 "gramatica.y"
+//#line 246 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 143:
-//#line 255 "gramatica.y"
+//#line 249 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la izquierda del comparador."));}
 break;
 case 144:
-//#line 256 "gramatica.y"
+//#line 250 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la derecha del comparador."));}
 break;
 case 145:
-//#line 257 "gramatica.y"
+//#line 251 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
 break;
 case 148:
-//#line 269 "gramatica.y"
+//#line 263 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion despues de la coma."));}
 break;
 case 157:
-//#line 277 "gramatica.y"
+//#line 271 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 break;
 case 159:
-//#line 282 "gramatica.y"
+//#line 276 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 break;
 case 161:
-//#line 286 "gramatica.y"
+//#line 280 "gramatica.y"
 { if (val_peek(2).sval.equals("true") || val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";}
 break;
 case 162:
-//#line 287 "gramatica.y"
+//#line 281 "gramatica.y"
 {yyval.sval = val_peek(1).sval;}
 break;
 case 163:
-//#line 290 "gramatica.y"
+//#line 284 "gramatica.y"
 {yyval.sval = val_peek(1).sval;}
 break;
 case 164:
-//#line 291 "gramatica.y"
+//#line 285 "gramatica.y"
 {yyval.sval = val_peek(1).sval; erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 break;
 case 165:
-//#line 292 "gramatica.y"
+//#line 286 "gramatica.y"
 {yyval.sval = val_peek(1).sval;}
 break;
+case 166:
+//#line 290 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+break;
 case 167:
-//#line 297 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables."));}
+//#line 291 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 168:
-//#line 298 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( de apertura de condicion."));}
+//#line 292 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( de apertura de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 169:
-//#line 299 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion."));}
+//#line 293 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 170:
-//#line 300 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ) de cierre de condicion."));}
+//#line 294 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ) de cierre de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 171:
-//#line 301 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( ) englobando la condicion."));}
+//#line 295 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( ) englobando la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 172:
-//#line 302 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( ) englobando la condicion y bloque de sentencias ejecutables."));}
+//#line 296 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( ) englobando la condicion y bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 173:
-//#line 303 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion y bloque de sentencias ejecutables."));}
+//#line 297 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion y bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 174:
-//#line 305 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta while"));}
+//#line 299 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta while")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+break;
+case 175:
+//#line 302 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
 break;
 case 176:
-//#line 309 "gramatica.y"
-{erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO falta '@' luego de los dospuntos."));}
+//#line 303 "gramatica.y"
+{erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO falta '@' luego de los dospuntos.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
 break;
 case 177:
-//#line 310 "gramatica.y"
-{erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO etiqueta invalida."));}
+//#line 304 "gramatica.y"
+{erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO etiqueta invalida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
 break;
 case 178:
-//#line 311 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'goto' luego de los dospuntos."));}
+//#line 305 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'goto' luego de los dospuntos.")); estructuras.add("Linea "+": "+"GOTO");}
+break;
+case 179:
+//#line 308 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta");}
 break;
 case 180:
-//#line 315 "gramatica.y"
+//#line 309 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'etiqueta'."));}
 break;
-case 183:
-//#line 321 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida."));}
+case 181:
+//#line 313 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
-//#line 1577 "Parser.java"
+case 182:
+//#line 314 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
+break;
+case 183:
+//#line 315 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
+break;
+//#line 1614 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

@@ -9,6 +9,7 @@ import java.util.Map;
 public class TablaDeSimbolos {
     public static class Contexto{
         private List<Integer> refs;
+        private List<Integer> refsAux;
         private String valor;
         private boolean declarado;
         private int tipo;
@@ -16,7 +17,9 @@ public class TablaDeSimbolos {
 
         public Contexto(int linea, String valor, int tipo){
             this.refs = new ArrayList<Integer>();
+            this.refsAux = new ArrayList<Integer>();
             this.refs.add(linea);
+            this.refsAux.add(linea);
             this.tipo = tipo;
             this.valor = valor;
             this.declarado = false;
@@ -24,7 +27,9 @@ public class TablaDeSimbolos {
         }
         public Contexto(int linea, int tipo){
             this.refs = new ArrayList<Integer>();
+            this.refsAux = new ArrayList<Integer>();
             this.refs.add(linea);
+            this.refsAux.add(linea);
             this.tipo = tipo;
             this.valor = null;
             this.declarado = false;
@@ -32,6 +37,7 @@ public class TablaDeSimbolos {
         }
         public Contexto(int tipo){
             this.refs = new ArrayList<Integer>();
+            this.refsAux = new ArrayList<Integer>();
             this.tipo = tipo;
             this.valor = null;
             this.declarado = false;
@@ -39,7 +45,9 @@ public class TablaDeSimbolos {
         }
         public Contexto(List<Integer> linea, int tipo){
             this.refs = new ArrayList<Integer>();
+            this.refsAux = new ArrayList<Integer>();
             this.refs.addAll(linea);
+            this.refsAux.addAll(linea);
             this.tipo = tipo;
             this.valor = null;
             this.declarado = false;
@@ -47,7 +55,9 @@ public class TablaDeSimbolos {
         }
         public Contexto(List<Integer> linea, String valor, int tipo){
             this.refs = new ArrayList<Integer>();
+            this.refsAux = new ArrayList<Integer>();
             this.refs.addAll(linea);
+            this.refsAux.addAll(linea);
             this.tipo = tipo;
             this.valor = valor;
             this.declarado = false;
@@ -55,6 +65,7 @@ public class TablaDeSimbolos {
         }
         public void addRef(int linea){
             this.refs.add(linea);
+            this.refsAux.add(linea);
         }
         public void setDeclarado(){
             this.declarado = true;
@@ -73,6 +84,11 @@ public class TablaDeSimbolos {
         }
         public List<Integer> getRefs(){
             return this.refs;            
+        }
+        public Integer popRef(){
+            Integer ref = this.refsAux.get(refsAux.size()-1);
+            this.refsAux.remove(refsAux.size()-1);
+            return ref;            
         }
         public boolean isReservada(){
             return this.reservada;
