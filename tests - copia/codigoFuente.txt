@@ -1,6 +1,0 @@
-ignaTrolo
-BEGIN
-pepe := ;
-END
-
-

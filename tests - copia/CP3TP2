@@ -1,5 +1,0 @@
-CP3_2
-BEGIN
-    a:= 2 + 3
-    a:= 2 + 3 a  hola(1); 
-END
