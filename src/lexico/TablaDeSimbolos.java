@@ -205,8 +205,6 @@ public class TablaDeSimbolos {
 
         return sb.toString();
     }
-
-    //VER TEMA MAYUSCULAS
     public static String existe(String cadena){
         Iterator<Map.Entry<String, Contexto>> iterator = tablaReservada.entrySet().iterator();
         

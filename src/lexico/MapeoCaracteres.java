@@ -36,10 +36,10 @@ public class MapeoCaracteres {
     public static final char PUNTO = '.';
     public static final char IGUAL = '=';
     public static final char PUNTO_COMA = ';';
-    public static final char GUIONBAJO = '_'; //AGREGAR
-    public static final char ARROBA = '@'; //AGREGAR
-    public static final char LLAVE_I = '{'; //AGREGAR
-    public static final char LLAVE_D = '}'; //AGREGAR
+    public static final char GUIONBAJO = '_'; 
+    public static final char ARROBA = '@'; 
+    public static final char LLAVE_I = '{'; 
+    public static final char LLAVE_D = '}'; 
 
 //,-----,esp,tab,\n,L,A..F,x,0,N,[,s,],#,<,>,!,",",:,"""+""",-,*,/,(,),.,"""=""",c
 

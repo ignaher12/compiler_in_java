@@ -86,6 +86,6 @@ public class TablaTipoToken {
                 return entry.getKey();
             }
         }
-        return null; // O lanzar una excepción si no se encuentra el valor
+        return null; // Puede lanzar una excepción si no se encuentra el valor
     }
 }

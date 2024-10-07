@@ -97,8 +97,6 @@ funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END {if
 tipoDato : SINGLE      {$$.ival = TablaDeSimbolos.getContexto($1.sval).popRef();}
          | LONGINT     {$$.ival = TablaDeSimbolos.getContexto($1.sval).popRef();}
          | HEXADECIMAL {$$.ival = TablaDeSimbolos.getContexto($1.sval).popRef();}
-         //| IDENTIFICADOR //PARA typedef  // TEMA 11 ..check
-         //| TRIPLE  // TEMA 22
 ;
 
 listaVariable : listaVariable ',' IDENTIFICADOR
@@ -157,19 +155,9 @@ sentenciaEjecutableConRet : asignacion                 {$$.sval = "false";}
 ;
 
 asignacion : IDENTIFICADOR SIMASIGNACION expresion {Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
-           //| IDENTIFICADOR '[' '1' ']' SIMASIGNACION expresion   //TEMA 22
-           //| IDENTIFICADOR '[' '2' ']' SIMASIGNACION expresion   //TEMA 22
-           //| IDENTIFICADOR '[' '3' ']' SIMASIGNACION expresion   //TEMA 22
            | IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion   { if (!$2.sval.equals("[1]") && !$2.sval.equals("[2]") && !$2.sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3."));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}//TEMA 22
            | IDENTIFICADOR CONSTANTE SIMASIGNACION expresion   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 ;
-
-//expresion : ls
-//          | expresion operador operando 
-//          | expresion operador error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta un operando"));}
-//          | error operador operando {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta un operando"));}
-//          //| expresion operando 
-//;
 
 expresion : expresion operador operando
           | expresion operador error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
@@ -250,13 +238,6 @@ condicion: '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' l
          | expresion comparador error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la derecha del comparador."));}
          | expresion error expresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
 ;
-         //| expresion ',' listaExpresiones ')' comparador expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
-         //| expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
-         //| '(' expresion ',' listaExpresiones comparador '(' expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));} //))
-/*((*/   //| expresion ',' listaExpresiones ')' comparador expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
-/*(*/    //| expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
-/*(*/    //| expresion ',' listaExpresiones comparador expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
-         //| expresion ',' listaExpresiones comparador '(' expresion ',' listaExpresiones {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 
 listaExpresiones : listaExpresiones ',' expresion
                  | expresion

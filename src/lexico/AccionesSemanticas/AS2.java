@@ -13,7 +13,7 @@ public class AS2 implements Accion{
             actual = '\n';
         }
         
-        if (actual != MapeoCaracteres.NUEVA_LINEA)////////check si Scanner lee saltos
+        if (actual != MapeoCaracteres.NUEVA_LINEA)
             cadena.append(actual);
         pos.incrementAndGet(); 
     }

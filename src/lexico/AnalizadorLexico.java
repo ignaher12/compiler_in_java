@@ -1,7 +1,6 @@
 package lexico;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HexFormat;
 import java.util.Scanner; 
 import java.util.concurrent.atomic.AtomicInteger;
 import lexico.AccionesSemanticas.Accion;
@@ -96,12 +95,12 @@ public class AnalizadorLexico {
                 estadoActual = matrizTransicion[estadoActual][MapeoCaracteres.getConversion('\n')];
             };
             System.out.println("LEX: Token detectado -> " + token + "| " + TablaTipoToken.getClavePorValor(token.getIdentificador()) + " | " + (numeroLinea-1));
-            if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
-                if(!token.isError()){
-                    //System.out.println(yylval);
-                    //System.out.println("sval pasado | " + token.getReferencia());
-                }
-            };
+            // if (token.getIdentificador() == (int)Parser.IDENTIFICADOR || token.getIdentificador() == (int)Parser.HEXADECIMAL || token.getIdentificador() == Parser.CONSTANTE || token.getIdentificador() == (int)Parser.CADENA_MULTI){ 
+            //     if(!token.isError()){
+            //         //System.out.println(yylval);
+            //         //System.out.println("sval pasado | " + token.getReferencia());
+            //     }
+            // };
             yylval.sval= token.getReferencia();
            
         }

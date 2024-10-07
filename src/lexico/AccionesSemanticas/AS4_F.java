@@ -1,9 +1,7 @@
 package lexico.AccionesSemanticas;
-import java.util.HexFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 import lexico.AnalizadorLexico;
 import lexico.TablaDeSimbolos;
-import lexico.TablaDeSimbolos.Contexto;
 import lexico.TablaTipoToken;
 import lexico.Token;
 import parser.Error.Tipo;

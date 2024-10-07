@@ -17,7 +17,7 @@ public class ASE implements Accion {
         for (int i = 1; i < errorPos; i++) {
             marcador.append(" "); // Añade espacios antes de la flecha
         }
-        marcador.append("^"); // La flecha que apunta a la posición del error
+        marcador.append("^"); // La flecha apunta a la posición del error
 
         Parser.erroresLexico.add(new Error(
             AnalizadorLexico.getNumeroLinea(), 
