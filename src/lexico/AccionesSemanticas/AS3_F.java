@@ -20,7 +20,7 @@ public class AS3_F implements Accion{
             Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.WARNING, "El identificador" + cadenaLarga + " fue truncado a: " + cadena));
         }
         if (TablaDeSimbolos.existe(cadena.toString()) == null){
-            TablaDeSimbolos.agregarSimbolo(cadena.toString(), token.getIdentificador(), nro_linea);
+            TablaDeSimbolos.agregarSimbolo(cadena.toString(), -1, nro_linea);
             token.setReferencia(cadena.toString());
         }else{
             //System.out.println(cadena.toString());

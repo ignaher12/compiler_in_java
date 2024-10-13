@@ -10,13 +10,14 @@ public class TablaDeSimbolos {
     public static class Contexto{
         private List<Integer> refs;
         private List<Integer> refsAux;
-        private String valor;
-        private boolean declarado;
         private int tipo;
+        private String uso = "";
+        private String valor;
         private boolean reservada;
+        private boolean declarado;
 
         public Contexto(int linea, String valor, int tipo){
-            this.refs = new ArrayList<Integer>();
+            this.refs = new ArrayList<Integer>();   //UTILIDAD?
             this.refsAux = new ArrayList<Integer>();
             this.refs.add(linea);
             this.refsAux.add(linea);
@@ -79,11 +80,24 @@ public class TablaDeSimbolos {
         public int getTipo(){
             return this.tipo;
         }
+        public void setTipo(int tipo){
+            this.tipo = tipo;
+        }
+        public String getUso(){
+            return this.uso;
+        }
+        public void setUso(String uso){
+            this.uso = uso;
+        }
         public String getValor(){
             return this.valor;
         }
         public List<Integer> getRefs(){
             return this.refs;            
+        }
+        public Integer getRef(){
+            Integer ref = this.refsAux.get(refsAux.size()-1);
+            return ref;            
         }
         public Integer popRef(){
             Integer ref = this.refsAux.get(refsAux.size()-1);
@@ -198,7 +212,7 @@ public class TablaDeSimbolos {
         sb.append("-------------------\n");
 
         for (Map.Entry<String, Contexto> par : tabla.entrySet()) {
-            sb.append(par.getKey()).append(" - ").append(par.getValue().valor).append(" - ").append(par.getValue().declarado).append(" - ").append(par.getValue().tipo).append(" - ").append(par.getValue().getRefs()).append('\n');
+            sb.append(par.getKey()).append(" - ").append(par.getValue().valor).append(" - ").append(par.getValue().declarado).append(" - ").append(par.getValue().tipo).append(" - ").append(par.getValue().getRefs()).append(par.getValue().getUso()).append('\n');
         }
 
         

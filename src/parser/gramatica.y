@@ -53,10 +53,10 @@ sentencia : sentenciaDeclarativa
           //| sentenciaDeclarativa error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 ;
 
-sentenciaDeclarativa : tipoDato IDENTIFICADOR  ';'                      {estructuras.add("Linea "+ $1.ival +": "+"Declaracion");}
-                     | tipoDato IDENTIFICADOR ',' listaVariable ';'     {estructuras.add("Linea "+ $1.ival +": "+"Declaracion");}
-                     | tipoDato IDENTIFICADOR ',' error ';' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera IDENTIFICADOR.")); estructuras.add("Linea "+ $1.ival +": "+"Declaracion");}
-                     | tipoDato IDENTIFICADOR ',' listaVariable error ';' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); estructuras.add("Linea "+ $1.ival +": "+"Declaracion");}
+sentenciaDeclarativa : tipoDato IDENTIFICADOR  ';'                      {ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden); estructuras.add("Linea "+ TablaDeSimbolos.getContexto($1.sval).popRef() +": "+"Declaracion");}
+                     | tipoDato IDENTIFICADOR ',' listaVariable ';'     {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
+                     | tipoDato IDENTIFICADOR ',' error ';' {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera IDENTIFICADOR.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
+                     | tipoDato IDENTIFICADOR ',' listaVariable error ';' {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
                      | tipoDato IDENTIFICADOR error ';' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); }    
                      | typedefDeclaracion ';'
                      | typedefDeclaracion error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera ';'.")); }
@@ -72,11 +72,11 @@ typedefDeclaracion : TYPEDEF declaracionSubtipo {Integer lastRef = TablaDeSimbol
                    | TYPEDEF error { erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de subtipo"); }
 ;
 
-declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante '}'  // TEMA 11
+declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante '}'  {declaracionSubtipo($3.sval,$1.sval);}// TEMA 11
                    | SIMASIGNACION tipoDato '{' listaConstante '}'  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre del tipo de dato nuevo'."));}
                    | IDENTIFICADOR SIMASIGNACION tipoDato '{' '}' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera declaracion de subrangos."));}
 ;
-declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR  // TEMA 22
+declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR {declaracionTriple($3.sval,$5.sval);}  // TEMA 22
                   |  TRIPLE '<' IDENTIFICADOR '>' IDENTIFICADOR  // TEMA 22 //CHECK
                   |  TRIPLE '<' error '>' IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'tipo de objeto a declarar'."));}
                   |  TRIPLE '<' tipoDato '>' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre de objeto a declarar'."));}
@@ -88,15 +88,17 @@ declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR  // TEMA 22
                   |  TRIPLE tipoDato IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
 ;
 
-funDeclaracion : FUN IDENTIFICADOR '(' parametro ')' BEGIN cuerpoFuncion END {if ($7.sval.equals("false"))erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
+funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {if ($7.sval.equals("false"))erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1);}
                | FUN error '(' parametro ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
-               | FUN IDENTIFICADOR '(' parametro ','  error ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
-               | FUN IDENTIFICADOR '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
+               | funComienzo '(' parametro ','  error ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
+               | funComienzo '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 ;
 
-tipoDato : SINGLE      {$$.ival = TablaDeSimbolos.getContexto($1.sval).popRef();}
-         | LONGINT     {$$.ival = TablaDeSimbolos.getContexto($1.sval).popRef();}
-         | HEXADECIMAL {$$.ival = TablaDeSimbolos.getContexto($1.sval).popRef();}
+funComienzo : FUN IDENTIFICADOR  {declararFuncion($2.sval); ambitos.add($2.sval);} //PROBLEMA CON FUN error de fundeclaracion??
+;
+tipoDato : SINGLE      
+         | LONGINT     
+         | HEXADECIMAL 
 ;
 
 listaVariable : listaVariable ',' IDENTIFICADOR
@@ -119,7 +121,7 @@ constante : CONSTANTE { Contexto contexto = TablaDeSimbolos.getContexto($1.sval)
 ;
 
 
-parametro : tipoDato IDENTIFICADOR
+parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval);}
           | error IDENTIFICADOR      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta tipo de dato en el parametro."));}
           | tipoDato error      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre en el parametro."));}
 ;
@@ -286,7 +288,7 @@ goto : GOTO etiqueta '@'     {Integer lastRef = TablaDeSimbolos.getContexto($1.s
      | etiqueta '@'    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'goto' luego de los dospuntos.")); estructuras.add("Linea "+": "+"GOTO");}
 ;
 
-etiqueta : IDENTIFICADOR ':'     {Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta");}
+etiqueta : IDENTIFICADOR ':'     {declaracionEtiqueta($1.sval);Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta");}
          | ':'           {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'etiqueta'."));}
          //| IDENTIFICADOR error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ':' luego de la etiqueta."));}
 ;
@@ -302,8 +304,10 @@ mensajeSalida : OUTF '(' expresion ')'   {Integer lastRef = TablaDeSimbolos.getC
 private static AnalizadorLexico lex;
 public static List<Error> erroresLexico = new ArrayList<Error>();
 public static List<Error> erroresSintactico = new ArrayList<Error>();
+public static List<Error> erroresSemanticos = new ArrayList<Error>();
 public static List<String> estructuras = new ArrayList<String>();
 
+public static List<String> ambitos = new ArrayList<String>();
 public static int numeroLineaError = -1;
 public static void main(String[] args) {
     String filePath = "src/MATRIZ DE TRANSICIONES - Hoja 1.csv";
@@ -314,21 +318,22 @@ public static void main(String[] args) {
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
     Parser parser = new Parser(true);
     Parser.lex = new AnalizadorLexico("--", matriz, matrizAcciones);
+    ambitos.add("main");
     if (args.length > 1) {
         Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
 
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("TP1CP3", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("tests3/test3", matriz, matrizAcciones);
         
         parser.run();
         System.out.println("v---------------------------v");
         for (Error error: erroresSintactico){System.out.println(error);}
         for (Error error: erroresLexico){System.out.println(error);}
         for (String estructura: estructuras){System.out.println(estructura);}
-        System.out.println("FALTA AGREGAR NUMERO DE LINEA PARA CADA ESTRUCTURA");
         System.out.println("^---------------------------^");
+        for (Error error: erroresSemanticos){System.out.println(error);}
         //System.out.println("No se especifico el archivo a compilar");
     }
     System.out.println(TablaDeSimbolos.imprimir());
@@ -369,4 +374,98 @@ private void chequearRango(Contexto contexto){
 private void yyerror(String string) {
   numeroLineaError = AnalizadorLexico.getNumeroLinea();
   System.out.println("Error: " + string);
+}
+private void declararVariable(String refTipo, ArrayList<String> referenciasIdentificador){
+  for (String refIdentificador: referenciasIdentificador){
+    String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+    Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
+    if (conIdentificador.getTipo() == -1){
+      if (conIdentificador.getUso().equals("") ){
+        conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
+        conIdentificador.setUso("nombre de variable");
+      }else{
+        erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso que no es nombre de variable"));
+      }
+    }else{
+      erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO variable ya declarada"));
+    };
+  };
+}
+
+private String cargarAmbito(){
+  String aux = "";
+  for(String ambito: ambitos){
+    aux = aux + ":" + ambito;
+  }
+  return aux;
+}
+
+private void declararFuncion(String ref){
+  String newRef = TablaDeSimbolos.agregarSimbolo(ref + cargarAmbito(), -1, TablaDeSimbolos.getContexto(ref).getRef());
+  Contexto con = TablaDeSimbolos.getContexto(newRef);
+  if (con.getUso().equals("") ){
+    con.setUso("nombre de funcion");
+    con.setTipo(TablaTipoToken.getTipoToken(TablaTipoToken.FUN));
+  }else{
+    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso que no es nombre de funcion"));
+  };
+}
+
+private void declaracionTriple(String refTipo, String refIdentificador){
+  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+  Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
+  if (conIdentificador.getTipo() == -1){
+    if (conIdentificador.getUso().equals("") ){
+      conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
+      conIdentificador.setUso("nombre de variable triple");
+    }else{
+      erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso que no es nombre de variable triple"));
+    }
+  }else{
+    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO variable ya declarada"));
+  };
+}
+private void declaracionSubtipo(String refTipo, String refIdentificador){
+  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+  Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
+  if (conIdentificador.getTipo() == -1){
+    if (conIdentificador.getUso().equals("") ){
+      conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
+      conIdentificador.setUso("nombre de subtipo");
+      //FALTA Límite inferior o Límite superior
+    }else{
+      erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso que no es nombre de subtipo"));
+    }
+  }else{
+    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO variable ya declarada"));
+  };
+}
+private void declaracionEtiqueta(String refIdentificador){
+  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+  Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
+  if (conIdentificador.getTipo() == -1){
+    if (conIdentificador.getUso().equals("") ){
+      //conIdentificador.setTipo(TablaDeSimbolos.getTipoToken());  ETIQUETA ??
+      conIdentificador.setUso("nombre de etiqueta");
+    }else{
+      erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso que no es nombre de etiqueta"));
+    }
+  }else{
+    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO variable ya declarada"));
+  };
+}
+private void declaracionParametro(String refTipo, String refIdentificador){
+  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+  Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
+  if (conIdentificador.getTipo() == -1){
+    if (conIdentificador.getUso().equals("") ){
+      conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
+    conIdentificador.setUso("nombre de parametro");
+      //FALTA Límite inferior o Límite superior
+    }else{
+      erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso que no es nombre de parametro"));
+    }
+  }else{
+    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO variable ya declarada"));
+  };
 }
