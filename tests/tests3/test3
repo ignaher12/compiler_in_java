@@ -1,20 +1,19 @@
 test
 begin
-    longint declarado;
-    declarado := 12314;
+    a := b + 12;
 
-    hexadecimal ff;
-    hexadecimal fun fa(longint ta)begin
-    typedef Triple <hexadecimal> tri;
-end;
-    hexadecimal ma;
+    REPEAT
+    begin
+        a:= 123;
+        b:= 456;
+    end
+    while ( a < 3);
 
-    eti:
+    if ((x, a, b) > (1, 2, 3)) then
+        begin
+            a:= 123;
+            b:= 456;
+        end
+    end_if;
 
-    hexadecimal fun fas(longint ta)begin
-    hexadecimal fun fass(longint ta)begin
-    typedef Triple <hexadecimal> tri;
-    end;
-    end;
-    
 end
