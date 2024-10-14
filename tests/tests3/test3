@@ -2,18 +2,21 @@ test
 begin
     a := b + 12;
 
-    REPEAT
-    begin
-        a:= 123;
-        b:= 456;
-    end
-    while ( a < 3);
 
     if ((x, a, b) > (1, 2, 3)) then
         begin
             a:= 123;
             b:= 456;
+            GOTO hola@;
+        end
+    else
+        begin
+            outf([hola]);
+            y:= 777;
         end
     end_if;
-
+    
+    z:=45;
+    g:= 11;
+    hola: x:= 12;
 end
