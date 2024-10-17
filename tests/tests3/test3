@@ -1,7 +1,13 @@
 test
 begin
+
+    hexadecimal a;
+    longint x;
+
     a := b + 12;
 
+
+    longint b;
 
     if ((x, a, b) > (1, 2, 3)) then
         begin
@@ -12,11 +18,30 @@ begin
     else
         begin
             outf([hola]);
-            y:= 777;
+            y:= y + 777;
         end
     end_if;
+
+    longint FUN holahola(longint x)
+    begin
+        longint hexa;
+        hexa:= 14;
+    end;
+    k := holahola (b);
+
+    hexadecimal funcion;
+
+    longint FUN funcion2(longint x)
+    begin
+        longint hexa;
+        hexa:= 14;
+    end;
+
     
+    hexadecimal b;
+    hexa := 13;
     z:=45;
     g:= 11;
     hola: x:= 12;
+    
 end

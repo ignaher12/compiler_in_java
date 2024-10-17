@@ -92,6 +92,9 @@ public class TablaDeSimbolos {
         public String getValor(){
             return this.valor;
         }
+        public boolean getDeclarado(){
+            return this.declarado;
+        }
         public List<Integer> getRefs(){
             return this.refs;            
         }
