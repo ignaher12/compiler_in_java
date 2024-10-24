@@ -9,4 +9,7 @@ BEGIN
     while (x > 0);
 
     ola:
+
+    typedef triple<longint> triplete;
+    triplete [2] := 2;
 end
