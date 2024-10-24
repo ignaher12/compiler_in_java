@@ -1007,7 +1007,7 @@ private void yyerror(String string) {
 }
 private void declararVariable(String refTipo, ArrayList<String> referenciasIdentificador){
   for (String refIdentificador: referenciasIdentificador){
-    String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+    String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
     Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
     if (conIdentificador.getTipo() == -1){
       if (conIdentificador.getUso().equals("") ){
@@ -1031,7 +1031,7 @@ private String cargarAmbito(){
 }
 
 private void declararFuncion(String ref){
-  String newRef = TablaDeSimbolos.agregarSimbolo(ref + cargarAmbito(), -1, TablaDeSimbolos.getContexto(ref).getRef());
+  String newRef = TablaDeSimbolos.agregarSimbolo(ref + cargarAmbito(), -1, TablaDeSimbolos.getContexto(ref).popRefUso());
   Contexto con = TablaDeSimbolos.getContexto(newRef);
   if (con.getUso().equals("") ){
     con.setUso("nombre de funcion");
@@ -1043,7 +1043,7 @@ private void declararFuncion(String ref){
 }
 
 private void declaracionTriple(String refTipo, String refIdentificador){
-  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
@@ -1058,7 +1058,7 @@ private void declaracionTriple(String refTipo, String refIdentificador){
   };
 }
 private void declaracionSubtipo(String refTipo, String refIdentificador){
-  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
@@ -1073,7 +1073,7 @@ private void declaracionSubtipo(String refTipo, String refIdentificador){
   };
 }
 private void declaracionEtiqueta(String refIdentificador){
-  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
@@ -1087,7 +1087,7 @@ private void declaracionEtiqueta(String refIdentificador){
   };
 }
 private void declaracionParametro(String refTipo, String refIdentificador){
-  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).getRef());
+  String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
@@ -1101,20 +1101,23 @@ private void declaracionParametro(String refTipo, String refIdentificador){
     erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + refIdentificador + " ya declarada"));
   };
 }
-private boolean chequearDeclarado(String id){
-  String ambito = cargarAmbito();
-  ambito = id + ambito;
-  System.out.println("-------------------------------------IDENTIFICARDOR A BUSCAR: " + ambito);
-  while(ambito.lastIndexOf(":") != -1){
-    if (TablaDeSimbolos.getContexto(ambito) != null){
-      if (TablaDeSimbolos.getContexto(ambito).getDeclarado()){    //CON UNA VARIABLE BASE (SIN AMBITO) EN LA T.S. ESTE IF PUEDE NO ESTAR. SI AGREGAMOS A LA T.S. (DESDE EL LEXER) CON AMBITO ENTONCES NECESITAMOS DEL ATRIBUTO "DECLARADO"
+private boolean chequearDeclarado(String lexemaSinAmbito){
+  
+  String lexema = lexemaSinAmbito + cargarAmbito();
+  System.out.println("-------------------------------------IDENTIFICARDOR A BUSCAR: " + lexema);
+  while(lexema.lastIndexOf(":") != -1){
+    Contexto contexto = TablaDeSimbolos.getContexto(lexema);
+    if (contexto != null){
+      if (contexto.getDeclarado()){    //CON UNA VARIABLE BASE (SIN AMBITO) EN LA T.S. ESTE IF PUEDE NO ESTAR. SI AGREGAMOS A LA T.S. (DESDE EL LEXER) CON AMBITO ENTONCES NECESITAMOS DEL ATRIBUTO "DECLARADO"
+        System.out.println("saaaaaaaaaaaaaaaaaaaaaaa");
+        contexto.addRef(TablaDeSimbolos.getContexto(lexemaSinAmbito).popRefUso());
         return true;
       }
     }
-    int ultAmbito = ambito.lastIndexOf(":");
-    ambito = ambito.substring(0, ultAmbito);
+    int ultAmbito = lexema.lastIndexOf(":");
+    lexema = lexema.substring(0, ultAmbito);
   }
-  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + id + " nunca fue declarado")); 
+  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + lexemaSinAmbito + " nunca fue declarado")); 
   return false;
 }
 private String agregarTerceto(String operador1, String op2, String op3){
@@ -1161,7 +1164,7 @@ public void completarUltimoTercetoIncompleto(){
   }
   agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));
 }
-//#line 1092 "Parser.java"
+//#line 1095 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1554,7 +1557,7 @@ case 78:
 break;
 case 79:
 //#line 163 "gramatica.y"
-{ if (!val_peek(2).sval.equals("[1]") && !val_peek(2).sval.equals("[2]") && !val_peek(2).sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", val_peek(3).sval + val_peek(2).sval , val_peek(0).sval); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+{chequearDeclarado(val_peek(3).sval); if (!val_peek(2).sval.equals("[1]") && !val_peek(2).sval.equals("[2]") && !val_peek(2).sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", val_peek(3).sval + val_peek(2).sval , val_peek(0).sval); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 80:
 //#line 164 "gramatica.y"
@@ -1972,7 +1975,7 @@ case 195:
 //#line 325 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
-//#line 1898 "Parser.java"
+//#line 1901 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
