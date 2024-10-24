@@ -1118,9 +1118,10 @@ private String agregaListaExpresionTercetos(String operador1, ArrayList<String> 
 public int conversionIndexStoI(String aux){
   return Integer.parseInt(aux.substring(1,aux.length()));
 }
-public void completaTercetosEtiqueta(String etiqueta, int index){
+public void completaTercetosEtiqueta(String etiqueta, int index){ //recorre TODOS tercetos y agrega ref a etiqueta 
   for(Terceto terceto: tercetos){
-    if (terceto.getT3().equals(etiqueta)){
+    if (terceto.getT2().equals(etiqueta)){
+      terceto.setT2("");
       terceto.setT3(((Integer)index).toString());
     }
   }
@@ -1134,7 +1135,7 @@ public void completarUltimoTercetoIncompleto(){
   }
   agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));
 }
-//#line 1065 "Parser.java"
+//#line 1066 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1907,7 +1908,7 @@ case 185:
 break;
 case 186:
 //#line 309 "gramatica.y"
-{agregarTerceto("BI", "", val_peek(1).sval);Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
+{agregarTerceto("BI", val_peek(1).sval,  "");Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
 break;
 case 187:
 //#line 310 "gramatica.y"
@@ -1923,7 +1924,7 @@ case 189:
 break;
 case 190:
 //#line 315 "gramatica.y"
-{agregarTerceto("ETIQUETA", val_peek(1).sval, ""); completaTercetosEtiqueta(val_peek(1).sval, tercetos.size());declaracionEtiqueta(val_peek(1).sval);Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta"); yyval.sval = lastRef.toString();}
+{agregarTerceto("ETIQUETA", "", val_peek(1).sval); completaTercetosEtiqueta(val_peek(1).sval, (tercetos.size()-1));declaracionEtiqueta(val_peek(1).sval);Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta"); yyval.sval = lastRef.toString();}
 break;
 case 191:
 //#line 316 "gramatica.y"
@@ -1941,7 +1942,7 @@ case 194:
 //#line 322 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
-//#line 1867 "Parser.java"
+//#line 1868 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

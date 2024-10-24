@@ -4,6 +4,9 @@ BEGIN
         begin
             repeat y := 10; while (y < 0);
             x:=2; 
+            goto ola@;
         end 
     while (x > 0);
+
+    ola:
 end

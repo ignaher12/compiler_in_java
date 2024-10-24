@@ -17,6 +17,9 @@ public class Terceto {
     public String getT2(){
         return this.t2;
     }
+    public void setT2(String t2){
+        this.t2 = t2;
+    }
     public String getT3(){
         return this.t3;
     }

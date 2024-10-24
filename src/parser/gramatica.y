@@ -306,13 +306,13 @@ clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {ag
 repeat: REPEAT {inicioBucle.add(tercetos.size()); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size()));}
 ;
 
-goto : GOTO IDENTIFICADOR '@'     {agregarTerceto("BI", "", $2.sval);Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
+goto : GOTO IDENTIFICADOR '@'     {agregarTerceto("BI", $2.sval,  "");Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
      | GOTO IDENTIFICADOR error   {erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO falta '@' luego de los dospuntos.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
      | GOTO error '@' {erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO etiqueta invalida.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
      | IDENTIFICADOR '@'    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'goto' luego de los dospuntos.")); estructuras.add("Linea "+": "+"GOTO");}
 ;
 
-etiqueta : IDENTIFICADOR ':'     {agregarTerceto("ETIQUETA", $1.sval, ""); completaTercetosEtiqueta($1.sval, tercetos.size());declaracionEtiqueta($1.sval);Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta"); $$.sval = lastRef.toString();}
+etiqueta : IDENTIFICADOR ':'     {agregarTerceto("ETIQUETA", "", $1.sval); completaTercetosEtiqueta($1.sval, (tercetos.size()-1));declaracionEtiqueta($1.sval);Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta"); $$.sval = lastRef.toString();}
          | ':'           {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'etiqueta'."));}
          //| IDENTIFICADOR error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ':' luego de la etiqueta."));}
 ;
@@ -538,9 +538,10 @@ private String agregaListaExpresionTercetos(String operador1, ArrayList<String> 
 public int conversionIndexStoI(String aux){
   return Integer.parseInt(aux.substring(1,aux.length()));
 }
-public void completaTercetosEtiqueta(String etiqueta, int index){
+public void completaTercetosEtiqueta(String etiqueta, int index){ //recorre TODOS tercetos y agrega ref a etiqueta 
   for(Terceto terceto: tercetos){
-    if (terceto.getT3().equals(etiqueta)){
+    if (terceto.getT2().equals(etiqueta)){
+      terceto.setT2("");
       terceto.setT3(((Integer)index).toString());
     }
   }
