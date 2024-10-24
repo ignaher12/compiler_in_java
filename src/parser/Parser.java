@@ -1064,6 +1064,7 @@ private void declaracionSubtipo(String refTipo, String refIdentificador){
     if (conIdentificador.getUso().equals("") ){
       conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
       conIdentificador.setUso("nombre de subtipo");
+      conIdentificador.setDeclarado();
       //FALTA Límite inferior o Límite superior
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
@@ -1075,10 +1076,16 @@ private void declaracionSubtipo(String refTipo, String refIdentificador){
 private void declaracionEtiqueta(String refIdentificador){
   String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
+  Integer ref = TablaDeSimbolos.getContexto(refIdentificador).popRefUso();
+  while (ref != -1){                     //PASA TODAS LAS REFERNCIAS DE CONTEXTO A LA DECLARACION DE ETIQUETA (XQUE SE PUEDE REFERENCIAR ANTES DE DELACRACION)
+    conIdentificador.addRef(ref);
+    ref = TablaDeSimbolos.getContexto(refIdentificador).popRefUso();
+  };
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
       //conIdentificador.setTipo(TablaDeSimbolos.getTipoToken());  ETIQUETA ??
       conIdentificador.setUso("nombre de etiqueta");
+      conIdentificador.setDeclarado();
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
     }
@@ -1092,7 +1099,8 @@ private void declaracionParametro(String refTipo, String refIdentificador){
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
       conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
-    conIdentificador.setUso("nombre de parametro");
+      conIdentificador.setUso("nombre de parametro");
+      conIdentificador.setDeclarado();
       //FALTA Límite inferior o Límite superior
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
@@ -1164,7 +1172,7 @@ public void completarUltimoTercetoIncompleto(){
   }
   agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));
 }
-//#line 1095 "Parser.java"
+//#line 1103 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1975,7 +1983,7 @@ case 195:
 //#line 325 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
-//#line 1901 "Parser.java"
+//#line 1909 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

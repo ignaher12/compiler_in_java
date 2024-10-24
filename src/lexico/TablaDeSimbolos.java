@@ -108,9 +108,13 @@ public class TablaDeSimbolos {
             return ref;            
         }
         public Integer popRefUso(){
-            Integer ref = this.refs.get(refs.size()-1);
-            this.refs.remove(refs.size()-1);
-            return ref;            
+            if ((refs.size()-1) >= 0){
+                Integer ref = this.refs.get(refs.size()-1);
+                this.refs.remove(refs.size()-1);
+                return ref;  
+            }else{
+                return (-1);
+            }        
         }
         public boolean isReservada(){
             return this.reservada;

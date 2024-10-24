@@ -473,6 +473,7 @@ private void declaracionSubtipo(String refTipo, String refIdentificador){
     if (conIdentificador.getUso().equals("") ){
       conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
       conIdentificador.setUso("nombre de subtipo");
+      conIdentificador.setDeclarado();
       //FALTA Límite inferior o Límite superior
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
@@ -484,10 +485,16 @@ private void declaracionSubtipo(String refTipo, String refIdentificador){
 private void declaracionEtiqueta(String refIdentificador){
   String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
+  Integer ref = TablaDeSimbolos.getContexto(refIdentificador).popRefUso();
+  while (ref != -1){                     //PASA TODAS LAS REFERNCIAS DE CONTEXTO A LA DECLARACION DE ETIQUETA (XQUE SE PUEDE REFERENCIAR ANTES DE DELACRACION)
+    conIdentificador.addRef(ref);
+    ref = TablaDeSimbolos.getContexto(refIdentificador).popRefUso();
+  };
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
       //conIdentificador.setTipo(TablaDeSimbolos.getTipoToken());  ETIQUETA ??
       conIdentificador.setUso("nombre de etiqueta");
+      conIdentificador.setDeclarado();
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
     }
@@ -501,7 +508,8 @@ private void declaracionParametro(String refTipo, String refIdentificador){
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
       conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
-    conIdentificador.setUso("nombre de parametro");
+      conIdentificador.setUso("nombre de parametro");
+      conIdentificador.setDeclarado();
       //FALTA Límite inferior o Límite superior
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
