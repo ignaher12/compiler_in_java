@@ -1,0 +1,9 @@
+bucles
+BEGIN
+    repeat 
+        begin
+            repeat y := 10; while (y < 0);
+            x:=2; 
+        end 
+    while (x > 0);
+end

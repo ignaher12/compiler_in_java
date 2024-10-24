@@ -9,7 +9,6 @@ import utils.MatrizAccion;
 import utils.MatrizTransicion;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HexFormat;
 import lexico.TablaDeSimbolos.Contexto;
 import parser.Terceto;
 import java.util.Stack;
@@ -194,10 +193,10 @@ invocacionFuncion : IDENTIFICADOR '(' expresion ')'       { chequearDeclarado($1
                   | IDENTIFICADOR '(' tipoDato '(' expresion ')' ',' error')'  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresion esinvalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
 ;
 
-clausulaSeleccion : inicioClausulaSeleccion cuerpoThen END_IF{String aux = tercetosIncompletos.pop();tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString()); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+clausulaSeleccion : inicioClausulaSeleccion cuerpoThen END_IF{String aux = tercetosIncompletos.pop();tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString()); agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
                   | IF '(' expresion ')' cuerpoThen END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
                   | IF '(' expresion ')' cuerpoThen ELSE bloqueSentenciaEjecutable END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");;}                  
-                  | inicioClausulaSeleccion cuerpoThen ELSE bloqueSentenciaEjecutable END_IF {String aux = tercetosIncompletos.pop();tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString()); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+                  | inicioClausulaSeleccion cuerpoThen ELSE bloqueSentenciaEjecutable END_IF {String aux = tercetosIncompletos.pop();tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString()); agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size())); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
                   | inicioClausulaSeleccion cuerpoThen error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
                   | inicioClausulaSeleccion cuerpoThen ELSE bloqueSentenciaEjecutable error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
                   | IF '(' condicion  cuerpoThen ELSE bloqueSentenciaEjecutable END_IF {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
@@ -215,7 +214,7 @@ clausulaSeleccion : inicioClausulaSeleccion cuerpoThen END_IF{String aux = terce
 inicioClausulaSeleccion : IF '(' condicion ')' {tercetosIncompletos.add(agregarTerceto("BF", $3.sval, ""));}
 ;
 
-cuerpoThen : THEN bloqueSentenciaEjecutable {String incompleto = agregarTerceto("BI", "", "");String aux = tercetosIncompletos.pop();tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString()); tercetosIncompletos.add(incompleto);}
+cuerpoThen : THEN bloqueSentenciaEjecutable {String incompleto = agregarTerceto("BI", "", "");String aux = tercetosIncompletos.pop();tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString()); agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size())); tercetosIncompletos.add(incompleto);}
 ;
 
 clausulaSeleccionConRet : IF '(' condicion ')' THEN bloqueSentenciaEjecutableConRet END_IF    {$$.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
@@ -286,7 +285,7 @@ bloqueSentenciaEjecutableConRet : sentenciaEjecutableConRet ';'   {$$.sval = $1.
 ;
 
 
-clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {agregarTerceto("BF", $5.sval, ((Integer)(tercetos.size()+2)).toString());agregarTerceto("BI", "", (inicioBucle.pop().toString()));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {agregarTerceto("BF", $5.sval, ((Integer)(tercetos.size()+2)).toString());agregarTerceto("BI", "", (inicioBucle.pop().toString()));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size())); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat error WHILE '(' condicion ')'                         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat bloqueSentenciaEjecutable WHILE error condicion ')'   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( de apertura de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat bloqueSentenciaEjecutable WHILE '(' error ')'         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
@@ -298,7 +297,7 @@ clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {ag
               | repeat bloqueSentenciaEjecutable error                       {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta while")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 ;
 
-repeat: REPEAT {inicioBucle.add(tercetos.size());}
+repeat: REPEAT {inicioBucle.add(tercetos.size()); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size()));}
 ;
 
 goto : GOTO IDENTIFICADOR '@'     {agregarTerceto("BI", "", $2.sval);Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
@@ -347,7 +346,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("tests3/test3", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("tests3/bucles", matriz, matrizAcciones);
         
         parser.run();
         System.out.println("v---------------------------v");
