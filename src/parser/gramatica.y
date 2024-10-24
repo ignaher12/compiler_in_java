@@ -1,5 +1,6 @@
 %{
 
+import java.util.HashMap;
 import lexico.AnalizadorLexico;
 import lexico.TablaDeSimbolos;
 import lexico.TablaTipoToken;
@@ -306,13 +307,13 @@ clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {ag
 repeat: REPEAT {inicioBucle.add(tercetos.size()); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size()));}
 ;
 
-goto : GOTO IDENTIFICADOR '@'     {agregarTerceto("BI", $2.sval,  "");Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
+goto : GOTO IDENTIFICADOR '@'     {tercetosGoto.push(agregarTerceto("BI", $2.sval,  ""));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
      | GOTO IDENTIFICADOR error   {erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO falta '@' luego de los dospuntos.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
      | GOTO error '@' {erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO etiqueta invalida.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
      | IDENTIFICADOR '@'    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'goto' luego de los dospuntos.")); estructuras.add("Linea "+": "+"GOTO");}
 ;
 
-etiqueta : IDENTIFICADOR ':'     {agregarTerceto("ETIQUETA", "", $1.sval); completaTercetosEtiqueta($1.sval, (tercetos.size()-1));declaracionEtiqueta($1.sval);Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta"); $$.sval = lastRef.toString();}
+etiqueta : IDENTIFICADOR ':'     {agregarTerceto("ETIQUETA", "", $1.sval); etiquetas.put($1.sval, "^"+(tercetos.size()-1)); declaracionEtiqueta($1.sval);Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta"); $$.sval = lastRef.toString();}
          | ':'           {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'etiqueta'."));}
          //| IDENTIFICADOR error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ':' luego de la etiqueta."));}
 ;
@@ -332,6 +333,10 @@ public static List<Error> erroresSemanticos = new ArrayList<Error>();
 public static List<String> estructuras = new ArrayList<String>();
 public static List<Terceto> tercetos = new ArrayList<Terceto>();
 public static Stack<String> tercetosIncompletos = new Stack<String>();
+
+public static HashMap<String, String> etiquetas = new HashMap<String, String>(); 
+public static Stack<String> tercetosGoto = new Stack<String>(); 
+
 public static Stack<Integer> inicioBucle = new Stack<Integer>();
 
 public static List<String> ambitos = new ArrayList<String>();
@@ -355,6 +360,9 @@ public static void main(String[] args) {
         Parser.lex = new AnalizadorLexico("tests3/bucles", matriz, matrizAcciones);
         
         parser.run();
+        for (String str: tercetosGoto){System.out.println(str);}
+        completarTercetosEtiqueta();
+        for (String str: tercetosGoto){System.out.println(str);}
         System.out.println("v---------------------------v");
         for (Error error: erroresSintactico){System.out.println(error);}
         for (Error error: erroresLexico){System.out.println(error);}
@@ -538,14 +546,19 @@ private String agregaListaExpresionTercetos(String operador1, ArrayList<String> 
 public int conversionIndexStoI(String aux){
   return Integer.parseInt(aux.substring(1,aux.length()));
 }
-public void completaTercetosEtiqueta(String etiqueta, int index){ //recorre TODOS tercetos y agrega ref a etiqueta 
-  for(Terceto terceto: tercetos){
-    if (terceto.getT2().equals(etiqueta)){
-      terceto.setT2("");
-      terceto.setT3(((Integer)index).toString());
+
+public static void completarTercetosEtiqueta(){ //recorre TODOS tercetosGoto y agrega ref a etiqueta //SE EJECUTA CUANDO TERMINA LA GENERACION DEL TERCETO
+  while (tercetosGoto.size() > 0){
+    Terceto tGoto = tercetos.get(Integer.parseInt(tercetosGoto.pop().replace("^", "")));
+
+    if (etiquetas.containsKey(tGoto.getT2())){
+      tGoto.setT3(etiquetas.get(tGoto.getT2()));
+      tGoto.setT2("");
     }
   }
 }
+
+
 public void completarUltimoTercetoIncompleto(){
   if (tercetosIncompletos.size() > 0){
     String aux = tercetosIncompletos.pop();
