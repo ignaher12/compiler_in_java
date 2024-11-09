@@ -1,0 +1,5 @@
+operacionesTipo
+begin
+    longint a;
+    a:= a+ 123;
+end

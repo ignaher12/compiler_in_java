@@ -13,6 +13,9 @@ import java.util.List;
 import lexico.TablaDeSimbolos.Contexto;
 import parser.Terceto;
 import java.util.Stack;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
 %}
 //DECLARACIONES
 //NUMERO DE TOKEN DE CARACTER ASCII (0-256)
@@ -99,9 +102,9 @@ funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {if ($7.s
 
 funComienzo : FUN IDENTIFICADOR  {declararFuncion($2.sval); ambitos.add($2.sval);} //PROBLEMA CON FUN error de fundeclaracion??
 ;
-tipoDato : SINGLE      
-         | LONGINT     
-         | HEXADECIMAL
+tipoDato : SINGLE      {$$.ival = TablaTipoToken.getTipoToken("SINGLE");}
+         | LONGINT     {$$.ival = TablaTipoToken.getTipoToken("LONGINT");}
+         | HEXADECIMAL {$$.ival = TablaTipoToken.getTipoToken("HEXADECIMAL");}
 ;
 
 listaVariable : listaVariable ',' IDENTIFICADOR
@@ -164,26 +167,26 @@ asignacion : IDENTIFICADOR SIMASIGNACION expresion {chequearDeclarado($1.sval); 
            | IDENTIFICADOR CONSTANTE SIMASIGNACION expresion   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 ;
 
-expresion : expresion '+' operando {$$.sval = agregarTerceto("+", $1.sval, $3.sval);}
+expresion : expresion '+' termino {System.out.println($1.ival + " " + " " + $2.ival);if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("+", $1.sval, $3.sval);}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
           | expresion '+' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
-          | error '+' operando {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
-          | expresion '-' operando {$$.sval = agregarTerceto("-", $1.sval, $3.sval);}
+          | error '+' termino {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
+          | expresion '-' termino {if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("-", $1.sval, $3.sval);}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
           | expresion '-' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
-          | error '-' operando {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
+          | error '-' termino {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
           | termino
 ;
 
-termino : termino '*' operando {$$.sval = agregarTerceto("*", $1.sval, $3.sval);}
+termino : termino '*' operando {if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("*", $1.sval, $3.sval);}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
   	    | termino '*' error    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
         | error '*' operando   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
-        | termino '/' operando {$$.sval = agregarTerceto("/", $1.sval, $3.sval);}
+        | termino '/' operando {if (($1.ival == $3.ival) && !($1.ival == -1 || $3.ival == -1)) {$$.sval = agregarTerceto("/", $1.sval, $3.sval);}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}
   	    | termino '/' error    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
         | error '/' operando   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
-        | operando 
+        | operando
 
 
-operando : IDENTIFICADOR                  {$$.sval = $1.sval; chequearDeclarado($1.sval);}   //SE TIENE QUE CHEQUEAR QUE EL IDENTIFICADOR NO SEA UN TRIPLE YA QUE FALTARIA EL RANGO  
-         | constante 
+operando : IDENTIFICADOR                  {$$.sval = $1.sval; if(chequearDeclarado($1.sval)){$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo(); System.out.println($$.ival + "" + TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo());}else{$$.ival = -1;}}   //SE TIENE QUE CHEQUEAR QUE EL IDENTIFICADOR NO SEA UN TRIPLE YA QUE FALTARIA EL RANGO  
+         | constante                      {$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo(); System.out.println($$.ival + "-----------");}
          | invocacionFuncion              
          | IDENTIFICADOR CADENA_MULTI //TEMA 22  SE TIENE QUE CHEQUEAR QUE EL VALOR DE LA CADENAMULTI ESTA ENTRE 1 Y 3
          | IDENTIFICADOR  '1'  //TEMA 22  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango"));}
@@ -191,9 +194,9 @@ operando : IDENTIFICADOR                  {$$.sval = $1.sval; chequearDeclarado(
          | IDENTIFICADOR  '3'   //TEMA 22 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango"));}
 ;
 
-invocacionFuncion : IDENTIFICADOR '(' expresion ')'       { chequearDeclarado($1.sval); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
-                  | IDENTIFICADOR '(' tipoDato expresion ')' { chequearDeclarado($1.sval); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
-                  | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' { chequearDeclarado($1.sval); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
+invocacionFuncion : IDENTIFICADOR '(' expresion ')'       { if (chequearAmbitoFuncion($1.sval)){if ($3.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+                  | IDENTIFICADOR '(' tipoDato expresion ')' { if (chequearAmbitoFuncion($1.sval)){if ($4.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
+                  | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' { if (chequearAmbitoFuncion($1.sval)){if ($5.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
                   | IDENTIFICADOR '(' expresion ',' error ')'                  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");} //TEMA 27
                   | IDENTIFICADOR '(' error ')'                                         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta expresion en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
                   | IDENTIFICADOR '(' tipoDato expresion ',' error ')'         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
@@ -359,7 +362,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("tests3/bucles", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("tests3/test3", matriz, matrizAcciones);
         
         parser.run();
 
@@ -399,7 +402,6 @@ private void chequearRango(Contexto contexto){
       }
     } else if (contexto.getTipo() == TablaTipoToken.getTipoToken("hexadecimal")){
       long valor = Long.parseLong(contexto.getValor().substring(2), 16);
-      System.out.println(valor);
       if(valor > AnalizadorLexico.MAXHEXADECIMAL){
         erroresSintactico.add(new Error(
           AnalizadorLexico.getNumeroLinea(),
@@ -521,12 +523,10 @@ private void declaracionParametro(String refTipo, String refIdentificador){
 private boolean chequearDeclarado(String lexemaSinAmbito){
   
   String lexema = lexemaSinAmbito + cargarAmbito();
-  System.out.println("-------------------------------------IDENTIFICARDOR A BUSCAR: " + lexema);
   while(lexema.lastIndexOf(":") != -1){
     Contexto contexto = TablaDeSimbolos.getContexto(lexema);
     if (contexto != null){
       if (contexto.getDeclarado()){    //CON UNA VARIABLE BASE (SIN AMBITO) EN LA T.S. ESTE IF PUEDE NO ESTAR. SI AGREGAMOS A LA T.S. (DESDE EL LEXER) CON AMBITO ENTONCES NECESITAMOS DEL ATRIBUTO "DECLARADO"
-        System.out.println("saaaaaaaaaaaaaaaaaaaaaaa");
         contexto.addRef(TablaDeSimbolos.getContexto(lexemaSinAmbito).popRefUso());
         return true;
       }
@@ -537,8 +537,51 @@ private boolean chequearDeclarado(String lexemaSinAmbito){
   erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + lexemaSinAmbito + " nunca fue declarado")); 
   return false;
 }
+private boolean chequearAmbitoFuncion(String lexemaSinAmbito){
+  
+  String lexema = lexemaSinAmbito + cargarAmbito();
+  while(lexema.lastIndexOf(":") != -1){
+    Contexto contexto = TablaDeSimbolos.getContexto(lexema);
+    if (contexto != null){
+      if (contexto.getDeclarado() && contexto.getUso().equals("nombre de funcion")){    //CON UNA VARIABLE BASE (SIN AMBITO) EN LA T.S. ESTE IF PUEDE NO ESTAR. SI AGREGAMOS A LA T.S. (DESDE EL LEXER) CON AMBITO ENTONCES NECESITAMOS DEL ATRIBUTO "DECLARADO"
+        contexto.addRef(TablaDeSimbolos.getContexto(lexemaSinAmbito).popRefUso());
+        return true;
+      }
+    }
+    int ultAmbito = lexema.lastIndexOf(":");
+    lexema = lexema.substring(0, ultAmbito);
+  }
+  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO funcion " + lexemaSinAmbito + " no esta al alcance")); 
+  return false;
+}
+private boolean comprobarTipoParametro(String nombreFuncion, int tipoParametroReal){
+  String ambitoFuncion = cargarAmbito() + ":" + nombreFuncion;
+  while(ambitoFuncion.lastIndexOf(":") != -1){
+    
+    HashMap<String, Contexto> entradas = TablaDeSimbolos.getElementos(ambitoFuncion);
+    Iterator<Map.Entry<String, Contexto>> iterator = entradas.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, Contexto> par = iterator.next();
+      if (par.getValue().getUso().equals("nombre de parametro") && par.getValue().getTipo() == tipoParametroReal){
+        return true;
+      }
+    }
+    
+    int ultAmbito = ambitoFuncion.lastIndexOf(":");
+    ambitoFuncion = ambitoFuncion.substring(0, ultAmbito);
+    if (ambitoFuncion.lastIndexOf(":") != -1){
+      ultAmbito = ambitoFuncion.lastIndexOf(":");
+      ambitoFuncion = ambitoFuncion.substring(0, ultAmbito);
+      ambitoFuncion = ambitoFuncion + ":" + nombreFuncion;
+    } 
+  }
+  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO parametro formal no corresponde al tipo del parametro real")); 
+  return false;
+}
 private String agregarTerceto(String operador1, String op2, String op3){
   Terceto terceto = new Terceto(operador1, op2, op3);
+  if (operador1 == "+" || operador1 == "-" || operador1 == "/" || operador1 == "*")
+    terceto.setTipo(TablaDeSimbolos.getContexto(op2).getTipo());
   tercetos.add(terceto);
 
   return "^" + (tercetos.size()-1);

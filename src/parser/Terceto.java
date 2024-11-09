@@ -4,6 +4,7 @@ public class Terceto {
     private String t1;
     private String t2;
     private String t3;
+    private int tipo;
   
     public Terceto(String t1, String t2, String t3){
       this.t1 = t1;
@@ -20,6 +21,12 @@ public class Terceto {
     public void setT2(String t2){
         this.t2 = t2;
     }
+    public int getTipo(){
+        return this.tipo;
+    }
+    public void setTipo(int tipo){
+        this.tipo = tipo;
+    }
     public String getT3(){
         return this.t3;
     }
@@ -27,6 +34,6 @@ public class Terceto {
         this.t3 = t3;
     }
     public String toString(){
-        return "(" + t1 + ", " + t2 + ", " + t3 + ")";
+        return "(" + t1 + ", " + t2 + ", " + t3 + ") tipo: " + tipo;
     }
 }

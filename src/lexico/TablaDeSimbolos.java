@@ -267,4 +267,25 @@ public class TablaDeSimbolos {
         tabla.remove(atributo);
         tabla.put(atributo, contexto);
     }
+
+    public static HashMap<String, Contexto> getElementos(){
+        return tabla;
+    }
+    public static HashMap<String, Contexto> getElementos(String ambito){
+        HashMap<String, Contexto> result =  new HashMap<>();
+
+        Iterator<Map.Entry<String, Contexto>> iterator2 = tabla.entrySet().iterator();
+        while (iterator2.hasNext()) {
+            Map.Entry<String, Contexto> par = iterator2.next();
+            int indexKey = par.getKey().indexOf(":");
+            if (indexKey > 0){
+                String ambitoKey = par.getKey().substring(indexKey, par.getKey().length());
+                if (ambitoKey.equals(ambito)){
+                    result.put(par.getKey(), par.getValue());
+                }
+            }
+        }
+        
+        return result;
+    }
 }
