@@ -5,10 +5,6 @@ begin
     longint x;
     longint hexa;
 
-    a := b + 12;
-
-
-    hexadecimal b;
 
     if ((x, a, b) > (1, 2, 3)) then
         begin
@@ -36,7 +32,9 @@ begin
             longint hexa;
             b:= 123;
             hexa:= 14;
+            ret (hexa);
         end;
+        
     end;
     k := holahola (b);
 
@@ -52,10 +50,11 @@ begin
     end;
 
     
-    hexadecimal b;
+    longint b;
     hexa := 13;
     z:=45;
     g:= 11;
     hola: x:= 12;
+    a := b + 12 * 10;
     
 end

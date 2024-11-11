@@ -1,0 +1,9 @@
+operaciones
+begin
+    longint a;
+    longint b;
+    longint c;
+
+    a := 100;
+    b := a + 11;
+end

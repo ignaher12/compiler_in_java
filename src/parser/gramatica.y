@@ -94,7 +94,7 @@ declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR {declaracionTriple($3.
                   |  TRIPLE tipoDato IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
 ;
 
-funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {if ($7.sval.equals("false"))erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1);}
+funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {System.out.println("444444444444444444444444444444444444444444444444444"+$6.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1);}
                | FUN error '(' parametro ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ','  error ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
@@ -167,26 +167,26 @@ asignacion : IDENTIFICADOR SIMASIGNACION expresion {chequearDeclarado($1.sval); 
            | IDENTIFICADOR CONSTANTE SIMASIGNACION expresion   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 ;
 
-expresion : expresion '+' termino {System.out.println($1.ival + " " + " " + $2.ival);if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("+", $1.sval, $3.sval);}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+expresion : expresion '+' termino {if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("+", $1.sval, $3.sval, $1.ival); $$.ival = $3.ival;}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
           | expresion '+' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
           | error '+' termino {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
-          | expresion '-' termino {if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("-", $1.sval, $3.sval);}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+          | expresion '-' termino {if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("-", $1.sval, $3.sval, $1.ival); $$.ival = $3.ival;}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
           | expresion '-' error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
           | error '-' termino {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
           | termino
 ;
 
-termino : termino '*' operando {if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("*", $1.sval, $3.sval);}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+termino : termino '*' operando {if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("*", $1.sval, $3.sval, $1.ival); $$.ival = $3.ival;}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
   	    | termino '*' error    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
         | error '*' operando   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
-        | termino '/' operando {if (($1.ival == $3.ival) && !($1.ival == -1 || $3.ival == -1)) {$$.sval = agregarTerceto("/", $1.sval, $3.sval);}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}
+        | termino '/' operando {if (($1.ival == $3.ival)) {$$.sval = agregarTerceto("/", $1.sval, $3.sval, $1.ival); $$.ival = $3.ival;}else{if($1.ival != -1 && $3.ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
   	    | termino '/' error    {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
         | error '/' operando   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
         | operando
 
 
-operando : IDENTIFICADOR                  {$$.sval = $1.sval; if(chequearDeclarado($1.sval)){$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo(); System.out.println($$.ival + "" + TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo());}else{$$.ival = -1;}}   //SE TIENE QUE CHEQUEAR QUE EL IDENTIFICADOR NO SEA UN TRIPLE YA QUE FALTARIA EL RANGO  
-         | constante                      {$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo(); System.out.println($$.ival + "-----------");}
+operando : IDENTIFICADOR                  {$$.sval = $1.sval; if(chequearDeclarado($1.sval)){$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;}}   //SE TIENE QUE CHEQUEAR QUE EL IDENTIFICADOR NO SEA UN TRIPLE YA QUE FALTARIA EL RANGO  
+         | constante                      {$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}
          | invocacionFuncion              
          | IDENTIFICADOR CADENA_MULTI //TEMA 22  SE TIENE QUE CHEQUEAR QUE EL VALOR DE LA CADENAMULTI ESTA ENTRE 1 Y 3
          | IDENTIFICADOR  '1'  //TEMA 22  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango"));}
@@ -362,17 +362,17 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("tests3/test3", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("tests3/test5", matriz, matrizAcciones);
         
         parser.run();
 
         completarTercetosEtiqueta();
 
         System.out.println("v---------------------------v");
-        for (Error error: erroresSintactico){System.out.println(error);}
-        for (Error error: erroresLexico){System.out.println(error);}
         for (String estructura: estructuras){System.out.println(estructura);}
         System.out.println("^---------------------------^");
+        for (Error error: erroresSintactico){System.out.println(error);}
+        for (Error error: erroresLexico){System.out.println(error);}
         for (Error error: erroresSemanticos){System.out.println(error);}
         System.out.println("^---------------------------^");
         for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
@@ -584,6 +584,12 @@ private String agregarTerceto(String operador1, String op2, String op3){
     terceto.setTipo(TablaDeSimbolos.getContexto(op2).getTipo());
   tercetos.add(terceto);
 
+  return "^" + (tercetos.size()-1);
+}
+private String agregarTerceto(String operador1, String op2, String op3, int tipo){
+  Terceto terceto = new Terceto(operador1, op2, op3);
+  terceto.setTipo(tipo);
+  tercetos.add(terceto);
   return "^" + (tercetos.size()-1);
 }
 private String agregaListaExpresionTercetos(String operador1, ArrayList<String> op2, ArrayList<String> op3){

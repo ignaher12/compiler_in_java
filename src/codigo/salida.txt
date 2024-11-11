@@ -1,0 +1,5 @@
+MOV _a:main, 100
+MOV EAX, _a:main
+ADD EAX, 11
+MOV @aux1, EAX
+MOV _b:main, @aux1

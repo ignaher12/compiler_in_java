@@ -32,6 +32,9 @@ import java.util.List;
 import lexico.TablaDeSimbolos.Contexto;
 import parser.Terceto;
 import java.util.Stack;
+
+import codigo.GeneradoDeCodigo;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1007,19 +1010,24 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("tests3/test3", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("tests3/test5", matriz, matrizAcciones);
         
         parser.run();
 
         completarTercetosEtiqueta();
 
         System.out.println("v---------------------------v");
-        for (Error error: erroresSintactico){System.out.println(error);}
-        for (Error error: erroresLexico){System.out.println(error);}
         for (String estructura: estructuras){System.out.println(estructura);}
         System.out.println("^---------------------------^");
+        for (Error error: erroresSintactico){System.out.println(error);}
+        for (Error error: erroresLexico){System.out.println(error);}
         for (Error error: erroresSemanticos){System.out.println(error);}
         System.out.println("^---------------------------^");
+        for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
+        if (erroresSintactico.isEmpty() && erroresLexico.isEmpty() && erroresSemanticos.isEmpty()){
+          System.out.println("EntroOOOOOOOOOOOO");
+          GeneradoDeCodigo.generarCodigoAssembler("./src/codigo/salida.txt");
+        }
         for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
         //System.out.println("No se especifico el archivo a compilar");
     }
@@ -1078,7 +1086,7 @@ private void declararVariable(String refTipo, ArrayList<String> referenciasIdent
   };
 }
 
-private String cargarAmbito(){
+public static String cargarAmbito(){
   String aux = "";
   for(String ambito: ambitos){
     aux = aux + ":" + ambito;
@@ -1231,6 +1239,12 @@ private String agregarTerceto(String operador1, String op2, String op3){
 
   return "^" + (tercetos.size()-1);
 }
+private String agregarTerceto(String operador1, String op2, String op3, int tipo){
+  Terceto terceto = new Terceto(operador1, op2, op3);
+  terceto.setTipo(tipo);
+  tercetos.add(terceto);
+  return "^" + (tercetos.size()-1);
+}
 private String agregaListaExpresionTercetos(String operador1, ArrayList<String> op2, ArrayList<String> op3){
   
   Stack<String> aux = new Stack<String>();
@@ -1269,7 +1283,7 @@ public void completarUltimoTercetoIncompleto(){
   }
   agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));
 }
-//#line 1200 "Parser.java"
+//#line 1206 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1557,7 +1571,7 @@ case 41:
 break;
 case 42:
 //#line 97 "gramatica.y"
-{if (val_peek(0).sval.equals("false"))erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1);}
+{System.out.println("444444444444444444444444444444444444444444444444444"+val_peek(1).sval);if (val_peek(1).sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1);}
 break;
 case 43:
 //#line 98 "gramatica.y"
@@ -1682,7 +1696,7 @@ case 80:
 break;
 case 81:
 //#line 170 "gramatica.y"
-{System.out.println(val_peek(2).ival + " " + " " + val_peek(1).ival);if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("+", val_peek(2).sval, val_peek(0).sval);}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("+", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
 break;
 case 82:
 //#line 171 "gramatica.y"
@@ -1694,7 +1708,7 @@ case 83:
 break;
 case 84:
 //#line 173 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("-", val_peek(2).sval, val_peek(0).sval);}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("-", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
 break;
 case 85:
 //#line 174 "gramatica.y"
@@ -1706,7 +1720,7 @@ case 86:
 break;
 case 88:
 //#line 179 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("*", val_peek(2).sval, val_peek(0).sval);}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("*", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
 break;
 case 89:
 //#line 180 "gramatica.y"
@@ -1718,7 +1732,7 @@ case 90:
 break;
 case 91:
 //#line 182 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival) && !(val_peek(2).ival == -1 || val_peek(0).ival == -1)) {yyval.sval = agregarTerceto("/", val_peek(2).sval, val_peek(0).sval);}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}
+{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("/", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
 break;
 case 92:
 //#line 183 "gramatica.y"
@@ -1730,11 +1744,11 @@ case 93:
 break;
 case 95:
 //#line 188 "gramatica.y"
-{yyval.sval = val_peek(0).sval; if(chequearDeclarado(val_peek(0).sval)){yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval + cargarAmbito()).getTipo(); System.out.println(yyval.ival + "" + TablaDeSimbolos.getContexto(val_peek(0).sval + cargarAmbito()).getTipo());}else{yyval.ival = -1;}}
+{yyval.sval = val_peek(0).sval; if(chequearDeclarado(val_peek(0).sval)){yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval + cargarAmbito()).getTipo();}else{yyval.ival = -1;}}
 break;
 case 96:
 //#line 189 "gramatica.y"
-{yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval).getTipo(); System.out.println(yyval.ival + "-----------");}
+{yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval).getTipo();}
 break;
 case 102:
 //#line 197 "gramatica.y"
@@ -2096,7 +2110,7 @@ case 195:
 //#line 328 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
-//#line 2022 "Parser.java"
+//#line 2028 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
