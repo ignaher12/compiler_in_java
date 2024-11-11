@@ -19,6 +19,7 @@ package parser;
 
 //#line 2 "gramatica.y"
 
+
 import java.util.HashMap;
 import lexico.AnalizadorLexico;
 import lexico.TablaDeSimbolos;
@@ -30,13 +31,9 @@ import utils.MatrizTransicion;
 import java.util.ArrayList;
 import java.util.List;
 import lexico.TablaDeSimbolos.Contexto;
-import parser.Terceto;
 import java.util.Stack;
-
-import codigo.GeneradoDeCodigo;
-
+import codigo.GeneradorDeCodigo;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Iterator;
 //#line 35 "Parser.java"
 
@@ -1025,8 +1022,9 @@ public static void main(String[] args) {
         System.out.println("^---------------------------^");
         for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
         if (erroresSintactico.isEmpty() && erroresLexico.isEmpty() && erroresSemanticos.isEmpty()){
-          System.out.println("EntroOOOOOOOOOOOO");
-          GeneradoDeCodigo.generarCodigoAssembler("./src/codigo/salida.txt");
+          System.out.println("###EMPIEZA LA GENERACION DE CODIGO ASSEMBLER###");
+          limpiarTablaDeSimbolos();
+          GeneradorDeCodigo.generarCodigoAssembler("./src/codigo/salida.txt");
         }
         for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
         //System.out.println("No se especifico el archivo a compilar");
@@ -1267,7 +1265,8 @@ public static void completarTercetosEtiqueta(){ //recorre TODOS tercetosGoto y a
     Terceto tGoto = tercetos.get(Integer.parseInt(tercetosGoto.pop().replace("^", "")));
 
     if (etiquetas.containsKey(tGoto.getT2())){
-      tGoto.setT3(etiquetas.get(tGoto.getT2()));
+      //tGoto.setT3(etiquetas.get(tGoto.getT2()));
+      tGoto.setT3(tercetos.get(Integer.parseInt(etiquetas.get(tGoto.getT2()).replace("^", ""))).getT3());
       tGoto.setT2("");
     }
   }
@@ -1277,13 +1276,25 @@ public static void completarTercetosEtiqueta(){ //recorre TODOS tercetosGoto y a
 public void completarUltimoTercetoIncompleto(){
   if (tercetosIncompletos.size() > 0){
     String aux = tercetosIncompletos.pop();
-    tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString());
+    //tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString());
+    tercetos.get(conversionIndexStoI(aux)).setT3(";etiqueta"+ (tercetos.size()));
   }else{
     System.out.println("SE INTENTO COMPLETAR UN TERCETO PERO NO HABIA NADA EN LA PILA");
   }
   agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));
 }
-//#line 1206 "Parser.java"
+
+public static void limpiarTablaDeSimbolos(){
+  HashMap<String, Contexto> entradas = TablaDeSimbolos.getElementos();
+  Iterator<Map.Entry<String, Contexto>> iterator = entradas.entrySet().iterator();
+  while (iterator.hasNext()) {
+    Map.Entry<String, Contexto> par = iterator.next();
+    if (par.getValue().getTipo() == -1){
+      iterator.remove();
+    }
+  }
+}
+//#line 1225 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -2110,7 +2121,7 @@ case 195:
 //#line 328 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
-//#line 2028 "Parser.java"
+//#line 2047 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####

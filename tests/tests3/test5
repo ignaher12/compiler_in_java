@@ -4,6 +4,12 @@ begin
     longint b;
     longint c;
 
-    a := 100;
+    a := 101;
     b := a + 11;
+    if (a = 101) then
+        a := 10;
+    else
+        a := 11;
+    
+    end_if;
 end

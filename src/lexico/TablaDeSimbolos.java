@@ -172,9 +172,10 @@ public class TablaDeSimbolos {
         }
         return atributo;
     }
-    public static String agregarSimbolo(String atributo, String uso) {
+    public static String agregarSimbolo(String atributo, int tipo, String uso) {
         Contexto con = new Contexto(-1);
         con.setUso(uso);
+        con.setTipo(tipo);
         tabla.put(atributo, con);
         return atributo;
     }

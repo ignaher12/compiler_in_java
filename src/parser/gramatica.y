@@ -1,5 +1,6 @@
 %{
 
+
 import java.util.HashMap;
 import lexico.AnalizadorLexico;
 import lexico.TablaDeSimbolos;
@@ -11,10 +12,9 @@ import utils.MatrizTransicion;
 import java.util.ArrayList;
 import java.util.List;
 import lexico.TablaDeSimbolos.Contexto;
-import parser.Terceto;
 import java.util.Stack;
+import codigo.GeneradorDeCodigo;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Iterator;
 %}
 //DECLARACIONES
@@ -376,6 +376,12 @@ public static void main(String[] args) {
         for (Error error: erroresSemanticos){System.out.println(error);}
         System.out.println("^---------------------------^");
         for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
+        if (erroresSintactico.isEmpty() && erroresLexico.isEmpty() && erroresSemanticos.isEmpty()){
+          System.out.println("###EMPIEZA LA GENERACION DE CODIGO ASSEMBLER###");
+          limpiarTablaDeSimbolos();
+          GeneradorDeCodigo.generarCodigoAssembler("./src/codigo/salida.txt");
+        }
+        for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
         //System.out.println("No se especifico el archivo a compilar");
     }
     System.out.println(TablaDeSimbolos.imprimir());
@@ -433,7 +439,7 @@ private void declararVariable(String refTipo, ArrayList<String> referenciasIdent
   };
 }
 
-private String cargarAmbito(){
+public static String cargarAmbito(){
   String aux = "";
   for(String ambito: ambitos){
     aux = aux + ":" + ambito;
@@ -614,7 +620,8 @@ public static void completarTercetosEtiqueta(){ //recorre TODOS tercetosGoto y a
     Terceto tGoto = tercetos.get(Integer.parseInt(tercetosGoto.pop().replace("^", "")));
 
     if (etiquetas.containsKey(tGoto.getT2())){
-      tGoto.setT3(etiquetas.get(tGoto.getT2()));
+      //tGoto.setT3(etiquetas.get(tGoto.getT2()));
+      tGoto.setT3(tercetos.get(Integer.parseInt(etiquetas.get(tGoto.getT2()).replace("^", ""))).getT3());
       tGoto.setT2("");
     }
   }
@@ -624,9 +631,21 @@ public static void completarTercetosEtiqueta(){ //recorre TODOS tercetosGoto y a
 public void completarUltimoTercetoIncompleto(){
   if (tercetosIncompletos.size() > 0){
     String aux = tercetosIncompletos.pop();
-    tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString());
+    //tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString());
+    tercetos.get(conversionIndexStoI(aux)).setT3(";etiqueta"+ (tercetos.size()));
   }else{
     System.out.println("SE INTENTO COMPLETAR UN TERCETO PERO NO HABIA NADA EN LA PILA");
   }
   agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));
+}
+
+public static void limpiarTablaDeSimbolos(){
+  HashMap<String, Contexto> entradas = TablaDeSimbolos.getElementos();
+  Iterator<Map.Entry<String, Contexto>> iterator = entradas.entrySet().iterator();
+  while (iterator.hasNext()) {
+    Map.Entry<String, Contexto> par = iterator.next();
+    if (par.getValue().getTipo() == -1){
+      iterator.remove();
+    }
+  }
 }
