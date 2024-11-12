@@ -15,6 +15,7 @@ import parser.Parser;
 
 public class GeneradorDeCodigo {
     public static FileWriter escritor;
+    public static StringBuilder data = new StringBuilder();
     private static boolean DEBUG = false;
     public static Stack<String> ultimosOperadoresLogicos = new Stack<String>();
 
@@ -26,110 +27,131 @@ public class GeneradorDeCodigo {
         try{
             escritor = new FileWriter(nombreArchivo);
             
-            //generarHeader();
+            //StringBuilder data = new StringBuilder();
+
             for (Terceto terceto : Parser.tercetos) {
                 switch (terceto.getT1()) {
                     case ":=":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarAsignacion(terceto);
                         break;
                     case "+":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarSuma(terceto);
                         break;
                     case "-":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarResta(terceto);
                         break;
                     case "*":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarMultiplicacion(terceto);
                         break;
                     case "/":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarDivision(terceto);
                         break;
                     case ">":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarMayor(terceto);
                         procesarComparacion(">", terceto);
                         break;
                     case ">=":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarMayorIgual(terceto);
                         procesarComparacion(">=", terceto);
                         break;
                     case "<":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarMenor(terceto);
                         procesarComparacion("<", terceto);
                         break;
                     case "<=":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarMenorIgual(terceto);
                         procesarComparacion("<=", terceto);
                         break;
                     case "=":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarIgual(terceto);
                         procesarComparacion("=", terceto);
                         break;
                     case "BI":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
-                        escritor.append("\t" + "JMP " + terceto.getT3()+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
+                        data.append("\t" + "JMP " + terceto.getT3()+ "\n");
                         break;
                     case "BF":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarSaltoCondicion(terceto, ultimosOperadoresLogicos.pop());
                         break;
                     case "ETIQUETA":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
-                        escritor.append(terceto.getT3() + ":" + "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
+                        data.append(terceto.getT3() + ":" + "\n");
                         break;
                     case "AND":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarAnd(terceto);
                         break;
                     case "OR":
-                        if (DEBUG) escritor.append("\t" + "\t" + terceto+ "\n");
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarOr(terceto);
+                        break;
+                    case "OUTF":                                            //NO FUNCA
+                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
+                        procesarSalida(terceto);
                         break;
                     default:
                         break;
                 }
             }
+            generarHeader();
+            escritor.append(data);
+            escritor.append("\t" + "INVOKE ExitProcess, 0" + "\n");
+            escritor.append("END START");
             escritor.flush();
         }catch(IOException e){
             System.out.println("Error al abrir el archivo: " + e.getMessage());
         };    
     }
-    /* private void generarHeader(){
-        escritor.write(".DATA ; Indica zona de datos\n");
-        Iterator<Map.Entry<String, Contexto>> iterator = TablaDeSimbolos.getElementos().entrySet().iterator();
-        while(iterator.hasNext()) {
-            Map.Entry<String, Contexto> par = iterator.next();
-            if(!par.getValue().getUso().equals("") && !par.getValue().getUso().equals("nombre de funcion")){
-                escritor.write(par.getValue() + " DW \n");
+    private static void generarHeader(){
+        try {
+            escritor.append(".386"+ "\n");
+            escritor.append(".MODEL flat, stdcall"+ "\n");
+            escritor.append(".STACK 200h"+ "\n");
+            escritor.append("option casemap :none"+ "\n");
+            escritor.append("include \\masm32\\include\\windows.inc"+ "\n");
+            escritor.append("include \\masm32\\include\\kernel32.inc"+ "\n");
+            escritor.append("include \\masm32\\include\\masm32.inc"+ "\n");
+            escritor.append("include \\masm32\\include\\user32.inc"+ "\n");
+            escritor.append("includelib \\masm32\\lib\\kernel32.lib"+ "\n");
+            escritor.append("includelib \\masm32\\lib\\masm32.lib"+ "\n");
+            escritor.append("includelib \\masm32\\lib\\user32.lib"+ "\n");
+            escritor.write(".DATA\n");
+            Iterator<Map.Entry<String, Contexto>> iterator = TablaDeSimbolos.getElementos().entrySet().iterator();
+            while(iterator.hasNext()) {
+                Map.Entry<String, Contexto> par = iterator.next();
+                String lexema = par.getKey();
+                if(!par.getValue().getUso().isEmpty() && !par.getValue().getUso().equals("nombre de funcion")){        
+                    if (lexema.startsWith("@"))escritor.write("\t" + lexema + " DD ?\n");
+                    else escritor.write("\t" + "_" + lexema.replace(":", "_") + " DD ?\n");
+                }
+                if (lexema.contains("[")) escritor.write("\t" + "_" + lexema.replace(":", "_").replace("[", "").replace("]","") + " DB \"" + lexema.replaceAll("[_\\[\\]]", "") +"\", 0\n");
             }
+            escritor.append(".CODE"+ "\n");
+            escritor.append("START:"+ "\n");
+        } catch (Exception e) {
             
-             String nombreSimbolo = entry.getKey();
-            Symbol simbolo = entry.getValue();
-            
-            if (simbolo.enUso()) { // Verifica si el símbolo está en uso
-                
-            } 
         }
-    }  */
+    }
     // Procesar tercetos de asignación
     private static void procesarAsignacion(Terceto terceto) {
-        try {
-            String variable = "_" + terceto.getT2() + Parser.cargarAmbito();
-            String valor = obtenerValor(terceto.getT3());
-            System.out.println("asignacion");
-            // Agrega la instrucción de asignación en la sección de código
-            escritor.append("\t" +"MOV " + variable + ", " + valor + "\n");
-        } catch (IOException e) {
-            System.out.println("Error al escribir la asignación en el archivo: " + e.getMessage());
+        String variable = "_" + terceto.getT2() + Parser.cargarAmbito();
+        String valor = obtenerValor(terceto.getT3());
+        if(valor.startsWith("@") || valor.startsWith("_")){
+            data.append("\t" +"MOV EAX, " + valor.replace(":", "_") + "\n");
+            data.append("\t" +"MOV " + variable.replace(":", "_") + ", EAX" + "\n");
+        }else{
+            data.append("\t" +"MOV " + variable.replace(":", "_") + ", " + valor.replace(":", "_") + "\n");
         }
     }
 
@@ -166,19 +188,15 @@ public class GeneradorDeCodigo {
         String operando1 = obtenerValor(terceto.getT2());
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
-        try {
-            if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
-                escritor.append("\t" +"MOV EAX, " + operando1 + "\n");      // Cargar arg1 en AX
-                escritor.append("\t" +operacion + " EAX, " + operando2 + "\n"); // Realizar operación en AX
-                escritor.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
-            }else{
-                escritor.append("\t" +"FLD " + operando1 + "\n");      // Cargar operando1 en ST(0)
-                escritor.append("\t" +"FLD " + operando2 + "\n");      // Cargar operando2 en ST(0)
-                escritor.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
-                escritor.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
-            }
-        } catch (IOException e) {
-            System.out.println("Error al escribir la asignación en el archivo: " + e.getMessage());
+        if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
+            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
+            data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
+        }else{
+            data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
+            data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
+            data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
+            data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
         }
         
 
@@ -186,25 +204,21 @@ public class GeneradorDeCodigo {
     }
 
     private static void procesarSaltoCondicion(Terceto terceto, String operadorLogico){
-        try {
-            escritor.append("\t" + "POPF"+ "\n");       //Saca los flags almacenados por la ultima comparacion
-            if ((operadorLogico.equals("AND")) || (operadorLogico.equals("OR"))){
-                escritor.append("\t" + "JZ " + terceto.getT3()+ "\n");
-            }else if (operadorLogico.equals(">")){
-                escritor.append("\t" + "JA " + terceto.getT3()+ "\n");
-            }else if (operadorLogico.equals("<")){
-                escritor.append("\t" + "JB " + terceto.getT3()+ "\n");
-            }else if (operadorLogico.equals("=")){
-                escritor.append("\t" + "JE " + terceto.getT3()+ "\n");
-            }else if (operadorLogico.equals("<=")){
-                escritor.append("\t" + "JBE " + terceto.getT3()+ "\n");
-            }else if (operadorLogico.equals(">=")){
-                escritor.append("\t" + "JAE " + terceto.getT3()+ "\n");
-            }else{
-                System.out.println("error en procesar salto condicion");
-            }
-        } catch (IOException e) {
-            System.out.println("Error al escribir la asignación en el archivo: " + e.getMessage());
+        data.append("\t" + "POPF"+ "\n");       //Saca los flags almacenados por la ultima comparacion
+        if ((operadorLogico.equals("AND")) || (operadorLogico.equals("OR"))){
+            data.append("\t" + "JZ " + terceto.getT3()+ "\n");
+        }else if (operadorLogico.equals(">")){
+            data.append("\t" + "JA " + terceto.getT3()+ "\n");
+        }else if (operadorLogico.equals("<")){
+            data.append("\t" + "JB " + terceto.getT3()+ "\n");
+        }else if (operadorLogico.equals("=")){
+            data.append("\t" + "JE " + terceto.getT3()+ "\n");
+        }else if (operadorLogico.equals("<=")){
+            data.append("\t" + "JBE " + terceto.getT3()+ "\n");
+        }else if (operadorLogico.equals(">=")){
+            data.append("\t" + "JAE " + terceto.getT3()+ "\n");
+        }else{
+            System.out.println("error en procesar salto condicion");
         }
             
     }
@@ -213,13 +227,9 @@ public class GeneradorDeCodigo {
         String operando1 = obtenerValor(terceto.getT2());
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
-        try {
-            escritor.append("\t" +"MOV EAX, " + operando1 + "\n");      // Cargar arg1 en AX
-            escritor.append("\t" +operacion + " EAX, " + operando2 + "\n"); // Realizar operación en AX
-            escritor.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
-        } catch (IOException e) {
-            System.out.println("Error al escribir AND en el archivo: " + e.getMessage());
-        }
+        data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
+        data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
+        data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
         terceto.setResultado(variableAux);
         TablaDeSimbolos.agregarSimbolo(variableAux, terceto.getTipo(), "variable auxiliar");
         ultimosOperadoresLogicos.push(operacion);
@@ -229,14 +239,10 @@ public class GeneradorDeCodigo {
         String operando1 = obtenerValor(terceto.getT2());
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
-        try {
-            escritor.append("\t" +"MOV EAX, " + operando1 + "\n");      // Cargar arg1 en AX
-            escritor.append("\t" +operacion + " EAX, " + operando2 + "\n"); // Realizar operación en AX
-            escritor.append("\t" +"PUSHF" + "\n");  // Guarda flags en la pila
-            //escritor.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
-        } catch (IOException e) {
-            System.out.println("Error al escribir AND en el archivo: " + e.getMessage());
-        }
+        data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
+        data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
+        data.append("\t" +"PUSHF" + "\n");  // Guarda flags en la pila
+        //escritor.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
         terceto.setResultado(variableAux);
         TablaDeSimbolos.agregarSimbolo(variableAux, terceto.getTipo(), "variable auxiliar");
         ultimosOperadoresLogicos.push(operacion);
@@ -262,40 +268,44 @@ public class GeneradorDeCodigo {
         String variableAux = "@aux" + (++contadorAux);
         System.out.println(operando1);
         System.out.println(operando2);
-        try {
-            if ((TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")) || (TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE"))){
-                escritor.append("\t" +"FLD " + operando1 + "\n");      // Cargar operando1 en ST(0)
-                escritor.append("\t" +"FLD " + operando2 + "\n");      // Cargar operando2 en ST(0)
-                escritor.append("\t" +"FCOMP"+ "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
-                //escritor.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila 
-            } else{
-                escritor.append("\t" +"MOV EAX, " + operando1 + "\n");      // Cargar arg1 en AX
-                escritor.append("\t" +"MOV EBX, " + operando2 + "\n");      // Cargar arg1 en AX
-                escritor.append("\t" + "CMP EAX, EBX" + "\n"); // Realizar operación en AX
-            }
-            /* if ((terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT")) || (terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL"))){
-                escritor.append("\t" +"MOV EAX, " + operando1 + "\n");      // Cargar arg1 en AX
-                escritor.append("\t" +"MOV EBX, " + operando2 + "\n");      // Cargar arg1 en AX
-                escritor.append("\t" + "CMP EAX, EBX" + "\n"); // Realizar operación en AX
-            }else{
-                escritor.append("\t" +"FLD " + operando1 + "\n");      // Cargar operando1 en ST(0)
-                escritor.append("\t" +"FLD " + operando2 + "\n");      // Cargar operando2 en ST(0)
-                escritor.append("\t" +"FCOMP"+ "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
-                //escritor.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila 
-            } */
-            escritor.append("\t" +"PUSHF" + "\n");  // Guarda flags en la pila
-        } catch (IOException e) {
-            System.out.println("Error al escribir la asignación en el archivo: " + e.getMessage());
+        if ((TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")) || (TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE"))){
+            data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
+            data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
+            data.append("\t" +"FCOMP"+ "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
+            //escritor.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila 
+        } else{
+            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            data.append("\t" +"MOV EBX, " + operando2.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            data.append("\t" + "CMP EAX, EBX" + "\n"); // Realizar operación en AX
         }
+        /* if ((terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT")) || (terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL"))){
+            escritor.append("\t" +"MOV EAX, " + operando1 + "\n");      // Cargar arg1 en AX
+            escritor.append("\t" +"MOV EBX, " + operando2 + "\n");      // Cargar arg1 en AX
+            escritor.append("\t" + "CMP EAX, EBX" + "\n"); // Realizar operación en AX
+        }else{
+            escritor.append("\t" +"FLD " + operando1 + "\n");      // Cargar operando1 en ST(0)
+            escritor.append("\t" +"FLD " + operando2 + "\n");      // Cargar operando2 en ST(0)
+            escritor.append("\t" +"FCOMP"+ "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
+            //escritor.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila 
+        } */
+        data.append("\t" +"PUSHF" + "\n");  // Guarda flags en la pila
         
         ultimosOperadoresLogicos.push(operacion);
         return variableAux;
+    }
+
+    private static void procesarSalida(Terceto terceto){
+        String valor = obtenerValor(terceto.getT2());
+        if (valor.startsWith("_") ||valor.startsWith("@")){
+            data.append("\t" +"INVOKE MessageBox, NULL, addr "+ valor.replace(":", "_").replace("[", "").replace("]","")+", addr "+valor.replace(":", "_").replace("[", "").replace("]","")+", MB_OK" + "\n");
+        }
     }
 
     // Obtener el valor directo o de la tabla de símbolos si es una referencia
     private static String obtenerValor(String valor) {
         if (valor.startsWith("^")) return Parser.tercetos.get(Integer.parseInt(valor.substring(1))).getResultado();
 
+        if (valor.startsWith("[")) return "_" + valor;
         if (!valor.matches("^[0-9].*")) return "_" + valor + Parser.cargarAmbito();
 
         return valor;

@@ -10,6 +10,7 @@ begin
         a := 10;
     else
         a := 11;
-    
     end_if;
+    outf(a + 10);
+    outf([dasassa]);
 end

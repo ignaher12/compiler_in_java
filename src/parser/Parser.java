@@ -1024,7 +1024,7 @@ public static void main(String[] args) {
         if (erroresSintactico.isEmpty() && erroresLexico.isEmpty() && erroresSemanticos.isEmpty()){
           System.out.println("###EMPIEZA LA GENERACION DE CODIGO ASSEMBLER###");
           limpiarTablaDeSimbolos();
-          GeneradorDeCodigo.generarCodigoAssembler("./src/codigo/salida.txt");
+          GeneradorDeCodigo.generarCodigoAssembler("./src/codigo/salida.asm");
         }
         for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
         //System.out.println("No se especifico el archivo a compilar");
@@ -1277,11 +1277,11 @@ public void completarUltimoTercetoIncompleto(){
   if (tercetosIncompletos.size() > 0){
     String aux = tercetosIncompletos.pop();
     //tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString());
-    tercetos.get(conversionIndexStoI(aux)).setT3(";etiqueta"+ (tercetos.size()));
+    tercetos.get(conversionIndexStoI(aux)).setT3("etiqueta"+ (tercetos.size()));
   }else{
     System.out.println("SE INTENTO COMPLETAR UN TERCETO PERO NO HABIA NADA EN LA PILA");
   }
-  agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));
+  agregarTerceto("ETIQUETA","","etiqueta"+ (tercetos.size()));
 }
 
 public static void limpiarTablaDeSimbolos(){

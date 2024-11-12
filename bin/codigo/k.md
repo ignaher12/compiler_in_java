@@ -1,6 +1,7 @@
 .386
 .MODEL small
 .STACK 200h
+
 .DATA
 	_c_main DD ?
 	_a_main DD ?
