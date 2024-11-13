@@ -16,7 +16,7 @@ import parser.Parser;
 public class GeneradorDeCodigo {
     public static FileWriter escritor;
     public static StringBuilder data = new StringBuilder();
-    private static boolean DEBUG = false;
+    private static boolean DEBUG = true;
     public static Stack<String> ultimosOperadoresLogicos = new Stack<String>();
 
     public static List<Terceto> tercetos;

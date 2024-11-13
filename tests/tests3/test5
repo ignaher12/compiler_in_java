@@ -4,9 +4,14 @@ begin
     longint b;
     longint c;
 
-    a := 101;
-    b := a + 11;
-    if (a = 101) then
+    longint d;
+    typedef triple<longint> hola;
+
+    typedef enterito := longint{ 6, 10 };
+
+    a := 101.24;
+    b := 101;
+    if ((a, b) = (c, 101)) then
         a := 10;
     else
         a := 11;
