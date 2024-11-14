@@ -1,0 +1,15 @@
+comparaciones
+begin
+    longint a;
+    longint b;
+    longint c;
+
+    a := 101;
+    b := a + 11;
+    if ((a, b) = (101, c)) then
+        outf([Dentro del if]);
+    else
+        outf([Dentro del else]);
+    end_if;
+    outf([FIN]);
+end

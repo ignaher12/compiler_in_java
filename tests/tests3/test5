@@ -13,4 +13,8 @@ begin
     end_if;
     outf(a + 10);
     outf([dasassa]);
+
+    single f;
+    f := 12.021 + 10.0;
+    outf(f);
 end

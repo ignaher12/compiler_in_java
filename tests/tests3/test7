@@ -1,0 +1,18 @@
+FUNCIONES
+begin
+    longint a;
+    longint b;
+    longint c;
+
+    a := 101;
+    longint FUN holahola(longint x)
+    begin
+
+        longint FUN hexa(longint x)
+        begin
+            longint hexa;
+            ret(hexa);
+        end
+        
+    en
+end
