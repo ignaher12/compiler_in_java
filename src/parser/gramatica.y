@@ -94,13 +94,13 @@ declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR {declaracionTriple($3.
                   |  TRIPLE tipoDato IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
 ;
 
-funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {System.out.println("---"+$6.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1); agregarTerceto("FINFUN", "", "");}
+funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {completarFuncion($3.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1); agregarTerceto("FINFUN", "", "");}
                | FUN error '(' parametro ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ','  error ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 ;
 
-funComienzo : FUN IDENTIFICADOR  {declararFuncion($2.sval, $0.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", $2.sval);} //PROBLEMA CON FUN error de fundeclaracion??
+funComienzo : FUN IDENTIFICADOR  {declararFuncion($2.sval, $0.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", $2.sval); comienzoDeFuncion.add(tercetos.size()-2);} //PROBLEMA CON FUN error de fundeclaracion??
 ;
 tipoDato : SINGLE      {$$.ival = TablaTipoToken.getTipoToken("SINGLE");}
          | LONGINT     {$$.ival = TablaTipoToken.getTipoToken("LONGINT");}
@@ -128,7 +128,7 @@ constante : CONSTANTE { Contexto contexto = TablaDeSimbolos.getContexto($1.sval)
 ;
 
 
-parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval);}
+parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval); $$.sval = $2.sval;}
           | error IDENTIFICADOR      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta tipo de dato en el parametro."));}
           | tipoDato error      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre en el parametro."));}
 ;
@@ -344,6 +344,8 @@ public static HashMap<String, String> etiquetas = new HashMap<String, String>();
 public static Stack<String> tercetosGoto = new Stack<String>(); 
 
 public static Stack<Integer> inicioBucle = new Stack<Integer>();
+
+public static Stack<Integer> comienzoDeFuncion = new Stack<Integer>();
 
 public static List<String> ambitos = new ArrayList<String>();
 public static int numeroLineaError = -1;
@@ -677,4 +679,9 @@ public static void limpiarTablaDeSimbolos(){
       iterator.remove();
     }
   }
+}
+
+public void completarFuncion(String parametro){
+  int index = comienzoDeFuncion.pop();
+  tercetos.get(index).setT3(parametro);
 }

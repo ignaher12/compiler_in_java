@@ -116,14 +116,12 @@ public class GeneradorDeCodigo {
                         procesarAnd(terceto);
                         break;
                     case "FINFUN":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         funciones.add(new StringBuilder(aux.toString()));
                         ambitos.remove(ambitos.size()-1);
                         data = pilaFunciones.pop();
                         procesarAnd(terceto);
                         break;
                     case "OUTF": 
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarSalida(terceto);
                         break;
                     default:
