@@ -28,6 +28,8 @@ printf PROTO C : VARARG
 	_f_main DQ ?
 	__new_line__ DB 13, 10, 0
 .CODE
+test:
+	MOV _testint_main_test, 14
 START:
 	MOV _a_main, 101.24
 	MOV _b_main, 101
@@ -40,18 +42,18 @@ START:
 	CMP EAX, EBX
 	PUSHF
 	POPF
-	JNE etiqueta12
+	JNE etiqueta13
 	POPF
-	JNE etiqueta12
+	JNE etiqueta13
 	POPF
-	JNE etiqueta12
+	JNE etiqueta13
 	POPF
-	JNE etiqueta12
+	JNE etiqueta13
 	MOV _a_main, 10
-	JMP etiqueta14
-etiqueta12:
+	JMP etiqueta15
+etiqueta13:
 	MOV _a_main, 11
-etiqueta14:
+etiqueta15:
 	MOV EAX, _a_main
 	ADD EAX, 10
 	MOV @aux3, EAX

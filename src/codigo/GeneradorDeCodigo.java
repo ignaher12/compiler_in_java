@@ -46,7 +46,6 @@ public class GeneradorDeCodigo {
                 String lexema = par.getKey();
                 Contexto contexto = par.getValue();
                 if((contexto.getUso()!= "") && !(contexto.getUso().equals("nombre de funcion")) || (!contexto.getDeclarado() && contexto.getTipo() == TablaTipoToken.getTipoToken("SINGLE"))){        
-                    System.out.println(lexema);
                     lexemasTS.add(lexema);
                 }
             }
@@ -189,7 +188,6 @@ public class GeneradorDeCodigo {
     // Procesar tercetos de asignación
     private static void procesarAsignacion(Terceto terceto) {
         String variable = "_" + encontrarAmbito(terceto.getT2());
-        System.out.println(variable);
         String valor = obtenerValor(terceto.getT3());
         if (terceto.getTipo()  == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
             if (valor.startsWith("@") || valor.startsWith("_")){
@@ -312,8 +310,6 @@ public class GeneradorDeCodigo {
         String operando1 = obtenerValor(terceto.getT2());
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
-        System.out.println(operando1);
-        System.out.println(operando2);
         if ((TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")) || (TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE"))){
             data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
             data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
@@ -373,16 +369,11 @@ public class GeneradorDeCodigo {
             indice = 0;
             while ((indice < lexemasTS.size()) && !encontrado){
                 if (valor.equals(lexemasTS.get(indice))) encontrado = true;
-                System.out.println(valor);
-                System.out.println(lexemasTS.get(indice));
                 indice = indice + 1;
             };
             if (valor.lastIndexOf(":") != -1 && !encontrado){
                 int ultAmbito = valor.lastIndexOf(":");
-                System.out.println(valor);
-                System.out.println("en");
                 valor = valor.substring(0, ultAmbito);
-                System.out.println(valor);
             }
         }
         return valor;

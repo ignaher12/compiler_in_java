@@ -1183,7 +1183,7 @@ private void declaracionParametro(String refTipo, String refIdentificador){
     erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + refIdentificador + " ya declarada"));
   };
 }
-private boolean chequearDeclarado(String lexemaSinAmbito){
+private String chequearDeclarado(String lexemaSinAmbito){
   
   String lexema = lexemaSinAmbito + cargarAmbito();
   while(lexema.lastIndexOf(":") != -1){
@@ -1191,14 +1191,14 @@ private boolean chequearDeclarado(String lexemaSinAmbito){
     if (contexto != null){
       if (contexto.getDeclarado()){    //CON UNA VARIABLE BASE (SIN AMBITO) EN LA T.S. ESTE IF PUEDE NO ESTAR. SI AGREGAMOS A LA T.S. (DESDE EL LEXER) CON AMBITO ENTONCES NECESITAMOS DEL ATRIBUTO "DECLARADO"
         contexto.addRef(TablaDeSimbolos.getContexto(lexemaSinAmbito).popRefUso());
-        return true;
+        return lexema;
       }
     }
     int ultAmbito = lexema.lastIndexOf(":");
     lexema = lexema.substring(0, ultAmbito);
   }
   erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + lexemaSinAmbito + " nunca fue declarado")); 
-  return false;
+  return null;
 }
 private boolean chequearAmbitoFuncion(String lexemaSinAmbito){
   
@@ -1626,7 +1626,7 @@ case 45:
 break;
 case 46:
 //#line 103 "gramatica.y"
-{declararFuncion(val_peek(0).sval, val_peek(2).sval); ambitos.add(val_peek(0).sval); agregarTerceto("INICIOFUN", val_peek(0).sval, val_peek(2).sval);}
+{declararFuncion(val_peek(0).sval, val_peek(2).sval); ambitos.add(val_peek(0).sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", val_peek(0).sval);}
 break;
 case 47:
 //#line 105 "gramatica.y"
@@ -1732,11 +1732,11 @@ case 77:
 break;
 case 78:
 //#line 166 "gramatica.y"
-{chequearDeclarado(val_peek(2).sval); yyval.sval = agregarTerceto(":=", val_peek(2).sval, val_peek(0).sval, TablaDeSimbolos.getContexto(val_peek(2).sval + cargarAmbito()).getTipo());Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+{String aux = chequearDeclarado(val_peek(2).sval); yyval.sval = agregarTerceto(":=", val_peek(2).sval, val_peek(0).sval, TablaDeSimbolos.getContexto(aux).getTipo());Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 79:
 //#line 167 "gramatica.y"
-{chequearDeclarado(val_peek(3).sval); if (!val_peek(2).sval.equals("[1]") && !val_peek(2).sval.equals("[2]") && !val_peek(2).sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", val_peek(3).sval + val_peek(2).sval , val_peek(0).sval, TablaDeSimbolos.getContexto(val_peek(3).sval + cargarAmbito()).getTipo()); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+{String aux = chequearDeclarado(val_peek(3).sval); if (!val_peek(2).sval.equals("[1]") && !val_peek(2).sval.equals("[2]") && !val_peek(2).sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", val_peek(3).sval + val_peek(2).sval , val_peek(0).sval, TablaDeSimbolos.getContexto(aux).getTipo()); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 80:
 //#line 168 "gramatica.y"
@@ -1792,7 +1792,7 @@ case 93:
 break;
 case 95:
 //#line 189 "gramatica.y"
-{yyval.sval = val_peek(0).sval; if(chequearDeclarado(val_peek(0).sval)){yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval + cargarAmbito()).getTipo();}else{yyval.ival = -1;}}
+{yyval.sval = val_peek(0).sval; val_peek(0).sval = chequearDeclarado(val_peek(0).sval); if(val_peek(0).sval != null){yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval).getTipo();}else{yyval.ival = -1;}}
 break;
 case 96:
 //#line 190 "gramatica.y"
