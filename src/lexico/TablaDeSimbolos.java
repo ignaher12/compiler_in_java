@@ -11,10 +11,13 @@ public class TablaDeSimbolos {
         private List<Integer> refs;
         private List<Integer> refsAux;
         private int tipo;
+        private int limite_inf;
+        private int limite_sup;
         private String uso = "";
         private String valor;
         private boolean reservada;
         private boolean declarado;
+        private String typedef = null;
 
         public Contexto(int linea, String valor, int tipo){
             this.refs = new ArrayList<Integer>();   //UTILIDAD?
@@ -88,6 +91,24 @@ public class TablaDeSimbolos {
         }
         public void setUso(String uso){
             this.uso = uso;
+        }
+        public void setLimiteSup(int limiteSup){
+            this.limite_sup = limiteSup;
+        }
+        public void setLimiteInf(int limiteInf){
+            this.limite_inf = limiteInf;
+        }
+        public void setTypedef(String typedef){
+            this.typedef = typedef;
+        }
+        public int getLimiteSup(){
+            return this.limite_sup;
+        }
+        public int getLimiteInf(){
+            return this.limite_inf;
+        }
+        public String getTypedef(){
+            return this.typedef;
         }
         public String getValor(){
             return this.valor;
@@ -231,7 +252,7 @@ public class TablaDeSimbolos {
         sb.append("-------------------\n");
 
         for (Map.Entry<String, Contexto> par : tabla.entrySet()) {
-            sb.append(par.getKey()).append(" - ").append(par.getValue().valor).append(" - ").append(par.getValue().declarado).append(" - ").append(par.getValue().tipo).append(" - ").append(par.getValue().getRefs()).append(par.getValue().getUso()).append('\n');
+            sb.append(par.getKey()).append(" - ").append(par.getValue().valor).append(" - ").append(par.getValue().declarado).append(" - ").append(par.getValue().tipo).append(" - ").append(par.getValue().getRefs()).append(par.getValue().getUso()).append(par.getValue().getLimiteInf()).append(par.getValue().getLimiteSup()).append('\n');
         }
 
         

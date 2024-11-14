@@ -78,7 +78,7 @@ typedefDeclaracion : TYPEDEF declaracionSubtipo {Integer lastRef = TablaDeSimbol
                    | TYPEDEF error { erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de subtipo"); }
 ;
 
-declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante '}'  {declaracionSubtipo($3.sval,$1.sval);}// TEMA 11
+declaracionSubtipo : IDENTIFICADOR SIMASIGNACION tipoDato '{' listaConstante '}'  {declaracionSubtipo($3.sval,$1.sval, ((ArrayList<String>)$5.obj));}// TEMA 11
                    | SIMASIGNACION tipoDato '{' listaConstante '}'  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre del tipo de dato nuevo'."));}
                    | IDENTIFICADOR SIMASIGNACION tipoDato '{' '}' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera declaracion de subrangos."));}
 ;
@@ -113,12 +113,13 @@ listaVariable : listaVariable ',' IDENTIFICADOR
 ;
                
 
-listaConstante : listaConstante ',' constante    // TEMA 11
-               | constante                       // TEMA 11
+listaConstante : listaConstante ',' constante  {((ArrayList<String>)$1.obj).add($3.sval);}  // TEMA 11
+               | constante    {ArrayList<String> aux = new ArrayList<String>(); aux.add($1.sval); $$.obj = aux;}                   // TEMA 11
 ;
 
 constante : CONSTANTE { Contexto contexto = TablaDeSimbolos.getContexto($1.sval);
-                        chequearRango(contexto);                             //SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER
+                        chequearRango(contexto);
+                        ArrayList<String> referenciasConst = new ArrayList<String>(); referenciasConst.add($1.sval);                          //SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER
                       }
           | '-' CONSTANTE {
                             Contexto contexto = TablaDeSimbolos.getContexto($2.sval);
@@ -162,8 +163,8 @@ sentenciaEjecutableConRet : asignacion                 {$$.sval = "false";}
                           | clausulaSeleccionConRet    {$$.sval = $1.sval;}
 ;
 
-asignacion : IDENTIFICADOR SIMASIGNACION expresion {chequearDeclarado($1.sval); $$.sval = agregarTerceto(":=", $1.sval, $3.sval);Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
-           | IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion   {chequearDeclarado($1.sval); if (!$2.sval.equals("[1]") && !$2.sval.equals("[2]") && !$2.sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", $1.sval + $2.sval , $4.sval); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}//TEMA 22
+asignacion : IDENTIFICADOR SIMASIGNACION expresion {chequearDeclarado($1.sval); $$.sval = agregarTerceto(":=", $1.sval, $3.sval, TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo());Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+           | IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion   {chequearDeclarado($1.sval); if (!$2.sval.equals("[1]") && !$2.sval.equals("[2]") && !$2.sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", $1.sval + $2.sval , $4.sval, TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo()); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}//TEMA 22
            | IDENTIFICADOR CONSTANTE SIMASIGNACION expresion   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 ;
 
@@ -379,7 +380,7 @@ public static void main(String[] args) {
         if (erroresSintactico.isEmpty() && erroresLexico.isEmpty() && erroresSemanticos.isEmpty()){
           System.out.println("###EMPIEZA LA GENERACION DE CODIGO ASSEMBLER###");
           limpiarTablaDeSimbolos();
-          GeneradorDeCodigo.generarCodigoAssembler("./src/codigo/salida.txt");
+          GeneradorDeCodigo.generarCodigoAssembler("./src/codigo/salida.asm");
         }
         for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
         //System.out.println("No se especifico el archivo a compilar");
@@ -474,7 +475,7 @@ private void declaracionTriple(String refTipo, String refIdentificador){
     erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + refIdentificador + " ya declarada"));
   };
 }
-private void declaracionSubtipo(String refTipo, String refIdentificador){
+private void declaracionSubtipo(String refTipo, String refIdentificador, ArrayList<String> limites){
   String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
   if (conIdentificador.getTipo() == -1){
@@ -482,7 +483,8 @@ private void declaracionSubtipo(String refTipo, String refIdentificador){
       conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
       conIdentificador.setUso("nombre de subtipo");
       conIdentificador.setDeclarado();
-      //FALTA Límite inferior o Límite superior
+      conIdentificador.setLimiteInf(Integer.parseInt(limites.get(0)));
+      conIdentificador.setLimiteSup(Integer.parseInt(limites.get(1)));
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
     }
@@ -599,17 +601,33 @@ private String agregarTerceto(String operador1, String op2, String op3, int tipo
   return "^" + (tercetos.size()-1);
 }
 private String agregaListaExpresionTercetos(String operador1, ArrayList<String> op2, ArrayList<String> op3){
-  
-  Stack<String> aux = new Stack<String>();
-  for(int i = 0; i < op2.size(); i++){
-    aux.add(agregarTerceto(operador1, op2.get(i), op3.get(i)));
-  };
 
-  String comp = aux.pop();
-  while(aux.size() > 0){
-    comp = agregarTerceto("AND", comp, aux.pop());
-  }
-  return comp;
+  if (op2.size() != op3.size()){
+    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO El numero de expresiones de un lado de la comparacion no corresponde con el otro")); 
+  } 
+    Stack<String> aux = new Stack<String>();
+    for(int i = 0; i < op2.size(); i++){
+      String operando1 = op2.get(i);
+      String operando2 = op3.get(i);
+      if (!operando1.matches("^[0-9].*")){
+        operando1 = operando1 + cargarAmbito();
+      }
+      if (!operando2.matches("^[0-9].*")){
+        operando2 = operando2 + cargarAmbito();
+      }
+      if (TablaDeSimbolos.getContexto(operando1) != null && TablaDeSimbolos.getContexto(operando2) != null)
+        if (TablaDeSimbolos.getContexto(operando1).getTipo() == TablaDeSimbolos.getContexto(operando2).getTipo()){
+          aux.add(agregarTerceto(operador1, op2.get(i), op3.get(i)));
+        }else{
+          erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO incompatibilidad de tipos entre " + op2.get(i) + " y " + op3.get(i))); 
+        }
+    };
+
+    String comp = aux.pop();
+    while(aux.size() > 0){
+      comp = agregarTerceto("AND", comp, aux.pop());
+    }
+    return comp; 
 }
 public int conversionIndexStoI(String aux){
   return Integer.parseInt(aux.substring(1,aux.length()));
@@ -632,11 +650,11 @@ public void completarUltimoTercetoIncompleto(){
   if (tercetosIncompletos.size() > 0){
     String aux = tercetosIncompletos.pop();
     //tercetos.get(conversionIndexStoI(aux)).setT3(((Integer)tercetos.size()).toString());
-    tercetos.get(conversionIndexStoI(aux)).setT3(";etiqueta"+ (tercetos.size()));
+    tercetos.get(conversionIndexStoI(aux)).setT3("etiqueta"+ (tercetos.size()));
   }else{
     System.out.println("SE INTENTO COMPLETAR UN TERCETO PERO NO HABIA NADA EN LA PILA");
   }
-  agregarTerceto("ETIQUETA","",";etiqueta"+ (tercetos.size()));
+  agregarTerceto("ETIQUETA","","etiqueta"+ (tercetos.size()));
 }
 
 public static void limpiarTablaDeSimbolos(){
