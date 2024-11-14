@@ -51,6 +51,7 @@ public class GeneradorDeCodigo {
             }
             for (Terceto terceto : Parser.tercetos) {
                 if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
+                System.out.println(terceto);
                 switch (terceto.getT1()) {
                     case ":=":
                         
@@ -104,10 +105,6 @@ public class GeneradorDeCodigo {
                     case "AND": // NO FUNCA
                         procesarAnd(terceto);
                         break;
-                    /* case "OR": // NO FUNCA
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
-                        procesarOr(terceto);
-                        break; */
                     case "INICIOFUN":
                         aux = new StringBuilder();
                         pilaFunciones.add(new StringBuilder(data.toString()));
@@ -116,14 +113,24 @@ public class GeneradorDeCodigo {
                         procesarAnd(terceto);
                         break;
                     case "FINFUN":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         funciones.add(new StringBuilder(aux.toString()));
                         ambitos.remove(ambitos.size()-1);
                         data = pilaFunciones.pop();
                         procesarAnd(terceto);
                         break;
+                    case "CALL":
+                        procesarInvocacion(terceto);
+                        break;
+                    case "RET":
+                        String res = encontrarAmbito(terceto.getT2());
+                        if (TablaDeSimbolos.getContexto(res).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")){
+                            data.append("\t" + "FLD _" + res.replace(":", "_") + "\n");
+                        }else{
+                            data.append("\t" + "MOV EAX, _" + res.replace(":", "_") + "\n");
+                        }
+                        data.append("RET" + "\n");
+                        break;
                     case "OUTF": 
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarSalida(terceto);
                         break;
                     default:
@@ -332,6 +339,7 @@ public class GeneradorDeCodigo {
         String valor = obtenerValor(terceto.getT2());
         if (valor.startsWith("_") || valor.startsWith("@")){
             int tipo = TablaDeSimbolos.getContexto(valor.replace("_", "")).getTipo();
+            System.out.println(valor);
             if ( tipo == TablaTipoToken.getTipoToken("LONGINT") || tipo == TablaTipoToken.getTipoToken("HEXADECIMAL")){
                 data.append("\t" +"INVOKE printf, cfm$(\"%d\\n\"), "+ valor.replace(":", "_")+ "\n");
             }else if ( tipo == TablaTipoToken.getTipoToken("SINGLE")){
@@ -345,7 +353,9 @@ public class GeneradorDeCodigo {
 
     // Obtener el valor directo o de la tabla de símbolos si es una referencia
     private static String obtenerValor(String valor) {
-        if (valor.startsWith("^")) return Parser.tercetos.get(Integer.parseInt(valor.substring(1))).getResultado();
+        if (valor.startsWith("^")){
+            return Parser.tercetos.get(Integer.parseInt(valor.substring(1))).getResultado();
+        }
 
         if (valor.startsWith("[")) return "_" + valor;
         if (!valor.matches("^[0-9].*")){
@@ -377,5 +387,63 @@ public class GeneradorDeCodigo {
             }
         }
         return valor;
+    }
+
+    public static void procesarInvocacion(Terceto terceto){
+        String pasaje = obtenerValor(terceto.getT3());
+        System.out.println("fa");
+        System.out.println(pasaje);
+        String aux = pasaje.replace("_","");
+        String parametro = obtenerParametro(terceto.getT2());
+        if (TablaDeSimbolos.getContexto(aux).getTipo() == TablaTipoToken.getTipoToken("SINGLE")){
+            data.append("\t" + "FLD " + pasaje.replace(":", "_") + "\n");
+            data.append("\t" + "FSTP _" + parametro.replace(":", "_") + "\n");
+        } else{
+            data.append("\t" + "MOV EAX, " + pasaje.replace(":", "_") + "\n");
+            data.append("\t" + "MOV _" + parametro.replace(":", "_") + ", EAX" + "\n");
+        }
+        data.append("\t" + "CALL " + terceto.getT2() + "\n");
+       
+        String variableAux = "@aux" + (++contadorAux);
+        int tipoFuncion = TablaDeSimbolos.getContexto(terceto.getT2()+cargarAmbito()).getTipo();
+        if (tipoFuncion == TablaTipoToken.getTipoToken("SINGLE")){      
+            data.append("\t" + "FSTP " + variableAux.replace(":", "_") + "\n"); ///CHECK
+        }else{
+            data.append("\t" + "MOV " + variableAux.replace(":", "_") +", EAX " + "\n");
+        }
+        terceto.setResultado(variableAux);
+        TablaDeSimbolos.agregarSimbolo(variableAux, tipoFuncion, "variable auxiliar");
+    };
+    public static String obtenerParametro(String nombreFuncion){
+        nombreFuncion = nombreFuncion + cargarAmbito();
+        ///SEARCH FOR PARAMETRO
+        int index = nombreFuncion.indexOf(":");
+        String primeraParte = nombreFuncion.substring(0, index);
+        String ambitoParametro = nombreFuncion.substring(index);
+        ambitoParametro = ambitoParametro + ":" + primeraParte;
+        int indice = 0;
+        boolean encontrado = false;
+        String parametro = null;
+        while((ambitoParametro.lastIndexOf(":") != -1) && !encontrado){
+            indice = 0;
+            while ((indice < lexemasTS.size()) && !encontrado){
+                String lexema = lexemasTS.get(indice);
+                Contexto contexto = TablaDeSimbolos.getContexto(lexema);
+                int aux = lexema.indexOf(":");
+                String ambito = null;
+                if (aux >= 0) ambito = lexema.substring(aux);          ///ME QUEDO SOLO CON EL AMBITO
+                
+                if (ambitoParametro.equals(ambito) && contexto.getUso().equals("nombre de parametro")){
+                    parametro = lexema;
+                    encontrado = true;
+                } 
+                indice = indice + 1;
+            };
+            if (ambitoParametro.lastIndexOf(":") != -1 && !encontrado){
+                int ultAmbito = ambitoParametro.lastIndexOf(":");
+                ambitoParametro = ambitoParametro.substring(0, ultAmbito);
+            }
+        }
+        return parametro;
     }
 }

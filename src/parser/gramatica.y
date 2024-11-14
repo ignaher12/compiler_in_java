@@ -94,7 +94,7 @@ declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR {declaracionTriple($3.
                   |  TRIPLE tipoDato IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
 ;
 
-funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {System.out.println("---"+$6.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1); agregarTerceto("FINFUN", "", "");}
+funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {completarFuncion($3.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1); agregarTerceto("FINFUN", "", "");}
                | FUN error '(' parametro ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ','  error ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
@@ -128,7 +128,7 @@ constante : CONSTANTE { Contexto contexto = TablaDeSimbolos.getContexto($1.sval)
 ;
 
 
-parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval);}
+parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval); $$.sval = $2.sval;}
           | error IDENTIFICADOR      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta tipo de dato en el parametro."));}
           | tipoDato error      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre en el parametro."));}
 ;
@@ -195,7 +195,7 @@ operando : IDENTIFICADOR                  {$$.sval = $1.sval; $1.sval = chequear
          | IDENTIFICADOR  '3'   //TEMA 22 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango"));}
 ;
 
-invocacionFuncion : IDENTIFICADOR '(' expresion ')'       { if (chequearAmbitoFuncion($1.sval)){if ($3.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+invocacionFuncion : IDENTIFICADOR '(' expresion ')'       {if (chequearAmbitoFuncion($1.sval)){if ($3.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.sval = agregarTerceto("CALL", $1.sval, $3.sval);$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
                   | IDENTIFICADOR '(' tipoDato expresion ')' { if (chequearAmbitoFuncion($1.sval)){if ($4.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
                   | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' { if (chequearAmbitoFuncion($1.sval)){if ($5.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
                   | IDENTIFICADOR '(' expresion ',' error ')'                  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");} //TEMA 27
@@ -345,6 +345,8 @@ public static HashMap<String, String> etiquetas = new HashMap<String, String>();
 public static Stack<String> tercetosGoto = new Stack<String>(); 
 
 public static Stack<Integer> inicioBucle = new Stack<Integer>();
+
+public static Stack<Integer> comienzoDeFuncion = new Stack<Integer>();
 
 public static List<String> ambitos = new ArrayList<String>();
 public static int numeroLineaError = -1;
@@ -712,4 +714,9 @@ public static void limpiarTablaDeSimbolos(){
 private String conversion(String tipoDato, int tipoExpresion){
   return "juas juas";
                                                                                                                                             //MATRIZ
+}
+
+public void completarFuncion(String parametro){
+  int index = comienzoDeFuncion.pop();
+  tercetos.get(index).setT3(parametro);
 }

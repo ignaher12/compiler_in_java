@@ -1,17 +1,24 @@
 FUNCIONES
 begin
-    longint a;
-    longint b;
-    longint c;
+    single a;
+    single b;
+    single c;
 
-    a := 101;
-    c := 1;
-    longint FUN holahola(longint x)
+    a := 101.1;
+    b := 1.1;
+    single FUN holahola(single x)
     begin
-        x := 10;
-        c := 41;
+        x := x + 41.1;
+        outf([DENTRO DE FUNCION]);
+        outf(x);
         ret(x);
     end;
+    
+    outf([ANTES DE LA FUNCION]);
+    outf(b);
 
     b := holahola(a);
+
+    outf([DESP DE LA FUNCION]);
+    outf(b);
 end
