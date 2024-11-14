@@ -94,13 +94,13 @@ declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR {declaracionTriple($3.
                   |  TRIPLE tipoDato IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
 ;
 
-funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {System.out.println("444444444444444444444444444444444444444444444444444"+$6.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1);}
+funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {System.out.println("---"+$6.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1); agregarTerceto("FINFUN", "", "");}
                | FUN error '(' parametro ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ','  error ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 ;
 
-funComienzo : FUN IDENTIFICADOR  {declararFuncion($2.sval); ambitos.add($2.sval);} //PROBLEMA CON FUN error de fundeclaracion??
+funComienzo : FUN IDENTIFICADOR  {declararFuncion($2.sval, $0.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", $2.sval, $0.sval);} //PROBLEMA CON FUN error de fundeclaracion??
 ;
 tipoDato : SINGLE      {$$.ival = TablaTipoToken.getTipoToken("SINGLE");}
          | LONGINT     {$$.ival = TablaTipoToken.getTipoToken("LONGINT");}
@@ -135,7 +135,7 @@ parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval);}
 
 
 cuerpoFuncion : cuerpoFuncion sentenciaConRet   { if ($1.sval.equals("true") || $2.sval.equals("true")) $$.sval = "true"; else $$.sval = "false";}
-              | sentenciaConRet                 {$$.sval = $1.sval;}
+              | sentenciaConRet                 {$$.sval = $1.sval; }
 ;
 
 sentenciaConRet : sentenciaDeclarativa       {$$.sval = "false";}
@@ -145,8 +145,8 @@ sentenciaConRet : sentenciaDeclarativa       {$$.sval = "false";}
 ;
 
 //IF EN FUNCIONES
-sentenciaRet : RET '(' expresion ')'  {agregarTerceto("RET", $3.sval, ""); estructuras.add("Retorno"); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Retorno");}
-;
+sentenciaRet : RET '(' expresion ')'  {agregarTerceto("RET", $3.sval, ""); estructuras.add("Retorno"); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef();estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Retorno"); if(!chequearTipoRetorno($3.ival)){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO se debe retornar el tipo de la funcion."));} }
+; 
 
 
 sentenciaEjecutable : asignacion 
@@ -397,6 +397,17 @@ private int yylex(){
   return idToken;
 }
 
+private boolean chequearTipoRetorno(int tipoRetorno){
+  String ambito = cargarAmbito();
+  int ultAmbito = ambito.lastIndexOf(":");
+  String nombreFunc = ambito.substring(ultAmbito + 1, ambito.length());  
+  String ambitoFuncion = ambito.substring(0, ultAmbito);
+  System.out.println(nombreFunc + ambitoFuncion + " acava el tipo del RET " + tipoRetorno + "aca va el tipo de la tabla "+ TablaDeSimbolos.getContexto(nombreFunc + ambitoFuncion).getTipo() +" %$&%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+  if (tipoRetorno == TablaDeSimbolos.getContexto(nombreFunc + ambitoFuncion).getTipo())
+    return true;
+  return false;
+
+}
 private void chequearRango(Contexto contexto){
   if (contexto != null){
     if(contexto.getTipo() == TablaTipoToken.getTipoToken("longint")){
@@ -448,12 +459,12 @@ public static String cargarAmbito(){
   return aux;
 }
 
-private void declararFuncion(String ref){
+private void declararFuncion(String ref, String tipo){
   String newRef = TablaDeSimbolos.agregarSimbolo(ref + cargarAmbito(), -1, TablaDeSimbolos.getContexto(ref).popRefUso());
   Contexto con = TablaDeSimbolos.getContexto(newRef);
   if (con.getUso().equals("") ){
     con.setUso("nombre de funcion");
-    con.setTipo(TablaTipoToken.getTipoToken(TablaTipoToken.FUN));
+    con.setTipo(TablaTipoToken.getTipoToken(tipo));
     con.setDeclarado();
   }else{
     erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO el identificador " + ref + " ya posee otro uso"));

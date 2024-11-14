@@ -9,12 +9,10 @@ begin
 
     typedef enterito := longint{ 6, 10 };
 
-    hexadecimal FUN test (longint b) 
-    BEGIN
-        hexadecimal testint;
-        testint := 14;
-        RET (testint);
-    END;
+    longint FUN test (longint b) BEGIN
+        b := 2;
+        RET (a);
+    END
 
     a := 101.24;
     b := 101;

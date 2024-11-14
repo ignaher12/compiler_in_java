@@ -1,23 +1,8 @@
-//### This file created by BYACC 1.8(/Java extension  1.15)
-//### Java capabilities added 7 Jan 97, Bob Jamison
-//### Updated : 27 Nov 97  -- Bob Jamison, Joe Nieten
-//###           01 Jan 98  -- Bob Jamison -- fixed generic semantic constructor
-//###           01 Jun 99  -- Bob Jamison -- added Runnable support
-//###           06 Aug 00  -- Bob Jamison -- made state variables class-global
-//###           03 Jan 01  -- Bob Jamison -- improved flags, tracing
-//###           16 May 01  -- Bob Jamison -- added custom stack sizing
-//###           04 Mar 02  -- Yuval Oren  -- improved java performance, added options
-//###           14 Mar 02  -- Tomas Hurka -- -d support, static initializer workaround
-//### Please send bug reports to tom@hukatronic.cz
-//### static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley) 01/20/90";
-
-
-
-package parser;
-
-
-
-//#line 2 "gramatica.y"
+#ifndef lint
+static char yysccsid[] = "@(#)yaccpar	1.8 (Berkeley) 01/20/90";
+#endif
+#define YYBYACC 1
+#line 2 "gramatica.y"
 
 
 import java.util.HashMap;
@@ -35,170 +20,33 @@ import java.util.Stack;
 import codigo.GeneradorDeCodigo;
 import java.util.Map;
 import java.util.Iterator;
-//#line 35 "Parser.java"
-
-
-
-
-public class Parser
-{
-
-boolean yydebug;        //do I want debug output?
-int yynerrs;            //number of errors so far
-int yyerrflag;          //was there an error?
-int yychar;             //the current working character
-
-//########## MESSAGES ##########
-//###############################################################
-// method: debug
-//###############################################################
-void debug(String msg)
-{
-  if (yydebug)
-    System.out.println(msg);
-}
-
-//########## STATE STACK ##########
-final static int YYSTACKSIZE = 500;  //maximum stack size
-int statestk[] = new int[YYSTACKSIZE]; //state stack
-int stateptr;
-int stateptrmax;                     //highest index of stackptr
-int statemax;                        //state when highest index reached
-//###############################################################
-// methods: state stack push,pop,drop,peek
-//###############################################################
-final void state_push(int state)
-{
-  try {
-		stateptr++;
-		statestk[stateptr]=state;
-	 }
-	 catch (ArrayIndexOutOfBoundsException e) {
-     int oldsize = statestk.length;
-     int newsize = oldsize * 2;
-     int[] newstack = new int[newsize];
-     System.arraycopy(statestk,0,newstack,0,oldsize);
-     statestk = newstack;
-     statestk[stateptr]=state;
-  }
-}
-final int state_pop()
-{
-  return statestk[stateptr--];
-}
-final void state_drop(int cnt)
-{
-  stateptr -= cnt; 
-}
-final int state_peek(int relative)
-{
-  return statestk[stateptr-relative];
-}
-//###############################################################
-// method: init_stacks : allocate and prepare stacks
-//###############################################################
-final boolean init_stacks()
-{
-  stateptr = -1;
-  val_init();
-  return true;
-}
-//###############################################################
-// method: dump_stacks : show n levels of the stacks
-//###############################################################
-void dump_stacks(int count)
-{
-int i;
-  System.out.println("=index==state====value=     s:"+stateptr+"  v:"+valptr);
-  for (i=0;i<count;i++)
-    System.out.println(" "+i+"    "+statestk[i]+"      "+valstk[i]);
-  System.out.println("======================");
-}
-
-
-//########## SEMANTIC VALUES ##########
-//public class ParserVal is defined in ParserVal.java
-
-
-String   yytext;//user variable to return contextual strings
-ParserVal yyval; //used to return semantic vals from action routines
-ParserVal yylval;//the 'lval' (result) I got from yylex()
-ParserVal valstk[];
-int valptr;
-//###############################################################
-// methods: value stack push,pop,drop,peek.
-//###############################################################
-void val_init()
-{
-  valstk=new ParserVal[YYSTACKSIZE];
-  yyval=new ParserVal();
-  yylval=new ParserVal();
-  valptr=-1;
-}
-void val_push(ParserVal val)
-{
-  if (valptr>=YYSTACKSIZE)
-    return;
-  valstk[++valptr]=val;
-}
-ParserVal val_pop()
-{
-  if (valptr<0)
-    return new ParserVal();
-  return valstk[valptr--];
-}
-void val_drop(int cnt)
-{
-int ptr;
-  ptr=valptr-cnt;
-  if (ptr<0)
-    return;
-  valptr = ptr;
-}
-ParserVal val_peek(int relative)
-{
-int ptr;
-  ptr=valptr-relative;
-  if (ptr<0)
-    return new ParserVal();
-  return valstk[ptr];
-}
-final ParserVal dup_yyval(ParserVal val)
-{
-  ParserVal dup = new ParserVal();
-  dup.ival = val.ival;
-  dup.dval = val.dval;
-  dup.sval = val.sval;
-  dup.obj = val.obj;
-  return dup;
-}
-//#### end semantic value section ####
-public final static short IDENTIFICADOR=257;
-public final static short HEXADECIMAL=258;
-public final static short CADENA_MULTI=259;
-public final static short SIMASIGNACION=260;
-public final static short DISTINTO=261;
-public final static short IF=262;
-public final static short THEN=263;
-public final static short BEGIN=264;
-public final static short END=265;
-public final static short END_IF=266;
-public final static short OUTF=267;
-public final static short TYPEDEF=268;
-public final static short FUN=269;
-public final static short RET=270;
-public final static short SINGLE=271;
-public final static short MENOR_IGUAL=272;
-public final static short MAYOR_IGUAL=273;
-public final static short REPEAT=274;
-public final static short WHILE=275;
-public final static short GOTO=276;
-public final static short LONGINT=277;
-public final static short ELSE=278;
-public final static short TRIPLE=279;
-public final static short CONSTANTE=280;
-public final static short YYERRCODE=256;
-final static short yylhs[] = {                           -1,
+#line 24 "y.tab.c"
+#define IDENTIFICADOR 257
+#define HEXADECIMAL 258
+#define CADENA_MULTI 259
+#define SIMASIGNACION 260
+#define DISTINTO 261
+#define IF 262
+#define THEN 263
+#define BEGIN 264
+#define END 265
+#define END_IF 266
+#define OUTF 267
+#define TYPEDEF 268
+#define FUN 269
+#define RET 270
+#define SINGLE 271
+#define MENOR_IGUAL 272
+#define MAYOR_IGUAL 273
+#define REPEAT 274
+#define WHILE 275
+#define GOTO 276
+#define LONGINT 277
+#define ELSE 278
+#define TRIPLE 279
+#define CONSTANTE 280
+#define YYERRCODE 256
+short yylhs[] = {                                        -1,
     0,    0,    0,    0,    0,    0,    1,    1,    2,    2,
     2,    2,    2,    2,    3,    3,    3,    3,    3,    3,
     3,    3,    3,    9,    9,    9,    9,    9,   11,   11,
@@ -220,7 +68,7 @@ final static short yylhs[] = {                           -1,
    23,   23,   23,   23,   23,   40,   24,   24,   24,   24,
     5,    5,   25,   25,   25,
 };
-final static short yylen[] = {                            2,
+short yylen[] = {                                         2,
     4,    3,    3,    4,    3,    4,    2,    1,    1,    2,
     1,    2,    2,    2,    3,    5,    5,    6,    4,    2,
     2,    3,    2,    2,    2,    1,    2,    2,    6,    5,
@@ -242,7 +90,7 @@ final static short yylen[] = {                            2,
     5,    6,    6,    6,    3,    1,    3,    3,    3,    2,
     2,    1,    4,    4,    4,
 };
-final static short yydefred[] = {                         0,
+short yydefred[] = {                                      0,
     0,    0,    0,    0,    0,    0,    0,   49,    0,    0,
     0,    0,    0,    0,   47,  186,    0,   48,  192,    0,
     8,    9,    0,   11,    0,    0,    0,    0,   26,    0,
@@ -288,13 +136,13 @@ final static short yydefred[] = {                         0,
   142,  141,  172,  147,  149,  151,  148,  150,  152,  144,
     0,  133,  135,  129,
 };
-final static short yydgoto[] = {                          3,
+short yydgoto[] = {                                       3,
    20,   21,   22,   87,   24,  303,   26,  209,   27,   28,
    29,   43,  169,   30,  146,  304,   55,  305,  364,  190,
    31,   32,   33,   34,   35,  311,   57,   58,   59,   36,
    83,  148,   60,  343,  365,  191,  111,  155,  385,   37,
 };
-final static short yysindex[] = {                      -182,
+short yysindex[] = {                                   -182,
  -217, 1113,    0, 1113,  893,  -44,  303,    0, -208,  -38,
   -17,  -67, -106,    5,    0,    0,  -91,    0,    0,  957,
     0,    0,  -42,    0,  -25, -169,   59,   32,    0,   73,
@@ -340,7 +188,7 @@ final static short yysindex[] = {                      -182,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
   505,    0,    0,    0,
 };
-final static short yyrindex[] = {                         0,
+short yyrindex[] = {                                      0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
@@ -386,17 +234,14 @@ final static short yyrindex[] = {                         0,
     0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
     0,    0,    0,    0,
 };
-final static short yygindex[] = {                         0,
+short yygindex[] = {                                      0,
   422,  345,  260, 1096,  803, 1440, 1512,    0,    0,  756,
   776,  778,  626,    0,  660, -276,  -95, -272, 1164,  -10,
  1106,    0, 1129, 1182, 1238,    0,  405,  392,    0, 1282,
   -27,  -28,  -50, -206, -243,  226,  -55,    0,    0,    0,
 };
-final static int YYTABLESIZE=1721;
-static short yytable[];
-static { yytable();}
-static void yytable(){
-yytable = new short[]{                         56,
+#define YYTABLESIZE 1721
+short yytable[] = {                                      56,
   125,   54,  161,  120,  170,  118,   53,  237,   88,   53,
    53,   53,   53,  118,   42,  118,   74,  334,   53,  149,
    53,  290,   61,  337,  234,  366,   53,  220,   53,  150,
@@ -571,11 +416,7 @@ yytable = new short[]{                         56,
     0,   11,    0,    0,    0,    0,    0,    0,   16,    0,
    17,
 };
-}
-static short yycheck[];
-static { yycheck(); }
-static void yycheck() {
-yycheck = new short[] {                         10,
+short yycheck[] = {                                      10,
    56,   40,   62,   54,  100,   40,   45,   40,   37,   45,
    45,   45,   45,   40,   59,   40,   59,  294,   45,  256,
    45,   40,   40,   40,   44,  256,   45,   40,   45,  266,
@@ -750,32 +591,26 @@ yycheck = new short[] {                         10,
    -1,  267,   -1,   -1,   -1,   -1,   -1,   -1,  274,   -1,
   276,
 };
-}
-final static short YYFINAL=3;
-final static short YYMAXTOKEN=280;
-final static String yyname[] = {
-"end-of-file",null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,"'('","')'","'*'","'+'","','",
-"'-'",null,"'/'",null,"'1'","'2'","'3'",null,null,null,null,null,null,"':'",
-"';'","'<'","'='","'>'",null,"'@'",null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,"'{'",null,"'}'",null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,
-null,null,null,null,null,null,null,null,"IDENTIFICADOR","HEXADECIMAL",
+#define YYFINAL 3
+#ifndef YYDEBUG
+#define YYDEBUG 0
+#endif
+#define YYMAXTOKEN 280
+#if YYDEBUG
+char *yyname[] = {
+"end-of-file",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,"'('","')'","'*'","'+'","','","'-'",0,"'/'",0,"'1'","'2'","'3'",0,0,
+0,0,0,0,"':'","';'","'<'","'='","'>'",0,"'@'",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,"'{'",0,"'}'",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"IDENTIFICADOR","HEXADECIMAL",
 "CADENA_MULTI","SIMASIGNACION","DISTINTO","IF","THEN","BEGIN","END","END_IF",
 "OUTF","TYPEDEF","FUN","RET","SINGLE","MENOR_IGUAL","MAYOR_IGUAL","REPEAT",
 "WHILE","GOTO","LONGINT","ELSE","TRIPLE","CONSTANTE",
 };
-final static String yyrule[] = {
+char *yyrule[] = {
 "$accept : programa",
 "programa : IDENTIFICADOR BEGIN cuerpo END",
 "programa : IDENTIFICADOR BEGIN END",
@@ -973,8 +808,36 @@ final static String yyrule[] = {
 "mensajeSalida : OUTF '(' CADENA_MULTI ')'",
 "mensajeSalida : OUTF '(' error ')'",
 };
-
-//#line 334 "gramatica.y"
+#endif
+#ifndef YYSTYPE
+typedef int YYSTYPE;
+#endif
+#define yyclearin (yychar=(-1))
+#define yyerrok (yyerrflag=0)
+#ifdef YYSTACKSIZE
+#ifndef YYMAXDEPTH
+#define YYMAXDEPTH YYSTACKSIZE
+#endif
+#else
+#ifdef YYMAXDEPTH
+#define YYSTACKSIZE YYMAXDEPTH
+#else
+#define YYSTACKSIZE 500
+#define YYMAXDEPTH 500
+#endif
+#endif
+int yydebug;
+int yynerrs;
+int yyerrflag;
+int yychar;
+short *yyssp;
+YYSTYPE *yyvsp;
+YYSTYPE yyval;
+YYSTYPE yylval;
+short yyss[YYSTACKSIZE];
+YYSTYPE yyvs[YYSTACKSIZE];
+#define yystacksize YYSTACKSIZE
+#line 334 "gramatica.y"
 //FUNCIONES
 private static AnalizadorLexico lex;
 public static List<Error> erroresLexico = new ArrayList<Error>();
@@ -983,6 +846,10 @@ public static List<Error> erroresSemanticos = new ArrayList<Error>();
 public static List<String> estructuras = new ArrayList<String>();
 public static List<Terceto> tercetos = new ArrayList<Terceto>();
 public static Stack<String> tercetosIncompletos = new Stack<String>();
+
+
+public static Stack<List<Terceto>> funcionesIncompletas = new Stack<List<Terceto>>();
+public static List<List<Terceto>> funciones
 
 public static HashMap<String, String> etiquetas = new HashMap<String, String>(); 
 public static Stack<String> tercetosGoto = new Stack<String>(); 
@@ -1041,17 +908,6 @@ private int yylex(){
   return idToken;
 }
 
-private boolean chequearTipoRetorno(int tipoRetorno){
-  String ambito = cargarAmbito();
-  int ultAmbito = ambito.lastIndexOf(":");
-  String nombreFunc = ambito.substring(ultAmbito + 1, ambito.length());  
-  String ambitoFuncion = ambito.substring(0, ultAmbito);
-  System.out.println(nombreFunc + ambitoFuncion + " acava el tipo del RET " + tipoRetorno + "aca va el tipo de la tabla "+ TablaDeSimbolos.getContexto(nombreFunc + ambitoFuncion).getTipo() +" %$&%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-  if (tipoRetorno == TablaDeSimbolos.getContexto(nombreFunc + ambitoFuncion).getTipo())
-    return true;
-  return false;
-
-}
 private void chequearRango(Contexto contexto){
   if (contexto != null){
     if(contexto.getTipo() == TablaTipoToken.getTipoToken("longint")){
@@ -1103,12 +959,12 @@ public static String cargarAmbito(){
   return aux;
 }
 
-private void declararFuncion(String ref, String tipo){
+private void declararFuncion(String ref){
   String newRef = TablaDeSimbolos.agregarSimbolo(ref + cargarAmbito(), -1, TablaDeSimbolos.getContexto(ref).popRefUso());
   Contexto con = TablaDeSimbolos.getContexto(newRef);
   if (con.getUso().equals("") ){
     con.setUso("nombre de funcion");
-    con.setTipo(TablaTipoToken.getTipoToken(tipo));
+    con.setTipo(TablaTipoToken.getTipoToken(TablaTipoToken.FUN));
     con.setDeclarado();
   }else{
     erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO el identificador " + ref + " ya posee otro uso"));
@@ -1322,922 +1178,882 @@ public static void limpiarTablaDeSimbolos(){
     }
   }
 }
-//#line 1253 "Parser.java"
-//###############################################################
-// method: yylexdebug : check lexer state
-//###############################################################
-void yylexdebug(int state,int ch)
+#line 1182 "y.tab.c"
+#define YYABORT goto yyabort
+#define YYACCEPT goto yyaccept
+#define YYERROR goto yyerrlab
+int
+yyparse()
 {
-String s=null;
-  if (ch < 0) ch=0;
-  if (ch <= YYMAXTOKEN) //check index bounds
-     s = yyname[ch];    //now get it
-  if (s==null)
-    s = "illegal-symbol";
-  debug("state "+state+", reading "+ch+" ("+s+")");
-}
+    register int yym, yyn, yystate;
+#if YYDEBUG
+    register char *yys;
+    extern char *getenv();
 
-
-
-
-
-//The following are now global, to aid in error reporting
-int yyn;       //next next thing to do
-int yym;       //
-int yystate;   //current parsing state from state table
-String yys;    //current token string
-
-
-//###############################################################
-// method: yyparse : parse input and execute indicated items
-//###############################################################
-int yyparse()
-{
-boolean doaction;
-  init_stacks();
-  yynerrs = 0;
-  yyerrflag = 0;
-  yychar = -1;          //impossible char forces a read
-  yystate=0;            //initial state
-  state_push(yystate);  //save it
-  val_push(yylval);     //save empty value
-  while (true) //until parsing is done, either correctly, or w/error
+    if (yys = getenv("YYDEBUG"))
     {
-    doaction=true;
-    if (yydebug) debug("loop"); 
-    //#### NEXT ACTION (from reduction table)
-    for (yyn=yydefred[yystate];yyn==0;yyn=yydefred[yystate])
-      {
-      if (yydebug) debug("yyn:"+yyn+"  state:"+yystate+"  yychar:"+yychar);
-      if (yychar < 0)      //we want a char?
-        {
-        yychar = yylex();  //get next token
-        if (yydebug) debug(" next yychar:"+yychar);
-        //#### ERROR CHECK ####
-        if (yychar < 0)    //it it didn't work/error
-          {
-          yychar = 0;      //change it to default string (no -1!)
-          if (yydebug)
-            yylexdebug(yystate,yychar);
-          }
-        }//yychar<0
-      yyn = yysindex[yystate];  //get amount to shift by (shift index)
-      if ((yyn != 0) && (yyn += yychar) >= 0 &&
-          yyn <= YYTABLESIZE && yycheck[yyn] == yychar)
-        {
-        if (yydebug)
-          debug("state "+yystate+", shifting to state "+yytable[yyn]);
-        //#### NEXT STATE ####
-        yystate = yytable[yyn];//we are in a new state
-        state_push(yystate);   //save it
-        val_push(yylval);      //push our lval as the input for next rule
-        yychar = -1;           //since we have 'eaten' a token, say we need another
-        if (yyerrflag > 0)     //have we recovered an error?
-           --yyerrflag;        //give ourselves credit
-        doaction=false;        //but don't process yet
-        break;   //quit the yyn=0 loop
-        }
+        yyn = *yys;
+        if (yyn >= '0' && yyn <= '9')
+            yydebug = yyn - '0';
+    }
+#endif
 
-    yyn = yyrindex[yystate];  //reduce
-    if ((yyn !=0 ) && (yyn += yychar) >= 0 &&
-            yyn <= YYTABLESIZE && yycheck[yyn] == yychar)
-      {   //we reduced!
-      if (yydebug) debug("reduce");
-      yyn = yytable[yyn];
-      doaction=true; //get ready to execute
-      break;         //drop down to actions
-      }
-    else //ERROR RECOVERY
-      {
-      if (yyerrflag==0)
+    yynerrs = 0;
+    yyerrflag = 0;
+    yychar = (-1);
+
+    yyssp = yyss;
+    yyvsp = yyvs;
+    *yyssp = yystate = 0;
+
+yyloop:
+    if (yyn = yydefred[yystate]) goto yyreduce;
+    if (yychar < 0)
+    {
+        if ((yychar = yylex()) < 0) yychar = 0;
+#if YYDEBUG
+        if (yydebug)
         {
-        yyerror("syntax error");
-        yynerrs++;
+            yys = 0;
+            if (yychar <= YYMAXTOKEN) yys = yyname[yychar];
+            if (!yys) yys = "illegal-symbol";
+            printf("yydebug: state %d, reading %d (%s)\n", yystate,
+                    yychar, yys);
         }
-      if (yyerrflag < 3) //low error count?
+#endif
+    }
+    if ((yyn = yysindex[yystate]) && (yyn += yychar) >= 0 &&
+            yyn <= YYTABLESIZE && yycheck[yyn] == yychar)
+    {
+#if YYDEBUG
+        if (yydebug)
+            printf("yydebug: state %d, shifting to state %d (%s)\n",
+                    yystate, yytable[yyn],yyrule[yyn]);
+#endif
+        if (yyssp >= yyss + yystacksize - 1)
         {
+            goto yyoverflow;
+        }
+        *++yyssp = yystate = yytable[yyn];
+        *++yyvsp = yylval;
+        yychar = (-1);
+        if (yyerrflag > 0)  --yyerrflag;
+        goto yyloop;
+    }
+    if ((yyn = yyrindex[yystate]) && (yyn += yychar) >= 0 &&
+            yyn <= YYTABLESIZE && yycheck[yyn] == yychar)
+    {
+        yyn = yytable[yyn];
+        goto yyreduce;
+    }
+    if (yyerrflag) goto yyinrecovery;
+#ifdef lint
+    goto yynewerror;
+#endif
+yynewerror:
+    yyerror("syntax error");
+#ifdef lint
+    goto yyerrlab;
+#endif
+yyerrlab:
+    ++yynerrs;
+yyinrecovery:
+    if (yyerrflag < 3)
+    {
         yyerrflag = 3;
-        while (true)   //do until break
-          {
-          if (stateptr<0)   //check for under & overflow here
-            {
-            yyerror("stack underflow. aborting...");  //note lower case 's'
-            return 1;
-            }
-          yyn = yysindex[state_peek(0)];
-          if ((yyn != 0) && (yyn += YYERRCODE) >= 0 &&
+        for (;;)
+        {
+            if ((yyn = yysindex[*yyssp]) && (yyn += YYERRCODE) >= 0 &&
                     yyn <= YYTABLESIZE && yycheck[yyn] == YYERRCODE)
             {
-            if (yydebug)
-              debug("state "+state_peek(0)+", error recovery shifting to state "+yytable[yyn]+" ");
-            yystate = yytable[yyn];
-            state_push(yystate);
-            val_push(yylval);
-            doaction=false;
-            break;
+#if YYDEBUG
+                if (yydebug)
+                    printf("yydebug: state %d, error recovery shifting\
+ to state %d\n", *yyssp, yytable[yyn]);
+#endif
+                if (yyssp >= yyss + yystacksize - 1)
+                {
+                    goto yyoverflow;
+                }
+                *++yyssp = yystate = yytable[yyn];
+                *++yyvsp = yylval;
+                goto yyloop;
             }
-          else
+            else
             {
-            if (yydebug)
-              debug("error recovery discarding state "+state_peek(0)+" ");
-            if (stateptr<0)   //check for under & overflow here
-              {
-              yyerror("Stack underflow. aborting...");  //capital 'S'
-              return 1;
-              }
-            state_pop();
-            val_pop();
+#if YYDEBUG
+                if (yydebug)
+                    printf("yydebug: error recovery discarding state %d\n",
+                            *yyssp);
+#endif
+                if (yyssp <= yyss) goto yyabort;
+                --yyssp;
+                --yyvsp;
             }
-          }
         }
-      else            //discard this token
-        {
-        if (yychar == 0)
-          return 1; //yyabort
+    }
+    else
+    {
+        if (yychar == 0) goto yyabort;
+#if YYDEBUG
         if (yydebug)
-          {
-          yys = null;
-          if (yychar <= YYMAXTOKEN) yys = yyname[yychar];
-          if (yys == null) yys = "illegal-symbol";
-          debug("state "+yystate+", error recovery discards token "+yychar+" ("+yys+")");
-          }
-        yychar = -1;  //read another
+        {
+            yys = 0;
+            if (yychar <= YYMAXTOKEN) yys = yyname[yychar];
+            if (!yys) yys = "illegal-symbol";
+            printf("yydebug: state %d, error recovery discards token %d (%s)\n",
+                    yystate, yychar, yys);
         }
-      }//end error recovery
-    }//yyn=0 loop
-    if (!doaction)   //any reason not to proceed?
-      continue;      //skip action
-    yym = yylen[yyn];          //get count of terminals on rhs
+#endif
+        yychar = (-1);
+        goto yyloop;
+    }
+yyreduce:
+#if YYDEBUG
     if (yydebug)
-      debug("state "+yystate+", reducing "+yym+" by rule "+yyn+" ("+yyrule[yyn]+")");
-    if (yym>0)                 //if count of rhs not 'nil'
-      yyval = val_peek(yym-1); //get current semantic value
-    yyval = dup_yyval(yyval); //duplicate yyval if ParserVal is used as semantic value
-    switch(yyn)
-      {
-//########## USER-SUPPLIED ACTIONS ##########
+        printf("yydebug: state %d, reducing by rule %d (%s)\n",
+                yystate, yyn, yyrule[yyn]);
+#endif
+    yym = yylen[yyn];
+    yyval = yyvsp[1-yym];
+    switch (yyn)
+    {
 case 2:
-//#line 40 "gramatica.y"
+#line 40 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'cuerpo'."));}
 break;
 case 3:
-//#line 41 "gramatica.y"
+#line 41 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'END al final del programa'."));}
 break;
 case 4:
-//#line 42 "gramatica.y"
+#line 42 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta BEGIN del programa."));}
 break;
 case 5:
-//#line 43 "gramatica.y"
+#line 43 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'nombre del programa'."));}
 break;
 case 6:
-//#line 44 "gramatica.y"
+#line 44 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO delimitadores de programa."));}
 break;
 case 12:
-//#line 55 "gramatica.y"
+#line 55 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 break;
 case 13:
-//#line 56 "gramatica.y"
+#line 56 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta sentencia."));}
 break;
 case 14:
-//#line 57 "gramatica.y"
+#line 57 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO no se puede retornar en el cuerpo del programa."));}
 break;
 case 15:
-//#line 61 "gramatica.y"
-{ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add(val_peek(1).sval); declararVariable(val_peek(2).sval, referenciasIden); estructuras.add("Linea "+ TablaDeSimbolos.getContexto(val_peek(2).sval).popRef() +": "+"Declaracion"); TablaDeSimbolos.getContexto(val_peek(1).sval + cargarAmbito()).setDeclarado();}
+#line 61 "gramatica.y"
+{ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add(yyvsp[-1].sval); declararVariable(yyvsp[-2].sval, referenciasIden); estructuras.add("Linea "+ TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef() +": "+"Declaracion"); TablaDeSimbolos.getContexto(yyvsp[-1].sval + cargarAmbito()).setDeclarado();}
 break;
 case 16:
-//#line 62 "gramatica.y"
-{Contexto contexto = TablaDeSimbolos.getContexto(val_peek(4).sval);estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
+#line 62 "gramatica.y"
+{Contexto contexto = TablaDeSimbolos.getContexto(yyvsp[-4].sval);estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
 break;
 case 17:
-//#line 63 "gramatica.y"
-{Contexto contexto = TablaDeSimbolos.getContexto(val_peek(4).sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera IDENTIFICADOR.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
+#line 63 "gramatica.y"
+{Contexto contexto = TablaDeSimbolos.getContexto(yyvsp[-4].sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera IDENTIFICADOR.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
 break;
 case 18:
-//#line 64 "gramatica.y"
-{Contexto contexto = TablaDeSimbolos.getContexto(val_peek(5).sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
+#line 64 "gramatica.y"
+{Contexto contexto = TablaDeSimbolos.getContexto(yyvsp[-5].sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
 break;
 case 19:
-//#line 65 "gramatica.y"
+#line 65 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); }
 break;
 case 21:
-//#line 67 "gramatica.y"
+#line 67 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera ';'.")); }
 break;
 case 22:
-//#line 68 "gramatica.y"
+#line 68 "gramatica.y"
 {estructuras.add("Declaracion de funcion");}
 break;
 case 23:
-//#line 69 "gramatica.y"
+#line 69 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'tipo de dato antes de declaracion de funcion'.")); }
 break;
 case 24:
-//#line 74 "gramatica.y"
-{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de subtipo");}
+#line 74 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-1].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de subtipo");}
 break;
 case 25:
-//#line 75 "gramatica.y"
-{Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de triple");}
+#line 75 "gramatica.y"
+{Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-1].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de triple");}
 break;
 case 26:
-//#line 76 "gramatica.y"
+#line 76 "gramatica.y"
 { erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'TYPEDEF antes de la declaracion del subtipo'.")); estructuras.add("Linea "+ ": "+"Declaracion de subtipo");}
 break;
 case 27:
-//#line 77 "gramatica.y"
+#line 77 "gramatica.y"
 { erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'TYPEDEF antes de la declaracion del triple'.")); estructuras.add("Linea "+ ": "+"Declaracion de triple");}
 break;
 case 28:
-//#line 78 "gramatica.y"
-{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de subtipo"); }
+#line 78 "gramatica.y"
+{ erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'declaracion de subtipo o triple'.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-1].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de subtipo"); }
 break;
 case 29:
-//#line 81 "gramatica.y"
-{declaracionSubtipo(val_peek(3).sval,val_peek(5).sval, ((ArrayList<String>)val_peek(1).obj));}
+#line 81 "gramatica.y"
+{declaracionSubtipo(yyvsp[-3].sval,yyvsp[-5].sval, ((ArrayList<String>)yyvsp[-1].obj));}
 break;
 case 30:
-//#line 82 "gramatica.y"
+#line 82 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre del tipo de dato nuevo'."));}
 break;
 case 31:
-//#line 83 "gramatica.y"
+#line 83 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera declaracion de subrangos."));}
 break;
 case 32:
-//#line 85 "gramatica.y"
-{declaracionTriple(val_peek(2).sval,val_peek(0).sval);}
+#line 85 "gramatica.y"
+{declaracionTriple(yyvsp[-2].sval,yyvsp[0].sval);}
 break;
 case 34:
-//#line 87 "gramatica.y"
+#line 87 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'tipo de objeto a declarar'."));}
 break;
 case 35:
-//#line 88 "gramatica.y"
+#line 88 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre de objeto a declarar'."));}
 break;
 case 36:
-//#line 89 "gramatica.y"
+#line 89 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre de objeto a declarar'."));}
 break;
 case 37:
-//#line 90 "gramatica.y"
+#line 90 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'nombre y tipo de objeto a declarar'."));}
 break;
 case 38:
-//#line 91 "gramatica.y"
+#line 91 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '<' al inicio del identificador'."));}
 break;
 case 39:
-//#line 92 "gramatica.y"
+#line 92 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '>' al final del identificador'."));}
 break;
 case 40:
-//#line 93 "gramatica.y"
+#line 93 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));}
 break;
 case 41:
-//#line 94 "gramatica.y"
+#line 94 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));}
 break;
 case 42:
-//#line 97 "gramatica.y"
-{System.out.println("---"+val_peek(1).sval);if (val_peek(1).sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1); agregarTerceto("FINFUN", "", "");}
+#line 97 "gramatica.y"
+{System.out.println("444444444444444444444444444444444444444444444444444"+yyvsp[-1].sval);if (yyvsp[-1].sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-6].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1); agregarTerceto("INICIOFUN", yyvsp[-2].sval, yyvsp[0].sval);}
 break;
 case 43:
-//#line 98 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
+#line 98 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-7].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 break;
 case 44:
-//#line 99 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
+#line 99 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-8].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 break;
 case 45:
-//#line 100 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
+#line 100 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-6].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 break;
 case 46:
-//#line 103 "gramatica.y"
-{declararFuncion(val_peek(0).sval, val_peek(2).sval); ambitos.add(val_peek(0).sval); agregarTerceto("INICIOFUN", val_peek(0).sval, val_peek(2).sval);}
+#line 103 "gramatica.y"
+{declararFuncion(yyvsp[0].sval); ambitos.add(yyvsp[0].sval); }
 break;
 case 47:
-//#line 105 "gramatica.y"
+#line 105 "gramatica.y"
 {yyval.ival = TablaTipoToken.getTipoToken("SINGLE");}
 break;
 case 48:
-//#line 106 "gramatica.y"
+#line 106 "gramatica.y"
 {yyval.ival = TablaTipoToken.getTipoToken("LONGINT");}
 break;
 case 49:
-//#line 107 "gramatica.y"
+#line 107 "gramatica.y"
 {yyval.ival = TablaTipoToken.getTipoToken("HEXADECIMAL");}
 break;
 case 51:
-//#line 111 "gramatica.y"
+#line 111 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta identificador despues de la coma."));}
 break;
 case 53:
-//#line 116 "gramatica.y"
-{((ArrayList<String>)val_peek(2).obj).add(val_peek(0).sval);}
+#line 116 "gramatica.y"
+{((ArrayList<String>)yyvsp[-2].obj).add(yyvsp[0].sval);}
 break;
 case 54:
-//#line 117 "gramatica.y"
-{ArrayList<String> aux = new ArrayList<String>(); aux.add(val_peek(0).sval); yyval.obj = aux;}
+#line 117 "gramatica.y"
+{ArrayList<String> aux = new ArrayList<String>(); aux.add(yyvsp[0].sval); yyval.obj = aux;}
 break;
 case 55:
-//#line 120 "gramatica.y"
-{ Contexto contexto = TablaDeSimbolos.getContexto(val_peek(0).sval);
+#line 120 "gramatica.y"
+{ Contexto contexto = TablaDeSimbolos.getContexto(yyvsp[0].sval);
                         chequearRango(contexto);
-                        ArrayList<String> referenciasConst = new ArrayList<String>(); referenciasConst.add(val_peek(0).sval);                          /*SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER*/
+                        ArrayList<String> referenciasConst = new ArrayList<String>(); referenciasConst.add(yyvsp[0].sval);                          /*SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER*/
                       }
 break;
 case 56:
-//#line 124 "gramatica.y"
+#line 124 "gramatica.y"
 {
-                            Contexto contexto = TablaDeSimbolos.getContexto(val_peek(0).sval);
+                            Contexto contexto = TablaDeSimbolos.getContexto(yyvsp[0].sval);
                             String newLexRef = TablaDeSimbolos.agregarSimbolo("-"+val_peek(0).sval, contexto.getTipo(), "-"+val_peek(0).sval, AnalizadorLexico.getNumeroLinea());
                           }
 break;
 case 57:
-//#line 131 "gramatica.y"
-{declaracionParametro(val_peek(1).sval, val_peek(0).sval);}
+#line 131 "gramatica.y"
+{declaracionParametro(yyvsp[-1].sval, yyvsp[0].sval);}
 break;
 case 58:
-//#line 132 "gramatica.y"
+#line 132 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta tipo de dato en el parametro."));}
 break;
 case 59:
-//#line 133 "gramatica.y"
+#line 133 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre en el parametro."));}
 break;
 case 60:
-//#line 137 "gramatica.y"
-{ if (val_peek(1).sval.equals("true") || val_peek(0).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";}
+#line 137 "gramatica.y"
+{ if (yyvsp[-1].sval.equals("true") || yyvsp[0].sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";}
 break;
 case 61:
-//#line 138 "gramatica.y"
-{yyval.sval = val_peek(0).sval; }
+#line 138 "gramatica.y"
+{yyval.sval = yyvsp[0].sval; agregarTerceto("FINFUN", "", "");}
 break;
 case 62:
-//#line 141 "gramatica.y"
+#line 141 "gramatica.y"
 {yyval.sval = "false";}
 break;
 case 63:
-//#line 142 "gramatica.y"
-{yyval.sval = val_peek(1).sval;}
+#line 142 "gramatica.y"
+{yyval.sval = yyvsp[-1].sval;}
 break;
 case 64:
-//#line 143 "gramatica.y"
+#line 143 "gramatica.y"
 {yyval.sval = "false";}
 break;
 case 65:
-//#line 144 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'." )); yyval.sval = val_peek(0).sval;}
+#line 144 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'." )); yyval.sval = yyvsp[0].sval;}
 break;
 case 66:
-//#line 148 "gramatica.y"
-{agregarTerceto("RET", val_peek(1).sval, ""); estructuras.add("Retorno"); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef();estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Retorno"); if(!chequearTipoRetorno(val_peek(1).ival)){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO se debe retornar el tipo de la funcion."));} }
+#line 148 "gramatica.y"
+{agregarTerceto("RET", yyvsp[-1].sval, ""); estructuras.add("Retorno"); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Retorno");}
 break;
 case 72:
-//#line 158 "gramatica.y"
+#line 158 "gramatica.y"
 {yyval.sval = "false";}
 break;
 case 73:
-//#line 159 "gramatica.y"
+#line 159 "gramatica.y"
 {yyval.sval = "false";}
 break;
 case 74:
-//#line 160 "gramatica.y"
+#line 160 "gramatica.y"
 {yyval.sval = "false";}
 break;
 case 75:
-//#line 161 "gramatica.y"
+#line 161 "gramatica.y"
 {yyval.sval = "false";}
 break;
 case 76:
-//#line 162 "gramatica.y"
+#line 162 "gramatica.y"
 {yyval.sval = "true";}
 break;
 case 77:
-//#line 163 "gramatica.y"
-{yyval.sval = val_peek(0).sval;}
+#line 163 "gramatica.y"
+{yyval.sval = yyvsp[0].sval;}
 break;
 case 78:
-//#line 166 "gramatica.y"
-{chequearDeclarado(val_peek(2).sval); yyval.sval = agregarTerceto(":=", val_peek(2).sval, val_peek(0).sval, TablaDeSimbolos.getContexto(val_peek(2).sval + cargarAmbito()).getTipo());Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+#line 166 "gramatica.y"
+{chequearDeclarado(yyvsp[-2].sval); yyval.sval = agregarTerceto(":=", yyvsp[-2].sval, yyvsp[0].sval, TablaDeSimbolos.getContexto(yyvsp[-2].sval + cargarAmbito()).getTipo());Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 79:
-//#line 167 "gramatica.y"
-{chequearDeclarado(val_peek(3).sval); if (!val_peek(2).sval.equals("[1]") && !val_peek(2).sval.equals("[2]") && !val_peek(2).sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", val_peek(3).sval + val_peek(2).sval , val_peek(0).sval, TablaDeSimbolos.getContexto(val_peek(3).sval + cargarAmbito()).getTipo()); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+#line 167 "gramatica.y"
+{chequearDeclarado(yyvsp[-3].sval); if (!yyvsp[-2].sval.equals("[1]") && !yyvsp[-2].sval.equals("[2]") && !yyvsp[-2].sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", yyvsp[-3].sval + yyvsp[-2].sval , yyvsp[0].sval, TablaDeSimbolos.getContexto(yyvsp[-3].sval + cargarAmbito()).getTipo()); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 80:
-//#line 168 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+#line 168 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 81:
-//#line 171 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("+", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+#line 171 "gramatica.y"
+{if ((yyvsp[-2].ival == yyvsp[0].ival)) {yyval.sval = agregarTerceto("+", yyvsp[-2].sval, yyvsp[0].sval, yyvsp[-2].ival); yyval.ival = yyvsp[0].ival;}else{if(yyvsp[-2].ival != -1 && yyvsp[0].ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
 break;
 case 82:
-//#line 172 "gramatica.y"
+#line 172 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 83:
-//#line 173 "gramatica.y"
+#line 173 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 84:
-//#line 174 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("-", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+#line 174 "gramatica.y"
+{if ((yyvsp[-2].ival == yyvsp[0].ival)) {yyval.sval = agregarTerceto("-", yyvsp[-2].sval, yyvsp[0].sval, yyvsp[-2].ival); yyval.ival = yyvsp[0].ival;}else{if(yyvsp[-2].ival != -1 && yyvsp[0].ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
 break;
 case 85:
-//#line 175 "gramatica.y"
+#line 175 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 86:
-//#line 176 "gramatica.y"
+#line 176 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 88:
-//#line 180 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("*", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+#line 180 "gramatica.y"
+{if ((yyvsp[-2].ival == yyvsp[0].ival)) {yyval.sval = agregarTerceto("*", yyvsp[-2].sval, yyvsp[0].sval, yyvsp[-2].ival); yyval.ival = yyvsp[0].ival;}else{if(yyvsp[-2].ival != -1 && yyvsp[0].ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
 break;
 case 89:
-//#line 181 "gramatica.y"
+#line 181 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 90:
-//#line 182 "gramatica.y"
+#line 182 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 91:
-//#line 183 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("/", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+#line 183 "gramatica.y"
+{if ((yyvsp[-2].ival == yyvsp[0].ival)) {yyval.sval = agregarTerceto("/", yyvsp[-2].sval, yyvsp[0].sval, yyvsp[-2].ival); yyval.ival = yyvsp[0].ival;}else{if(yyvsp[-2].ival != -1 && yyvsp[0].ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
 break;
 case 92:
-//#line 184 "gramatica.y"
+#line 184 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 93:
-//#line 185 "gramatica.y"
+#line 185 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta operando en la expresion"));}
 break;
 case 95:
-//#line 189 "gramatica.y"
-{yyval.sval = val_peek(0).sval; if(chequearDeclarado(val_peek(0).sval)){yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval + cargarAmbito()).getTipo();}else{yyval.ival = -1;}}
+#line 189 "gramatica.y"
+{yyval.sval = yyvsp[0].sval; if(chequearDeclarado(yyvsp[0].sval)){yyval.ival = TablaDeSimbolos.getContexto(yyvsp[0].sval + cargarAmbito()).getTipo();}else{yyval.ival = -1;}}
 break;
 case 96:
-//#line 190 "gramatica.y"
-{yyval.ival = TablaDeSimbolos.getContexto(val_peek(0).sval).getTipo();}
+#line 190 "gramatica.y"
+{yyval.ival = TablaDeSimbolos.getContexto(yyvsp[0].sval).getTipo();}
 break;
 case 102:
-//#line 198 "gramatica.y"
-{ if (chequearAmbitoFuncion(val_peek(3).sval)){if (val_peek(1).ival != -1){comprobarTipoParametro(val_peek(3).sval, val_peek(1).ival);};yyval.ival = TablaDeSimbolos.getContexto(val_peek(3).sval).getTipo();}else{yyval.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+#line 198 "gramatica.y"
+{ if (chequearAmbitoFuncion(yyvsp[-3].sval)){if (yyvsp[-1].ival != -1){comprobarTipoParametro(yyvsp[-3].sval, yyvsp[-1].ival);};yyval.ival = TablaDeSimbolos.getContexto(yyvsp[-3].sval).getTipo();}else{yyval.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 103:
-//#line 199 "gramatica.y"
-{ if (chequearAmbitoFuncion(val_peek(4).sval)){if (val_peek(1).ival != -1){comprobarTipoParametro(val_peek(4).sval, val_peek(2).ival);};yyval.ival = TablaDeSimbolos.getContexto(val_peek(4).sval).getTipo();}else{yyval.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+#line 199 "gramatica.y"
+{ if (chequearAmbitoFuncion(yyvsp[-4].sval)){if (yyvsp[-1].ival != -1){comprobarTipoParametro(yyvsp[-4].sval, yyvsp[-2].ival);};yyval.ival = TablaDeSimbolos.getContexto(yyvsp[-4].sval).getTipo();}else{yyval.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 104:
-//#line 200 "gramatica.y"
-{ if (chequearAmbitoFuncion(val_peek(6).sval)){if (val_peek(2).ival != -1){comprobarTipoParametro(val_peek(6).sval, val_peek(4).ival);};yyval.ival = TablaDeSimbolos.getContexto(val_peek(6).sval).getTipo();}else{yyval.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+#line 200 "gramatica.y"
+{ if (chequearAmbitoFuncion(yyvsp[-6].sval)){if (yyvsp[-2].ival != -1){comprobarTipoParametro(yyvsp[-6].sval, yyvsp[-4].ival);};yyval.ival = TablaDeSimbolos.getContexto(yyvsp[-6].sval).getTipo();}else{yyval.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-6].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 105:
-//#line 201 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+#line 201 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 106:
-//#line 202 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta expresion en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+#line 202 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta expresion en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 107:
-//#line 203 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+#line 203 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-6].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 108:
-//#line 204 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresion esinvalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(8).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+#line 204 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresion esinvalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-8].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
 break;
 case 109:
-//#line 207 "gramatica.y"
-{completarUltimoTercetoIncompleto();  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 207 "gramatica.y"
+{completarUltimoTercetoIncompleto();  Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 110:
-//#line 208 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 208 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 111:
-//#line 209 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");;}
+#line 209 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-7].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");;}
 break;
 case 112:
-//#line 210 "gramatica.y"
-{completarUltimoTercetoIncompleto(); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 210 "gramatica.y"
+{completarUltimoTercetoIncompleto(); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 113:
-//#line 211 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 211 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 114:
-//#line 212 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 212 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 115:
-//#line 213 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 213 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-6].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 116:
-//#line 214 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 214 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 117:
-//#line 215 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 215 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-6].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 118:
-//#line 216 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 216 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 119:
-//#line 217 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 217 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 120:
-//#line 218 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 218 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 121:
-//#line 219 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 219 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 122:
-//#line 220 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 220 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 123:
-//#line 221 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 221 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 124:
-//#line 222 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 222 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 125:
-//#line 225 "gramatica.y"
-{tercetosIncompletos.add(agregarTerceto("BF", val_peek(1).sval, ""));}
+#line 225 "gramatica.y"
+{tercetosIncompletos.add(agregarTerceto("BF", yyvsp[-1].sval, ""));}
 break;
 case 126:
-//#line 228 "gramatica.y"
+#line 228 "gramatica.y"
 {String incompleto = agregarTerceto("BI", "", ""); completarUltimoTercetoIncompleto(); tercetosIncompletos.add(incompleto);}
 break;
 case 127:
-//#line 231 "gramatica.y"
-{completarUltimoTercetoIncompleto(); yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 231 "gramatica.y"
+{completarUltimoTercetoIncompleto(); yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 128:
-//#line 232 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); yyval.sval = "false";  Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 232 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida")); yyval.sval = "false";  Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 129:
-//#line 233 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));if (val_peek(2).sval.equals("true") && val_peek(0).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(7).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 233 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una condicion valida"));if (yyvsp[-2].sval.equals("true") && yyvsp[0].sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-7].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 130:
-//#line 234 "gramatica.y"
-{completarUltimoTercetoIncompleto(); if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 234 "gramatica.y"
+{completarUltimoTercetoIncompleto(); if (yyvsp[-3].sval.equals("true") && yyvsp[-1].sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false"; Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 131:
-//#line 235 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 235 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 132:
-//#line 236 "gramatica.y"
-{if (val_peek(3).sval.equals("true") && val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 236 "gramatica.y"
+{if (yyvsp[-3].sval.equals("true") && yyvsp[-1].sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'end_if;'.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 133:
-//#line 237 "gramatica.y"
-{if (val_peek(2).sval.equals("true") && val_peek(0).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 237 "gramatica.y"
+{if (yyvsp[-2].sval.equals("true") && yyvsp[0].sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-6].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 134:
-//#line 238 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 238 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ')' al final de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 135:
-//#line 239 "gramatica.y"
-{if (val_peek(2).sval.equals("true") && val_peek(0).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(6).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 239 "gramatica.y"
+{if (yyvsp[-2].sval.equals("true") && yyvsp[0].sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-6].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 136:
-//#line 240 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 240 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta '(' al comienzo de la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 137:
-//#line 241 "gramatica.y"
-{if (val_peek(2).sval.equals("true") && val_peek(0).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 241 "gramatica.y"
+{if (yyvsp[-2].sval.equals("true") && yyvsp[0].sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 138:
-//#line 242 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 242 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '()' en la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 139:
-//#line 243 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 243 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 140:
-//#line 244 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 244 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 141:
-//#line 245 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 245 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables valido .")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 142:
-//#line 246 "gramatica.y"
-{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
+#line 246 "gramatica.y"
+{yyval.sval = "false";erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan los dos bloques de sentencias ejecutables validas.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"IF");}
 break;
 case 143:
-//#line 249 "gramatica.y"
+#line 249 "gramatica.y"
 {String incompleto = agregarTerceto("BI", "", ""); completarUltimoTercetoIncompleto(); tercetosIncompletos.add(incompleto); yyval.sval = "true";}
 break;
 case 144:
-//#line 251 "gramatica.y"
-{((ArrayList<String>)val_peek(7).obj).add(val_peek(9).sval); ((ArrayList<String>)val_peek(1).obj).add(val_peek(3).sval); yyval.sval = agregaListaExpresionTercetos(val_peek(5).sval, ((ArrayList<String>)val_peek(7).obj), ((ArrayList<String>)val_peek(1).obj));}
+#line 251 "gramatica.y"
+{((ArrayList<String>)yyvsp[-7].obj).add(yyvsp[-9].sval); ((ArrayList<String>)yyvsp[-1].obj).add(yyvsp[-3].sval); yyval.sval = agregaListaExpresionTercetos(yyvsp[-5].sval, ((ArrayList<String>)yyvsp[-7].obj), ((ArrayList<String>)yyvsp[-1].obj));}
 break;
 case 145:
-//#line 252 "gramatica.y"
+#line 252 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '( )' a las listas de expresiones."));}
 break;
 case 146:
-//#line 253 "gramatica.y"
+#line 253 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 147:
-//#line 254 "gramatica.y"
+#line 254 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 148:
-//#line 255 "gramatica.y"
+#line 255 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 149:
-//#line 256 "gramatica.y"
+#line 256 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 150:
-//#line 257 "gramatica.y"
+#line 257 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 151:
-//#line 258 "gramatica.y"
+#line 258 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
 break;
 case 152:
-//#line 259 "gramatica.y"
+#line 259 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
 break;
 case 153:
-//#line 261 "gramatica.y"
-{yyval.sval = agregarTerceto(val_peek(1).sval, val_peek(2).sval, val_peek(0).sval);}
+#line 261 "gramatica.y"
+{yyval.sval = agregarTerceto(yyvsp[-1].sval, yyvsp[-2].sval, yyvsp[0].sval);}
 break;
 case 154:
-//#line 262 "gramatica.y"
+#line 262 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la izquierda del comparador."));}
 break;
 case 155:
-//#line 263 "gramatica.y"
+#line 263 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la derecha del comparador."));}
 break;
 case 156:
-//#line 264 "gramatica.y"
+#line 264 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
 break;
 case 157:
-//#line 267 "gramatica.y"
-{((ArrayList<String>)val_peek(2).obj).add(val_peek(0).sval);}
+#line 267 "gramatica.y"
+{((ArrayList<String>)yyvsp[-2].obj).add(yyvsp[0].sval);}
 break;
 case 158:
-//#line 268 "gramatica.y"
-{ArrayList<String> aux = new ArrayList<String>(); aux.add(val_peek(0).sval); yyval.obj = aux;}
+#line 268 "gramatica.y"
+{ArrayList<String> aux = new ArrayList<String>(); aux.add(yyvsp[0].sval); yyval.obj = aux;}
 break;
 case 159:
-//#line 269 "gramatica.y"
+#line 269 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion despues de la coma."));}
 break;
 case 160:
-//#line 272 "gramatica.y"
+#line 272 "gramatica.y"
 {yyval.sval = "<";}
 break;
 case 161:
-//#line 273 "gramatica.y"
+#line 273 "gramatica.y"
 {yyval.sval = ">";}
 break;
 case 162:
-//#line 274 "gramatica.y"
+#line 274 "gramatica.y"
 {yyval.sval = "=";}
 break;
 case 163:
-//#line 275 "gramatica.y"
+#line 275 "gramatica.y"
 {yyval.sval = TablaTipoToken.DISTINTO;}
 break;
 case 164:
-//#line 276 "gramatica.y"
+#line 276 "gramatica.y"
 {yyval.sval = TablaTipoToken.MENOR_IGUAL;}
 break;
 case 165:
-//#line 277 "gramatica.y"
+#line 277 "gramatica.y"
 {yyval.sval = TablaTipoToken.MAYOR_IGUAL;}
 break;
 case 168:
-//#line 282 "gramatica.y"
+#line 282 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 break;
 case 170:
-//#line 287 "gramatica.y"
+#line 287 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 break;
 case 172:
-//#line 291 "gramatica.y"
-{ if (val_peek(2).sval.equals("true") || val_peek(1).sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";}
+#line 291 "gramatica.y"
+{ if (yyvsp[-2].sval.equals("true") || yyvsp[-1].sval.equals("true")) yyval.sval = "true"; else yyval.sval = "false";}
 break;
 case 173:
-//#line 292 "gramatica.y"
-{yyval.sval = val_peek(1).sval;}
+#line 292 "gramatica.y"
+{yyval.sval = yyvsp[-1].sval;}
 break;
 case 174:
-//#line 295 "gramatica.y"
-{yyval.sval = val_peek(1).sval;}
+#line 295 "gramatica.y"
+{yyval.sval = yyvsp[-1].sval;}
 break;
 case 175:
-//#line 296 "gramatica.y"
-{yyval.sval = val_peek(1).sval; erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
+#line 296 "gramatica.y"
+{yyval.sval = yyvsp[-1].sval; erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 break;
 case 176:
-//#line 297 "gramatica.y"
-{yyval.sval = val_peek(1).sval;}
+#line 297 "gramatica.y"
+{yyval.sval = yyvsp[-1].sval;}
 break;
 case 177:
-//#line 301 "gramatica.y"
-{agregarTerceto("BF", val_peek(1).sval, ((Integer)(tercetos.size()+2)).toString());agregarTerceto("BI", "", (inicioBucle.pop().toString()));Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size())); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 301 "gramatica.y"
+{agregarTerceto("BF", yyvsp[-1].sval, ((Integer)(tercetos.size()+2)).toString());agregarTerceto("BI", "", (inicioBucle.pop().toString()));Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size())); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 178:
-//#line 302 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 302 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 179:
-//#line 303 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( de apertura de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 303 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( de apertura de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 180:
-//#line 304 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 304 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 181:
-//#line 305 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ) de cierre de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(4).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 305 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ) de cierre de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-4].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 182:
-//#line 306 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( ) englobando la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 306 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( ) englobando la condicion.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 183:
-//#line 307 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( ) englobando la condicion y bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 307 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( ) englobando la condicion y bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 184:
-//#line 308 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion y bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(5).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 308 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion y bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-5].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 185:
-//#line 310 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta while")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+#line 310 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta while")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 break;
 case 186:
-//#line 313 "gramatica.y"
+#line 313 "gramatica.y"
 {inicioBucle.add(tercetos.size()); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size()));}
 break;
 case 187:
-//#line 316 "gramatica.y"
-{tercetosGoto.push(agregarTerceto("BI", val_peek(1).sval,  ""));Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
+#line 316 "gramatica.y"
+{tercetosGoto.push(agregarTerceto("BI", yyvsp[-1].sval,  ""));Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
 break;
 case 188:
-//#line 317 "gramatica.y"
-{erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO falta '@' luego de los dospuntos.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
+#line 317 "gramatica.y"
+{erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO falta '@' luego de los dospuntos.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
 break;
 case 189:
-//#line 318 "gramatica.y"
-{erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO etiqueta invalida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
+#line 318 "gramatica.y"
+{erroresSintactico.add(new Error(numeroLineaError, Tipo.ERROR, "ERROR SINTACTICO etiqueta invalida.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-2].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
 break;
 case 190:
-//#line 319 "gramatica.y"
+#line 319 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'goto' luego de los dospuntos.")); estructuras.add("Linea "+": "+"GOTO");}
 break;
 case 191:
-//#line 322 "gramatica.y"
-{agregarTerceto("ETIQUETA", "", val_peek(1).sval); etiquetas.put(val_peek(1).sval, "^"+(tercetos.size()-1)); declaracionEtiqueta(val_peek(1).sval);Integer lastRef = TablaDeSimbolos.getContexto(val_peek(1).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta"); yyval.sval = lastRef.toString();}
+#line 322 "gramatica.y"
+{agregarTerceto("ETIQUETA", "", yyvsp[-1].sval); etiquetas.put(yyvsp[-1].sval, "^"+(tercetos.size()-1)); declaracionEtiqueta(yyvsp[-1].sval);Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-1].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Etiqueta"); yyval.sval = lastRef.toString();}
 break;
 case 192:
-//#line 323 "gramatica.y"
+#line 323 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta 'etiqueta'."));}
 break;
 case 193:
-//#line 327 "gramatica.y"
-{agregarTerceto("OUTF", val_peek(1).sval, ""); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
+#line 327 "gramatica.y"
+{agregarTerceto("OUTF", yyvsp[-1].sval, ""); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
 case 194:
-//#line 328 "gramatica.y"
-{agregarTerceto("OUTF", val_peek(1).sval, ""); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
+#line 328 "gramatica.y"
+{agregarTerceto("OUTF", yyvsp[-1].sval, ""); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
 case 195:
-//#line 329 "gramatica.y"
-{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
+#line 329 "gramatica.y"
+{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(yyvsp[-3].sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
-//#line 2084 "Parser.java"
-//########## END OF USER-SUPPLIED ACTIONS ##########
-    }//switch
-    //#### Now let's reduce... ####
-    if (yydebug) debug("reduce");
-    state_drop(yym);             //we just reduced yylen states
-    yystate = state_peek(0);     //get new state
-    val_drop(yym);               //corresponding value drop
-    yym = yylhs[yyn];            //select next TERMINAL(on lhs)
-    if (yystate == 0 && yym == 0)//done? 'rest' state and at first TERMINAL
-      {
-      if (yydebug) debug("After reduction, shifting from state 0 to state "+YYFINAL+"");
-      yystate = YYFINAL;         //explicitly say we're done
-      state_push(YYFINAL);       //and save it
-      val_push(yyval);           //also save the semantic value of parsing
-      if (yychar < 0)            //we want another character?
-        {
-        yychar = yylex();        //get next character
-        if (yychar<0) yychar=0;  //clean, if necessary
+#line 2004 "y.tab.c"
+    }
+    yyssp -= yym;
+    yystate = *yyssp;
+    yyvsp -= yym;
+    yym = yylhs[yyn];
+    if (yystate == 0 && yym == 0)
+    {
+#if YYDEBUG
         if (yydebug)
-          yylexdebug(yystate,yychar);
+            printf("yydebug: after reduction, shifting from state 0 to\
+ state %d\n", YYFINAL);
+#endif
+        yystate = YYFINAL;
+        *++yyssp = YYFINAL;
+        *++yyvsp = yyval;
+        if (yychar < 0)
+        {
+            if ((yychar = yylex()) < 0) yychar = 0;
+#if YYDEBUG
+            if (yydebug)
+            {
+                yys = 0;
+                if (yychar <= YYMAXTOKEN) yys = yyname[yychar];
+                if (!yys) yys = "illegal-symbol";
+                printf("yydebug: state %d, reading %d (%s)\n",
+                        YYFINAL, yychar, yys);
+            }
+#endif
         }
-      if (yychar == 0)          //Good exit (if lex returns 0 ;-)
-         break;                 //quit the loop--all DONE
-      }//if yystate
-    else                        //else not done yet
-      {                         //get next state and push, for next yydefred[]
-      yyn = yygindex[yym];      //find out where to go
-      if ((yyn != 0) && (yyn += yystate) >= 0 &&
+        if (yychar == 0) goto yyaccept;
+        goto yyloop;
+    }
+    if ((yyn = yygindex[yym]) && (yyn += yystate) >= 0 &&
             yyn <= YYTABLESIZE && yycheck[yyn] == yystate)
-        yystate = yytable[yyn]; //get new state
-      else
-        yystate = yydgoto[yym]; //else go to new defred
-      if (yydebug) debug("after reduction, shifting from state "+state_peek(0)+" to state "+yystate+"");
-      state_push(yystate);     //going again, so push state & val...
-      val_push(yyval);         //for next action
-      }
-    }//main loop
-  return 0;//yyaccept!!
+        yystate = yytable[yyn];
+    else
+        yystate = yydgoto[yym];
+#if YYDEBUG
+    if (yydebug)
+        printf("yydebug: after reduction, shifting from state %d \
+to state %d\n", *yyssp, yystate);
+#endif
+    if (yyssp >= yyss + yystacksize - 1)
+    {
+        goto yyoverflow;
+    }
+    *++yyssp = yystate;
+    *++yyvsp = yyval;
+    goto yyloop;
+yyoverflow:
+    yyerror("yacc stack overflow");
+yyabort:
+    return (1);
+yyaccept:
+    return (0);
 }
-//## end of method parse() ######################################
-
-
-
-//## run() --- for Thread #######################################
-/**
- * A default run method, used for operating this parser
- * object in the background.  It is intended for extending Thread
- * or implementing Runnable.  Turn off with -Jnorun .
- */
-public void run()
-{
-  yyparse();
-}
-//## end of method run() ########################################
-
-
-
-//## Constructors ###############################################
-/**
- * Default constructor.  Turn off with -Jnoconstruct .
-
- */
-public Parser()
-{
-  //nothing to do
-}
-
-
-/**
- * Create a parser, setting the debug to true or false.
- * @param debugMe true for debugging, false for no debug.
- */
-public Parser(boolean debugMe)
-{
-  yydebug=debugMe;
-}
-//###############################################################
-
-
-
-}
-//################### END OF CLASS ##############################
