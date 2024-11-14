@@ -10,19 +10,21 @@ dll_dllcrt0 PROTO C
 printf PROTO C : VARARG
 .DATA
 	@aux4 DQ ?
-	_d_main DD ?
-	_hola_main DD ?
 	_b_main DD ?
 	_12f021 DQ 12.021
-	_a_main DD ?
-	@aux3 DD ?
+	_x_main DD ?
+	_a_main DQ ?
+	@aux3 DQ ?
 	@aux2 DD ?
 	@aux1 DD ?
-	_c_main DD ?
+	_c_main DQ ?
 	_101f24 DQ 101.24
 	_b_main_test DD ?
 	_dasassa DB "dasassa", 0
 	_enterito_main DD ?
+	_10f4 DQ 10.4
+	_11f1 DQ 11.1
+	_10f1 DQ 10.1
 	_10f0 DQ 10.0
 	_testint_main_test DD ?
 	_f_main DQ ?
@@ -31,33 +33,33 @@ printf PROTO C : VARARG
 test:
 	MOV _testint_main_test, 14
 START:
-	MOV _a_main, 101.24
+	FLD _101f24
+	FSTP _a_main
 	MOV _b_main, 101
 	MOV EAX, _b_main
 	MOV EBX, 101
 	CMP EAX, EBX
 	PUSHF
-	MOV EAX, _a_main
-	MOV EBX, _c_main
-	CMP EAX, EBX
+	FLD _a_main
+	FLD _c_main
+	FCOMP
 	PUSHF
 	POPF
-	JNE etiqueta13
+	JNE etiqueta8
 	POPF
-	JNE etiqueta13
-	POPF
-	JNE etiqueta13
-	POPF
-	JNE etiqueta13
-	MOV _a_main, 10
-	JMP etiqueta15
-etiqueta13:
-	MOV _a_main, 11
-etiqueta15:
-	MOV EAX, _a_main
-	ADD EAX, 10
-	MOV @aux3, EAX
-	INVOKE printf, cfm$("%d\n"), @aux3
+	JNE etiqueta8
+	FLD _10f1
+	FSTP _a_main
+	JMP etiqueta10
+etiqueta8:
+	FLD _11f1
+	FSTP _a_main
+etiqueta10:
+	FLD _a_main
+	FLD _10f4
+	FADD
+	FSTP @aux3
+	INVOKE printf, cfm$("%.5Lf\n"), @aux3
 	INVOKE printf, ADDR _dasassa
 	INVOKE printf, ADDR __new_line__
 	FLD _12f021
@@ -67,5 +69,7 @@ etiqueta15:
 	FLD @aux4
 	FSTP _f_main
 	INVOKE printf, cfm$("%.5Lf\n"), _f_main
+hola:
+	MOV _x_main, 1
 	INVOKE ExitProcess, 0
 END START

@@ -983,6 +983,7 @@ public static List<Error> erroresSemanticos = new ArrayList<Error>();
 public static List<String> estructuras = new ArrayList<String>();
 public static List<Terceto> tercetos = new ArrayList<Terceto>();
 public static Stack<String> tercetosIncompletos = new Stack<String>();
+public static Stack<String> retornos = new Stack<String>();
 
 public static HashMap<String, String> etiquetas = new HashMap<String, String>(); 
 public static Stack<String> tercetosGoto = new Stack<String>(); 
@@ -1041,16 +1042,49 @@ private int yylex(){
   return idToken;
 }
 
-private boolean chequearTipoRetorno(int tipoRetorno){
-  String ambito = cargarAmbito();
-  int ultAmbito = ambito.lastIndexOf(":");
-  String nombreFunc = ambito.substring(ultAmbito + 1, ambito.length());  
-  String ambitoFuncion = ambito.substring(0, ultAmbito);
-  System.out.println(nombreFunc + ambitoFuncion + " acava el tipo del RET " + tipoRetorno + "aca va el tipo de la tabla "+ TablaDeSimbolos.getContexto(nombreFunc + ambitoFuncion).getTipo() +" %$&%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-  if (tipoRetorno == TablaDeSimbolos.getContexto(nombreFunc + ambitoFuncion).getTipo())
-    return true;
-  return false;
+private boolean chequearTipoRetorno(int tipoFuncion, String nombreFuncion){
 
+  boolean sigue = true;
+  while ((sigue) && !retornos.empty()){
+    String ret = retornos.peek();
+    int ultAmbito = ret.lastIndexOf(":");
+    String ambitoRetorno = ret.substring(ultAmbito + 1, ret.length());
+    if(ambitoRetorno.equals(nombreFuncion)){
+      if (Integer.parseInt(ret.split(":")[0]) != tipoFuncion){
+        return false;
+      }
+      retornos.pop();
+    }else{
+      sigue = false;
+    }
+  }
+  return true;
+}
+private boolean chequearTiposLista(ArrayList<String> lista1, ArrayList<String> lista2){
+  
+  if (lista1.size() != lista2.size()){
+    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO El numero de expresiones de un lado de la comparacion no corresponde con el otro"));
+    return false; 
+  } 
+
+  boolean sinErrores = true;
+  for (int i = 0; i < lista1.size(); i++){
+    String operando1 = lista1.get(i);
+    String operando2 = lista2.get(i);
+    if (!operando1.matches("^[0-9].*")){
+      operando1 = operando1 + cargarAmbito();
+    }
+    if (!operando2.matches("^[0-9].*")){
+      operando2 = operando2 + cargarAmbito();
+    }
+    if (TablaDeSimbolos.getContexto(operando1) != null && TablaDeSimbolos.getContexto(operando2) != null){
+      if (TablaDeSimbolos.getContexto(operando1).getTipo() != TablaDeSimbolos.getContexto(operando2).getTipo()){
+        erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO el tipo de " + lista1.get(i) + " no corresponde con el de " + lista2.get(i)));
+        sinErrores = false;
+      }
+    }
+  }
+  return sinErrores;
 }
 private void chequearRango(Contexto contexto){
   if (contexto != null){
@@ -1103,12 +1137,11 @@ public static String cargarAmbito(){
   return aux;
 }
 
-private void declararFuncion(String ref, String tipo){
+private void declararFuncion(String ref){
   String newRef = TablaDeSimbolos.agregarSimbolo(ref + cargarAmbito(), -1, TablaDeSimbolos.getContexto(ref).popRefUso());
   Contexto con = TablaDeSimbolos.getContexto(newRef);
   if (con.getUso().equals("") ){
     con.setUso("nombre de funcion");
-    con.setTipo(TablaTipoToken.getTipoToken(tipo));
     con.setDeclarado();
   }else{
     erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO el identificador " + ref + " ya posee otro uso"));
@@ -1257,9 +1290,6 @@ private String agregarTerceto(String operador1, String op2, String op3, int tipo
 }
 private String agregaListaExpresionTercetos(String operador1, ArrayList<String> op2, ArrayList<String> op3){
 
-  if (op2.size() != op3.size()){
-    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO El numero de expresiones de un lado de la comparacion no corresponde con el otro")); 
-  } 
     Stack<String> aux = new Stack<String>();
     for(int i = 0; i < op2.size(); i++){
       String operando1 = op2.get(i);
@@ -1322,7 +1352,12 @@ public static void limpiarTablaDeSimbolos(){
     }
   }
 }
-//#line 1253 "Parser.java"
+
+private String conversion(String tipoDato, int tipoExpresion){
+  return "juas juas";
+                                                                                                                                            //MATRIZ
+}
+//#line 1288 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
@@ -1534,7 +1569,7 @@ case 21:
 break;
 case 22:
 //#line 68 "gramatica.y"
-{estructuras.add("Declaracion de funcion");}
+{System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + retornos);if (!chequearTipoRetorno(val_peek(2).ival, val_peek(1).sval)){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO todos los RET deben retornar el tipo " + val_peek(2).sval)); }; System.out.println(val_peek(1).sval + cargarAmbito()); TablaDeSimbolos.getContexto(val_peek(1).sval + cargarAmbito()).setTipo(TablaTipoToken.getTipoToken(val_peek(2).sval));estructuras.add("Declaracion de funcion");}
 break;
 case 23:
 //#line 69 "gramatica.y"
@@ -1626,7 +1661,7 @@ case 45:
 break;
 case 46:
 //#line 103 "gramatica.y"
-{declararFuncion(val_peek(0).sval, val_peek(2).sval); ambitos.add(val_peek(0).sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", val_peek(0).sval);}
+{yyval.sval = val_peek(0).sval; declararFuncion(val_peek(0).sval); ambitos.add(val_peek(0).sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", val_peek(0).sval);}
 break;
 case 47:
 //#line 105 "gramatica.y"
@@ -1704,7 +1739,7 @@ case 65:
 break;
 case 66:
 //#line 148 "gramatica.y"
-{agregarTerceto("RET", val_peek(1).sval, ""); estructuras.add("Retorno"); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef();estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Retorno"); if(!chequearTipoRetorno(val_peek(1).ival)){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO se debe retornar el tipo de la funcion."));} }
+{retornos.add(String.valueOf(val_peek(1).ival) + cargarAmbito()); agregarTerceto("RET", val_peek(1).sval, ""); estructuras.add("Retorno"); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef();estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Retorno");}
 break;
 case 72:
 //#line 158 "gramatica.y"
@@ -1732,7 +1767,7 @@ case 77:
 break;
 case 78:
 //#line 166 "gramatica.y"
-{String aux = chequearDeclarado(val_peek(2).sval); yyval.sval = agregarTerceto(":=", val_peek(2).sval, val_peek(0).sval, TablaDeSimbolos.getContexto(aux).getTipo());Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+{System.out.println("?????????????????????????????????????????????????????????????????????????????????????????" + val_peek(2).ival + " || " + val_peek(0).ival);if (chequearDeclarado(val_peek(2).sval + cargarAmbito()) != null){ if(TablaDeSimbolos.getContexto(val_peek(2).sval + cargarAmbito()).getTipo() == val_peek(0).ival){yyval.sval = agregarTerceto(":=", val_peek(2).sval, val_peek(0).sval, TablaDeSimbolos.getContexto(val_peek(2).sval + cargarAmbito()).getTipo());}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO asignacion con diferentes tipos no permitida"));}};Integer lastRef = TablaDeSimbolos.getContexto(val_peek(2).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 break;
 case 79:
 //#line 167 "gramatica.y"
@@ -1744,7 +1779,7 @@ case 80:
 break;
 case 81:
 //#line 171 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("+", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("+", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitida"));}}}
 break;
 case 82:
 //#line 172 "gramatica.y"
@@ -1756,7 +1791,7 @@ case 83:
 break;
 case 84:
 //#line 174 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("-", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("-", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitida"));}}}
 break;
 case 85:
 //#line 175 "gramatica.y"
@@ -1768,7 +1803,7 @@ case 86:
 break;
 case 88:
 //#line 180 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("*", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("*", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitida"));}}}
 break;
 case 89:
 //#line 181 "gramatica.y"
@@ -1780,7 +1815,7 @@ case 90:
 break;
 case 91:
 //#line 183 "gramatica.y"
-{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("/", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitido"));}}}
+{if ((val_peek(2).ival == val_peek(0).ival)) {yyval.sval = agregarTerceto("/", val_peek(2).sval, val_peek(0).sval, val_peek(2).ival); yyval.ival = val_peek(0).ival;}else{if(val_peek(2).ival != -1 && val_peek(0).ival != -1){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO operacion con diferentes tipos no permitida"));}}}
 break;
 case 92:
 //#line 184 "gramatica.y"
@@ -1968,7 +2003,7 @@ case 143:
 break;
 case 144:
 //#line 251 "gramatica.y"
-{((ArrayList<String>)val_peek(7).obj).add(val_peek(9).sval); ((ArrayList<String>)val_peek(1).obj).add(val_peek(3).sval); yyval.sval = agregaListaExpresionTercetos(val_peek(5).sval, ((ArrayList<String>)val_peek(7).obj), ((ArrayList<String>)val_peek(1).obj));}
+{((ArrayList<String>)val_peek(7).obj).add(val_peek(9).sval); ((ArrayList<String>)val_peek(1).obj).add(val_peek(3).sval); if (chequearTiposLista((ArrayList<String>)val_peek(7).obj, (ArrayList<String>)val_peek(1).obj)){yyval.sval = agregaListaExpresionTercetos(val_peek(5).sval, ((ArrayList<String>)val_peek(7).obj), ((ArrayList<String>)val_peek(1).obj));}}
 break;
 case 145:
 //#line 252 "gramatica.y"
@@ -2004,7 +2039,7 @@ case 152:
 break;
 case 153:
 //#line 261 "gramatica.y"
-{yyval.sval = agregarTerceto(val_peek(1).sval, val_peek(2).sval, val_peek(0).sval);}
+{if(val_peek(2).ival == val_peek(0).ival){yyval.sval = agregarTerceto(val_peek(1).sval, val_peek(2).sval, val_peek(0).sval);}}
 break;
 case 154:
 //#line 262 "gramatica.y"
@@ -2158,7 +2193,7 @@ case 195:
 //#line 329 "gramatica.y"
 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera cadena multilinea o expresion en el mensaje de salida.")); Integer lastRef = TablaDeSimbolos.getContexto(val_peek(3).sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Mensaje de salida");}
 break;
-//#line 2084 "Parser.java"
+//#line 2119 "Parser.java"
 //########## END OF USER-SUPPLIED ACTIONS ##########
     }//switch
     //#### Now let's reduce... ####
