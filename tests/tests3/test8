@@ -1,0 +1,9 @@
+hexa
+begin
+    hexadecimal a;
+    hexadecimal b;
+    a := 0x0001;
+    b := 0x0001;
+    a := a + b;
+    outf(a);
+end
