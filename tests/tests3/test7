@@ -5,14 +5,13 @@ begin
     longint c;
 
     a := 101;
+    c := 1;
     longint FUN holahola(longint x)
     begin
+        x := 10;
+        c := 41;
+        ret(x);
+    end;
 
-        longint FUN hexa(longint x)
-        begin
-            longint hexa;
-            ret(hexa);
-        end
-        
-    en
+    b := holahola(a);
 end

@@ -24,6 +24,10 @@ public class GeneradorDeCodigo {
     public static StringBuilder aux = new StringBuilder();
     private static boolean DEBUG = false;
     public static Stack<String> ultimosOperadoresLogicos = new Stack<String>();
+    public static List<String> ambitos = new ArrayList<String>();
+    public static List<String> lexemasTS = new ArrayList<String>();
+    public static boolean etiquetaFuncion = false;
+
 
     public static int cantidadOperacionesLogicas = 1; //ANDs
 
@@ -34,70 +38,71 @@ public class GeneradorDeCodigo {
        
         try{
             escritor = new FileWriter(nombreArchivo);
-            
+            ambitos.add("main");
             //StringBuilder data = new StringBuilder();
-
+            Iterator<Map.Entry<String, Contexto>> iterator = TablaDeSimbolos.getElementos().entrySet().iterator();
+            while(iterator.hasNext()) {
+                Map.Entry<String, Contexto> par = iterator.next();
+                String lexema = par.getKey();
+                Contexto contexto = par.getValue();
+                if((contexto.getUso()!= "") && !(contexto.getUso().equals("nombre de funcion")) || (!contexto.getDeclarado() && contexto.getTipo() == TablaTipoToken.getTipoToken("SINGLE"))){        
+                    System.out.println(lexema);
+                    lexemasTS.add(lexema);
+                }
+            }
             for (Terceto terceto : Parser.tercetos) {
+                if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                 switch (terceto.getT1()) {
                     case ":=":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
+                        
                         procesarAsignacion(terceto);
                         break;
                     case "+":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarSuma(terceto);
                         break;
                     case "-":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarResta(terceto);
                         break;
                     case "*":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarMultiplicacion(terceto);
                         break;
                     case "/":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarDivision(terceto);
                         break;
                     case ">":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarMayor(terceto);
                         procesarComparacion(">", terceto);
                         break;
                     case ">=":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarMayorIgual(terceto);
                         procesarComparacion(">=", terceto);
                         break;
                     case "<":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarMenor(terceto);
                         procesarComparacion("<", terceto);
                         break;
                     case "<=":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarMenorIgual(terceto);
                         procesarComparacion("<=", terceto);
                         break;
                     case "=":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         //procesarIgual(terceto);
                         procesarComparacion("=", terceto);
                         break;
                     case "BI":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         data.append("\t" + "JMP " + terceto.getT3()+ "\n");
                         break;
                     case "BF":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarSaltoCondicion(terceto, ultimosOperadoresLogicos.pop());
                         break;
                     case "ETIQUETA":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
+                        if (etiquetaFuncion){
+                            ambitos.add(terceto.getT3());
+                            etiquetaFuncion = false;
+                        }
                         data.append(terceto.getT3() + ":" + "\n");
                         break;
                     case "AND": // NO FUNCA
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         procesarAnd(terceto);
                         break;
                     /* case "OR": // NO FUNCA
@@ -105,15 +110,16 @@ public class GeneradorDeCodigo {
                         procesarOr(terceto);
                         break; */
                     case "INICIOFUN":
-                        if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         aux = new StringBuilder();
                         pilaFunciones.add(new StringBuilder(data.toString()));
+                        etiquetaFuncion = true;
                         data = aux;
                         procesarAnd(terceto);
                         break;
                     case "FINFUN":
                         if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                         funciones.add(new StringBuilder(aux.toString()));
+                        ambitos.remove(ambitos.size()-1);
                         data = pilaFunciones.pop();
                         procesarAnd(terceto);
                         break;
@@ -126,6 +132,10 @@ public class GeneradorDeCodigo {
                 }
             }
             generarHeader();
+            for (StringBuilder datos : funciones) {
+                escritor.append(datos);
+            }
+            escritor.append("START:"+ "\n");
             escritor.append(data);
             escritor.append("\t" + "INVOKE ExitProcess, 0" + "\n");
             escritor.append("END START");
@@ -172,14 +182,14 @@ public class GeneradorDeCodigo {
             }
             escritor.append("\t" + "__new_line__ DB 13, 10, 0"+ "\n");
             escritor.append(".CODE"+ "\n");
-            escritor.append("START:"+ "\n");
         } catch (Exception e) {
             
         }
     }
     // Procesar tercetos de asignación
     private static void procesarAsignacion(Terceto terceto) {
-        String variable = "_" + terceto.getT2() + Parser.cargarAmbito();
+        String variable = "_" + encontrarAmbito(terceto.getT2());
+        System.out.println(variable);
         String valor = obtenerValor(terceto.getT3());
         if (terceto.getTipo()  == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
             if (valor.startsWith("@") || valor.startsWith("_")){
@@ -342,8 +352,39 @@ public class GeneradorDeCodigo {
         if (valor.startsWith("^")) return Parser.tercetos.get(Integer.parseInt(valor.substring(1))).getResultado();
 
         if (valor.startsWith("[")) return "_" + valor;
-        if (!valor.matches("^[0-9].*")) return "_" + valor + Parser.cargarAmbito();
+        if (!valor.matches("^[0-9].*")){
+            return "_" + encontrarAmbito(valor);
+        } 
 
+        return valor;
+    }
+    public static String cargarAmbito(){
+        String aux = "";
+        for(String ambito: ambitos){
+          aux = aux + ":" + ambito;
+        }
+        return aux;
+    }
+    public static String encontrarAmbito(String valor){
+        valor =  valor + cargarAmbito();
+        int indice = 0;
+        boolean encontrado = false;
+        while(valor.lastIndexOf(":") != -1 && !encontrado){
+            indice = 0;
+            while ((indice < lexemasTS.size()) && !encontrado){
+                if (valor.equals(lexemasTS.get(indice))) encontrado = true;
+                System.out.println(valor);
+                System.out.println(lexemasTS.get(indice));
+                indice = indice + 1;
+            };
+            if (valor.lastIndexOf(":") != -1 && !encontrado){
+                int ultAmbito = valor.lastIndexOf(":");
+                System.out.println(valor);
+                System.out.println("en");
+                valor = valor.substring(0, ultAmbito);
+                System.out.println(valor);
+            }
+        }
         return valor;
     }
 }

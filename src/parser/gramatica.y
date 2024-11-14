@@ -100,7 +100,7 @@ funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {System.o
                | funComienzo '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 ;
 
-funComienzo : FUN IDENTIFICADOR  {declararFuncion($2.sval, $0.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", $2.sval, $0.sval);} //PROBLEMA CON FUN error de fundeclaracion??
+funComienzo : FUN IDENTIFICADOR  {declararFuncion($2.sval, $0.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", $2.sval);} //PROBLEMA CON FUN error de fundeclaracion??
 ;
 tipoDato : SINGLE      {$$.ival = TablaTipoToken.getTipoToken("SINGLE");}
          | LONGINT     {$$.ival = TablaTipoToken.getTipoToken("LONGINT");}
@@ -163,8 +163,8 @@ sentenciaEjecutableConRet : asignacion                 {$$.sval = "false";}
                           | clausulaSeleccionConRet    {$$.sval = $1.sval;}
 ;
 
-asignacion : IDENTIFICADOR SIMASIGNACION expresion {chequearDeclarado($1.sval); $$.sval = agregarTerceto(":=", $1.sval, $3.sval, TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo());Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
-           | IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion   {chequearDeclarado($1.sval); if (!$2.sval.equals("[1]") && !$2.sval.equals("[2]") && !$2.sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", $1.sval + $2.sval , $4.sval, TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo()); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}//TEMA 22
+asignacion : IDENTIFICADOR SIMASIGNACION expresion {String aux = chequearDeclarado($1.sval); $$.sval = agregarTerceto(":=", $1.sval, $3.sval, TablaDeSimbolos.getContexto(aux).getTipo());Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+           | IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion   {String aux = chequearDeclarado($1.sval); if (!$2.sval.equals("[1]") && !$2.sval.equals("[2]") && !$2.sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", $1.sval + $2.sval , $4.sval, TablaDeSimbolos.getContexto(aux).getTipo()); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}//TEMA 22
            | IDENTIFICADOR CONSTANTE SIMASIGNACION expresion   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 ;
 
@@ -186,7 +186,7 @@ termino : termino '*' operando {if (($1.ival == $3.ival)) {$$.sval = agregarTerc
         | operando
 
 
-operando : IDENTIFICADOR                  {$$.sval = $1.sval; if(chequearDeclarado($1.sval)){$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;}}   //SE TIENE QUE CHEQUEAR QUE EL IDENTIFICADOR NO SEA UN TRIPLE YA QUE FALTARIA EL RANGO  
+operando : IDENTIFICADOR                  {$$.sval = $1.sval; $1.sval = chequearDeclarado($1.sval); if($1.sval != null){$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}}   //SE TIENE QUE CHEQUEAR QUE EL IDENTIFICADOR NO SEA UN TRIPLE YA QUE FALTARIA EL RANGO  
          | constante                      {$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}
          | invocacionFuncion              
          | IDENTIFICADOR CADENA_MULTI //TEMA 22  SE TIENE QUE CHEQUEAR QUE EL VALOR DE LA CADENAMULTI ESTA ENTRE 1 Y 3
@@ -539,7 +539,7 @@ private void declaracionParametro(String refTipo, String refIdentificador){
     erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + refIdentificador + " ya declarada"));
   };
 }
-private boolean chequearDeclarado(String lexemaSinAmbito){
+private String chequearDeclarado(String lexemaSinAmbito){
   
   String lexema = lexemaSinAmbito + cargarAmbito();
   while(lexema.lastIndexOf(":") != -1){
@@ -547,14 +547,14 @@ private boolean chequearDeclarado(String lexemaSinAmbito){
     if (contexto != null){
       if (contexto.getDeclarado()){    //CON UNA VARIABLE BASE (SIN AMBITO) EN LA T.S. ESTE IF PUEDE NO ESTAR. SI AGREGAMOS A LA T.S. (DESDE EL LEXER) CON AMBITO ENTONCES NECESITAMOS DEL ATRIBUTO "DECLARADO"
         contexto.addRef(TablaDeSimbolos.getContexto(lexemaSinAmbito).popRefUso());
-        return true;
+        return lexema;
       }
     }
     int ultAmbito = lexema.lastIndexOf(":");
     lexema = lexema.substring(0, ultAmbito);
   }
   erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + lexemaSinAmbito + " nunca fue declarado")); 
-  return false;
+  return null;
 }
 private boolean chequearAmbitoFuncion(String lexemaSinAmbito){
   
