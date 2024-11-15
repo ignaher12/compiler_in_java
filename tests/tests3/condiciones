@@ -1,0 +1,44 @@
+condiciones
+begin
+    longint a;
+    longint b;
+    a := 1;
+    b := 2;
+    outf([Valores]);
+    outf(a);
+    outf(b);
+    if (a > b) then outf([a > b]); end_if;
+    if (a < b) then outf([a < b]); end_if;
+    if (a = b) then outf([a = b]); end_if;
+    a := 1;
+    b := 20;
+    outf([Valores]);
+    outf(a);
+    outf(b);
+    if (a > b) then outf([a < b]);
+    else outf([a no es < a b]); end_if;
+    longint c;
+    longint d;
+    a := 1;
+    b := 10;
+    c := 3;
+    d := 4;
+    outf([Valores a,b,c,d]);
+    outf(a);
+    outf(b);
+    outf(c);
+    outf(d);
+    if ((a, b) > (c, d)) then outf([ (a,b) > (c,d)]);
+    else outf([ (a,b) !> (c,d)]); end_if;
+    a := 10;
+    b := 10;
+    c := 3;
+    d := 4;
+    outf([Valores a,b,c,d]);
+    outf(a);
+    outf(b);
+    outf(c);
+    outf(d);
+    if ((a, b) > (c, d)) then outf([ (a,b) > (c,d)]);
+    else outf([ (a,b) !> (c,d)]); end_if;
+end

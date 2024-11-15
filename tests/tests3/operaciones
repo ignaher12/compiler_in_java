@@ -1,0 +1,21 @@
+operaciones
+begin
+    longint a;
+    longint b;
+    a := -10;
+    b := 10;
+    outf(a);
+    outf(b);
+    b := b + a;
+    outf(b);
+    b := a + a;
+    outf(b);
+    longint c;
+    c := b * a;
+    outf(c);
+    c := c / 20;
+    outf(c);
+    c := 200;
+    c := c * -1;
+    outf(c);
+end

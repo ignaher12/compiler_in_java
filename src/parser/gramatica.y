@@ -370,7 +370,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("tests3/test5", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("tests3/operaciones", matriz, matrizAcciones);
         
         parser.run();
 
