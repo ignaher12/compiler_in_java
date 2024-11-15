@@ -1,37 +1,8 @@
 operaciones
 begin
-    single a;
-    single b;
-    hexadecimal c;
-
-    typedef enterito := hexadecimal{ 6, 10 };
-
-    tipoRandom h;
-
-    a := 101.24;
-    b := 101.1;
-    if ((f, 102) = (0x50000, 101)) then
-        a := 10.1;
-    else
-        a := 11.1;
-    end_if;
-    outf(a + 10.4);
-    outf([dasassa]);
-
-    single f;
-    f := 12.021 + 10.0;
-    outf(f);
-    longint FUN test (hexadecimal b) 
-    BEGIN
-        longint testint;
-        RET(testint);
-
-        testint := 14;
-        RET (testint);
-    END;
-
-    test(c);
-
-    longint x;
-    hola: x:= 1;
+    typedef gordito := longint {-5,10};
+    typedef gordito2 := longint {-5,10};
+    gordito aaa;
+    gordito2 bbb;
+    aaa := bbb;
 end

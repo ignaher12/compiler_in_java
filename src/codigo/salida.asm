@@ -9,22 +9,17 @@ includelib \masm32\lib\user32.lib
 dll_dllcrt0 PROTO C
 printf PROTO C : VARARG
 .DATA
+	_gordito2_main DD ?
 	_c_main DD ?
-	_a_main DD ?
-	_testint_main_test DD ?
-	_b_main_test DD ?
-	@aux1 DD ?
+	_gordito_main DD ?
+	_b_main DQ ?
+	_a_main DQ ?
 	__new_line__ DB 13, 10, 0
 .CODE
-test:
-	MOV EAX, _testint_main_test
-RET
 START:
-	MOV EAX, _a_main
-	MOV _b_main_test, EAX
-	CALL test
-	MOV @aux1, EAX 
-	MOV EAX, @aux1
-	MOV _a_main, EAX
+	FLD _b_main
+	FSTP _a_main
+	FLD _b_main
+	FSTP _a_main
 	INVOKE ExitProcess, 0
 END START
