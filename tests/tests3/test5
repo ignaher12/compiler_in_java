@@ -30,6 +30,8 @@ begin
         RET (testint);
     END;
 
+    test(c);
+
     longint x;
     hola: x:= 1;
 end

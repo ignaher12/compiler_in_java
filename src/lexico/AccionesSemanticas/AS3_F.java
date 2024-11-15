@@ -17,7 +17,7 @@ public class AS3_F implements Accion{
         if (cadena.length() > AnalizadorLexico.MAXLENGHTINDENTIFICADOR){ //truncar
             StringBuilder cadenaLarga = cadena;
             cadena = new StringBuilder(cadena.substring(0, AnalizadorLexico.MAXLENGHTINDENTIFICADOR));
-            Parser.erroresLexico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.WARNING, "El identificador" + cadenaLarga + " fue truncado a: " + cadena));
+            Parser.warnings.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.WARNING, "El identificador" + cadenaLarga + " fue truncado a: " + cadena));
         }
         if (TablaDeSimbolos.existe(cadena.toString()) == null){
             TablaDeSimbolos.agregarSimbolo(cadena.toString(), -1, nro_linea);

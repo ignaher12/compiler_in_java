@@ -1,0 +1,18 @@
+conversionesFunciones
+begin
+    longint a;
+    hexadecimal c;
+    longint FUN test (longint b) 
+    BEGIN
+        longint testint;
+        RET(testint);
+
+    END;
+
+    typedef enterito := longint{2, 10};
+    
+    longint enterito3;
+
+    a:= test(hexadecimal a);
+
+end

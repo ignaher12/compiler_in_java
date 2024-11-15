@@ -18,6 +18,8 @@ public class TablaDeSimbolos {
         private boolean reservada;
         private boolean declarado;
         private String typedef = null;
+        private int tipo_parametro;
+        private String nombre_parametro;
 
         public Contexto(int linea, String valor, int tipo){
             this.refs = new ArrayList<Integer>();   //UTILIDAD?
@@ -85,6 +87,18 @@ public class TablaDeSimbolos {
         }
         public void setTipo(int tipo){
             this.tipo = tipo;
+        }
+        public void setNombreParametro(String nombre){
+            this.nombre_parametro = nombre;
+        }
+        public void setTipoParametro(int tipo){
+            this.tipo_parametro = tipo;
+        }
+        public int getTipoParametro(){
+            return this.tipo_parametro;
+        }
+        public String getNombreParametro(){
+            return this.nombre_parametro;
         }
         public String getUso(){
             return this.uso;
@@ -252,7 +266,7 @@ public class TablaDeSimbolos {
         sb.append("-------------------\n");
 
         for (Map.Entry<String, Contexto> par : tabla.entrySet()) {
-            sb.append(par.getKey()).append(" - ").append(par.getValue().valor).append(" - ").append(par.getValue().declarado).append(" - ").append(par.getValue().tipo).append(" - ").append(par.getValue().getRefs()).append(par.getValue().getUso()).append(par.getValue().getLimiteInf()).append(par.getValue().getLimiteSup()).append('\n');
+            sb.append(par.getKey()).append(" - ").append(par.getValue().valor).append(" - ").append(par.getValue().declarado).append(" - ").append(par.getValue().tipo).append(" - ").append(par.getValue().getRefs()).append(par.getValue().getUso()).append(par.getValue().getTipoParametro()).append(par.getValue().getNombreParametro()).append(par.getValue().getTypedef()).append('\n');
         }
 
         
