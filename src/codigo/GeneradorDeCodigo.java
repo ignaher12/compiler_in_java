@@ -51,7 +51,6 @@ public class GeneradorDeCodigo {
             }
             for (Terceto terceto : Parser.tercetos) {
                 if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
-                System.out.println(terceto);
                 switch (terceto.getT1()) {
                     case ":=":
                         
@@ -133,9 +132,29 @@ public class GeneradorDeCodigo {
                     case "OUTF": 
                         procesarSalida(terceto);
                         break;
+                    case "ItoH":
+                        conversionHI(terceto);
+
+                        break;
+                    case "HtoI":
+                        conversionHI(terceto);
+                        break;
+                    case "ItoF":
+                        toFloat(terceto);
+                        break;
+                    case "HtoF":
+                        toFloat(terceto);
+                        break;
+                    case "FtoI":
+                        floattoHexaorInt(terceto);
+                        break;
+                    case "FtoH":
+                        floattoHexaorInt(terceto);
+                        break;
                     default:
                         break;
                 }
+                System.out.println(terceto);
             }
             generarHeader();
             for (StringBuilder datos : funciones) {
@@ -172,7 +191,7 @@ public class GeneradorDeCodigo {
                     String valorInicializacion = "?";
                     String tipoMemoria;
                     if (contexto.getTipo() == TablaTipoToken.getTipoToken("SINGLE")){
-                        tipoMemoria = "DQ";
+                        tipoMemoria = "REAL4";
                     }else{
                         tipoMemoria = "DD";
                     }
@@ -187,6 +206,7 @@ public class GeneradorDeCodigo {
                 if (lexema.contains("[")) escritor.write("\t" + "_" + lexema.replace(":", "_").replaceAll("[\\[\\] ]","") + " DB \"" + lexema.replaceAll("[_\\[\\]]", "") +"\", 0\n");
             }
             escritor.append("\t" + "__new_line__ DB 13, 10, 0"+ "\n");
+            escritor.append("\t" + "@imprimirFloat DQ ?"+ "\n");
             escritor.append(".CODE"+ "\n");
         } catch (Exception e) {
             
@@ -216,34 +236,57 @@ public class GeneradorDeCodigo {
 
     // Procesar tercetos de suma
     private static void procesarSuma(Terceto terceto) {
-        String resultado = procesarOperacionBinaria("ADD", terceto);
+        String resultado = procesarOperacionSumaResta("ADD", terceto);
         terceto.setResultado(resultado);
         TablaDeSimbolos.agregarSimbolo(resultado, terceto.getTipo(), "variable auxiliar");
     }
 
     // Procesar tercetos de resta
     private static void procesarResta(Terceto terceto) {
-        String resultado = procesarOperacionBinaria("SUB", terceto);
-        terceto.setResultado(resultado);
+        String resultado = procesarOperacionSumaResta("SUB", terceto);
+        terceto.setResultado(resultado); 
         TablaDeSimbolos.agregarSimbolo(resultado, terceto.getTipo(), "variable auxiliar");
+    }
+    private static String procesarOperacionSumaResta(String operacion, Terceto terceto) {
+        String operando1 = obtenerValor(terceto.getT2());
+        String operando2 = obtenerValor(terceto.getT3());
+        String variableAux = "@aux" + (++contadorAux);
+        if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
+            if (!operando1.startsWith("_")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
+            if (!operando2.startsWith("_")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
+            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            data.append("\t" +"MOV EDX, 0" + "\n");      // Cargar arg1 en AX
+            data.append("\t" +"MOV ECX, " + operando2.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            data.append("\t" + operacion + " ECX" + "\n"); // Realizar operación en AX
+            ///HACER CHEQUEO DE OVERFLOW????
+            data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal la parte baja de 32 bits
+        }else{
+            if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f");
+            if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f");
+            data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
+            data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
+            data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
+            data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
+        }
+        return variableAux;
     }
 
     // Procesar tercetos de multiplicación
     private static void procesarMultiplicacion(Terceto terceto) {
-        String resultado = procesarOperacionBinaria("MUL", terceto);
+        String resultado = procesarOperacionMultiplicacionDivision("MUL", terceto);
         terceto.setResultado(resultado);
         TablaDeSimbolos.agregarSimbolo(resultado, terceto.getTipo(), "variable auxiliar");
     }
 
     // Procesar tercetos de división
     private static void procesarDivision(Terceto terceto) {
-        String resultado = procesarOperacionBinaria("DIV", terceto);
+        String resultado = procesarOperacionMultiplicacionDivision("DIV", terceto);
         terceto.setResultado(resultado);
         TablaDeSimbolos.agregarSimbolo(resultado, terceto.getTipo(), "variable auxiliar");
     }
 
     // Procesar operaciones binarias usando un tipo de operación assembler (ADD, SUB, MUL, DIV)
-    private static String procesarOperacionBinaria(String operacion, Terceto terceto) {
+    private static String procesarOperacionMultiplicacionDivision(String operacion, Terceto terceto) {
         String operando1 = obtenerValor(terceto.getT2());
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
@@ -261,8 +304,6 @@ public class GeneradorDeCodigo {
             data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
             data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
         }
-        
-
         return variableAux;
     }
 
@@ -344,11 +385,14 @@ public class GeneradorDeCodigo {
         String valor = obtenerValor(terceto.getT2());
         if (valor.startsWith("_") || valor.startsWith("@")){
             int tipo = TablaDeSimbolos.getContexto(valor.replace("_", "")).getTipo();
-            System.out.println(valor);
-            if ( tipo == TablaTipoToken.getTipoToken("LONGINT") || tipo == TablaTipoToken.getTipoToken("HEXADECIMAL")){
+            if ( tipo == TablaTipoToken.getTipoToken("LONGINT")){
                 data.append("\t" +"INVOKE printf, cfm$(\"%d\\n\"), "+ valor.replace(":", "_")+ "\n");
+            }else if (tipo == TablaTipoToken.getTipoToken("HEXADECIMAL")){
+                data.append("\t" +"INVOKE printf, cfm$(\"0x%08X\\n\"), "+ valor.replace(":", "_")+ "\n");
             }else if ( tipo == TablaTipoToken.getTipoToken("SINGLE")){
-                data.append("\t" +"INVOKE printf, cfm$(\"%.5Lf\\n\"), " + valor.replace(":", "_")+ "\n");
+                data.append("\t" +"FLD  " + valor.replace(":", "_" ) + "\n");
+	            data.append("\t" +"FSTP @imprimirFloat" + "\n");
+                data.append("\t" +"INVOKE printf, cfm$(\"%.5f\\n\"), @imprimirFloat"+ "\n");
             }else{  //debe ser cadena multilinea
                 data.append("\t" +"INVOKE printf, ADDR "+ valor.replace(":", "_").replaceAll("[\\[\\] ]","")+ "\n");
                 data.append("\t" +"INVOKE printf, ADDR __new_line__"+ "\n");
@@ -396,8 +440,6 @@ public class GeneradorDeCodigo {
 
     public static void procesarInvocacion(Terceto terceto){
         String pasaje = obtenerValor(terceto.getT3());
-        System.out.println("fa");
-        System.out.println(pasaje);
         String aux = pasaje.replace("_","");
         String parametro = obtenerParametro(terceto.getT2());
         if (TablaDeSimbolos.getContexto(aux).getTipo() == TablaTipoToken.getTipoToken("SINGLE")){
@@ -450,5 +492,30 @@ public class GeneradorDeCodigo {
             }
         }
         return parametro;
+    }
+
+    public static void toFloat(Terceto terceto){
+        String valor = obtenerValor(terceto.getT2());
+        data.append("\t" + "FILD " + valor.replace(":", "_") + "\n");
+        String variableAux = "@aux" + (++contadorAux);
+        data.append("\t" +"FSTP " + variableAux + "\n");
+        terceto.setResultado(variableAux);
+        TablaDeSimbolos.agregarSimbolo(variableAux, terceto.getTipo(), "variable auxiliar");
+    }
+    public static void floattoHexaorInt(Terceto terceto){
+        String valor = obtenerValor(terceto.getT2());
+        data.append("\t" + "FLD " + valor.replace(":", "_") + "\n");  
+        String variableAux = "@aux" + (++contadorAux);
+        data.append("\t" + "FIST " + variableAux + "\n");
+        terceto.setResultado(variableAux);
+        TablaDeSimbolos.agregarSimbolo(variableAux, terceto.getTipo(), "variable auxiliar");
+    }
+    public static void conversionHI(Terceto terceto){
+        String valor = obtenerValor(terceto.getT2());
+        /* String variableAux = "@aux" + (++contadorAux);
+        data.append("\t" + "MOV EAX, " + valor.replace(":", "_") + "\n");
+        data.append("\t" + "MOV " + variableAux + ", EAX" + "\n"); */
+        terceto.setResultado(valor);
+        /* TablaDeSimbolos.agregarSimbolo(variableAux, terceto.getTipo(), "variable auxiliar"); */
     }
 }

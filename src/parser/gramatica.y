@@ -199,8 +199,8 @@ operando : IDENTIFICADOR                  {$$.sval = $1.sval; $1.sval = chequear
 ;
 
 invocacionFuncion : IDENTIFICADOR '(' expresion ')'       {if (chequearAmbitoFuncion($1.sval)){if ($3.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.sval = agregarTerceto("CALL", $1.sval, $3.sval);$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
-                  | IDENTIFICADOR '(' tipoDato expresion ')' { if (chequearAmbitoFuncion($1.sval)){String conversion = conversion($3.ival, $4.ival);if (($3.ival != $4.ival) && conversion != null){agregarTerceto(conversion, $4.sval, "", $3.ival); if ($4.ival != -1){comprobarTipoParametro($1.sval, $3.ival);}; $$.sval = agregarTerceto("CALL", $1.sval, $4.sval);$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;};}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
-                  | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' { if (chequearAmbitoFuncion($1.sval)){String conversion = conversion($3.ival, $5.ival);if (($3.ival != $5.ival) && conversion != null){agregarTerceto(conversion, $5.sval, "", $3.ival); if ($5.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.sval = agregarTerceto("CALL", $1.sval, $5.sval);$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;}; }Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
+                  | IDENTIFICADOR '(' tipoDato expresion ')' { if (chequearAmbitoFuncion($1.sval)){String conversion = conversion($3.ival, $4.ival);if (($3.ival != $4.ival) && conversion != null){String aux = agregarTerceto(conversion, $4.sval, "", $3.ival); if ($4.ival != -1){comprobarTipoParametro($1.sval, $3.ival);}; $$.sval = agregarTerceto("CALL", $1.sval, aux);$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;};}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
+                  | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' { if (chequearAmbitoFuncion($1.sval)){String conversion = conversion($3.ival, $5.ival);if (($3.ival != $5.ival) && conversion != null){String aux = agregarTerceto(conversion, $5.sval, "", $3.ival); if ($5.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.sval = agregarTerceto("CALL", $1.sval, aux);$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;}; }Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
                   | IDENTIFICADOR '(' expresion ',' error ')'                  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");} //TEMA 27
                   | IDENTIFICADOR '(' error ')'                                         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta expresion en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
                   | IDENTIFICADOR '(' tipoDato expresion ',' error ')'         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
@@ -723,9 +723,9 @@ public static void limpiarTablaDeSimbolos(){
 
 private String conversion(int tipoDato, int tipoExpresion){
   String[][] matrizConversiones = {
-    {"X", "ItoH", "0"},
-    {"HtoI", "X", "0"},
-    {"0", "0", "X"}
+    {"X", "ItoH", "ItoF"},
+    {"HtoI", "X", "HtoF"},
+    {"FtoI", "FtoH", "X"}
   };
   int row = 0;
   switch (tipoExpresion){

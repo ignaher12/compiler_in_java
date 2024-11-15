@@ -1,0 +1,14 @@
+conversiones
+BEGIN
+    longint a;
+    a := 16;
+    longint FUN funcion(single x)
+    begin
+        longint f;
+        f := 1;
+        outf([DENTRO DE FUNCION]);
+        outf(x);
+        ret(f);
+    end;
+    a:= funcion(single a);
+end
