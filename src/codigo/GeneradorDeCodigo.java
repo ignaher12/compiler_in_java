@@ -201,6 +201,7 @@ public class GeneradorDeCodigo {
                 data.append("\t" +"MOV EAX, " + valor.replace(":", "_") + "\n");
                 data.append("\t" +"MOV " + variable.replace(":", "_") + ", EAX" + "\n");
             } else{
+                if (terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")) valor = valor.substring(2) + "h";
                 data.append("\t" +"MOV " + variable.replace(":", "_") + ", " + valor.replace(":", "_") + "\n");
             };
         } else{
@@ -247,6 +248,8 @@ public class GeneradorDeCodigo {
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
         if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
+            if (!operando1.startsWith("_")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
+            if (!operando2.startsWith("_")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
             data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
@@ -322,6 +325,8 @@ public class GeneradorDeCodigo {
             data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
             data.append("\t" +"FCOMP"+ "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
         } else{
+            if (!operando1.startsWith("_")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
+            if (!operando2.startsWith("_")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +"MOV EBX, " + operando2.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" + "CMP EAX, EBX" + "\n"); // Realizar operación en AX

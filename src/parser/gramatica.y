@@ -101,7 +101,7 @@ funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {completa
                | funComienzo '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 ;
 
-funComienzo : FUN IDENTIFICADOR  {$$.sval = $2.sval; declararFuncion($2.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", "", ""); comienzoDeFuncion.add(tercetos.size()-1);agregarTerceto("ETIQUETA", "", $2.sval);} //PROBLEMA CON FUN error de fundeclaracion??
+funComienzo : FUN IDENTIFICADOR  {$$.sval = $2.sval; declararFuncion($2.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", $2.sval); comienzoDeFuncion.add(tercetos.size()-2);} //PROBLEMA CON FUN error de fundeclaracion??
 ;
 tipoDato : SINGLE      {$$.ival = TablaTipoToken.getTipoToken("SINGLE");}
          | LONGINT     {$$.ival = TablaTipoToken.getTipoToken("LONGINT");}
