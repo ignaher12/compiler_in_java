@@ -69,6 +69,14 @@ public class TablaDeSimbolos {
             this.declarado = false;
             this.reservada = false;
         }
+        public Contexto(Contexto c){
+            this.refs = c.getRefs();
+            this.refsAux = new ArrayList<Integer>();
+            this.tipo = c.getTipo();
+            this.valor = c.getValor();
+            this.declarado = c.getDeclarado();
+            this.reservada = c.isReservada();
+        }
         public void addRef(int linea){
             this.refs.add(linea);
             this.refsAux.add(linea);

@@ -9,17 +9,13 @@ includelib \masm32\lib\user32.lib
 dll_dllcrt0 PROTO C
 printf PROTO C : VARARG
 .DATA
-	_gordito2_main DD ?
-	_c_main DD ?
-	_gordito_main DD ?
-	_b_main DQ ?
-	_a_main DQ ?
+	_prueba_main REAL4 ?
+	_1f10s20 REAL4 1.10s20
 	__new_line__ DB 13, 10, 0
+	@imprimirFloat DQ ?
 .CODE
 START:
-	FLD _b_main
-	FSTP _a_main
-	FLD _b_main
-	FSTP _a_main
+	FLD _1f10s20
+	FSTP _prueba_main
 	INVOKE ExitProcess, 0
 END START

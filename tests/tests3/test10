@@ -1,0 +1,5 @@
+singleton
+begin
+    single prueba;
+    prueba := 1.10s20;
+end 

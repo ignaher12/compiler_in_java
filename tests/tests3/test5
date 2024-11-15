@@ -1,26 +1,31 @@
-operaciones
+subtiposTriples
 begin
     typedef gordito := longint {-5,10};
     typedef gordito2 := longint {-5,10};
+
+    gordito prueba;
+    gordito2 prueba2;
+
+
     
     typedef triple<longint> trupla;
-    typedef triple<longint> trupla2;
+    typedef triple<hexadecimal> trupla2;
 
     trupla t1;
     trupla2 t2;
 
-    t1 := 1;
+    t1 := t2;
 
 
     t1[1] := 10;
 
-    longint x;
-    longint a;
+    hexadecimal x;
+    hexadecimal a;
     longint b;
 
-    a := -3;
+    a := 0x4000;
 
-    x := a + b;
+    x := a + t2[2];
 
     
     gordito aaa;
