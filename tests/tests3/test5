@@ -2,7 +2,29 @@ operaciones
 begin
     typedef gordito := longint {-5,10};
     typedef gordito2 := longint {-5,10};
+    
+    typedef triple<longint> trupla;
+    typedef triple<longint> trupla2;
+
+    trupla t1;
+    trupla2 t2;
+
+    t1 := 1;
+
+
+    t1[1] := 10;
+
+    longint x;
+    longint a;
+    longint b;
+
+    a := -3;
+
+    x := a + b;
+
+    
     gordito aaa;
-    gordito2 bbb;
+    gordito bbb;
+    
     aaa := bbb;
 end
