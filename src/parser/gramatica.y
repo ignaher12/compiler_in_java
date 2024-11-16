@@ -535,6 +535,9 @@ private void declararFuncion(String ref){
 
 private void declaracionTriple(String refTipo, String refIdentificador){
   String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+  String newRef1 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 1 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+  String newRef2 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 2 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+  String newRef3 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 3 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
