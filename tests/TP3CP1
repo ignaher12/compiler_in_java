@@ -1,0 +1,33 @@
+codigoIntermedio
+BEGIN
+    ##Se pretende ver el codigo intermedio de las siguientes sentencias ejecutables
+
+    longint a;
+    hexadecimal b;
+    single c;
+
+    a := 10;
+    b := 0x0001;
+    c := 1.23s+23;
+
+    longint d;
+    a := a + d * 12;
+
+    if (a > 13 ) then
+    BEGIN
+        b := b + 0x120A;
+    end
+    end_if;
+
+    hexadecimal FUN funcionTest(hexadecimal a)
+    BEGIN
+        hexadecimal x;
+        x := a;
+        ret (x);
+    end;
+
+
+    hexadecimal f;
+    hexadecimal g;
+    f := funcionTest(g);
+end

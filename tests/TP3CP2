@@ -1,0 +1,30 @@
+chequeosSemanticosVariable
+BEGIN
+    ##Chequeo de variables no declaradas y redefinidas
+
+    ##variables no declaradas
+    longint b;
+
+    b := b + a;
+
+
+    hexadecimal a;
+    a := 0x3000;
+
+    longint FUN test(single h)
+    BEGIN
+        ##operacion permitida dado scope de la variable 'a'
+        a := a + 0x4F10;
+
+        ##declaraciones permitidas, ya que el scope se lo permite
+        hexadecimal a;
+        longint b;
+        ret (b);
+    end;
+
+    ##variable redefinida
+    single a;
+
+    ##En esta sentencia, al no aceptar la nueva definicion de 'a', aparece la incompatibilidad de tipos entre 'a' (que sigue siendo hexa) y la constante (single)
+    a:= 1.23s+30;
+end

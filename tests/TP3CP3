@@ -1,0 +1,49 @@
+chequeosSemanticosFuncion
+BEGIN
+    ##Chequeo de funciones no declaradas y redefinidas
+
+    ##funcion no definida
+    longint a;
+    longint b;
+    a := noDef(b);
+
+    ##funcion redefinida
+    longint FUN funcionTest(longint a)
+    BEGIN
+        outf([prueba]);
+        ret(12);
+    end;
+
+    ##Error, 'funcionTest' ya declarada
+    longint FUN funcionTest(longint b)
+    BEGIN
+        a:= b;
+        ret (a);
+    end;
+
+    ##funciones anidadas
+    hexadecimal FUN funcionTest2(longint b)
+    BEGIN
+        a:= b;
+        longint FUN funAnidada(single v)
+        BEGIN
+            longint h;
+            h := 23;
+            ret(h);
+        end;
+
+        ##Error adicional, 'a' es de tipo hexadecimal (declarado en main), no corresponde con el tipo de retorno de la funcion
+        ret (a);
+    end;
+
+    single FUN hola(single v)
+    BEGIN
+        longint a;
+        longint l;
+
+        ##No reconoce funAnidada, dado que no esta dentro de su alcance
+        a := funAnidada(l);
+
+        ##Error adicional, se menciona la falta de RET en la funcion
+    end;
+end
