@@ -302,7 +302,7 @@ bloqueSentenciaEjecutableConRet : sentenciaEjecutableConRet ';'   {$$.sval = $1.
 ;
 
 
-clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {agregarTerceto("BF", $5.sval, ((Integer)(tercetos.size()+2)).toString());agregarTerceto("BI", "", (inicioBucle.pop().toString()));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size())); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {agregarTerceto("BF", $5.sval, "etiqueta"+ (tercetos.size()+2));agregarTerceto("BI", "", (tercetos.get(inicioBucle.pop()).getT3()));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); agregarTerceto("ETIQUETA", "", "etiqueta"+ (tercetos.size())); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat error WHILE '(' condicion ')'                         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat bloqueSentenciaEjecutable WHILE error condicion ')'   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( de apertura de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat bloqueSentenciaEjecutable WHILE '(' error ')'         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
@@ -314,7 +314,7 @@ clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {ag
               | repeat bloqueSentenciaEjecutable error                       {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta while")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 ;
 
-repeat: REPEAT {inicioBucle.add(tercetos.size()); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size()));}
+repeat: REPEAT {inicioBucle.add(tercetos.size()); agregarTerceto("ETIQUETA", "", "etiqueta"+ (tercetos.size()));}
 ;
 
 goto : GOTO IDENTIFICADOR '@'     {tercetosGoto.push(agregarTerceto("BI", $2.sval,  ""));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}

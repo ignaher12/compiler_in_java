@@ -1,7 +1,9 @@
 conversiones
 BEGIN
     longint a;
+    longint b;
     a := 16;
+    b := 20;
     longint FUN funcion(single x)
     begin
         longint f;
@@ -11,4 +13,10 @@ BEGIN
         ret(f);
     end;
     a:= funcion(single a);
+
+    REPEAT begin
+        a:= a + 1;
+        outf(a);
+    end 
+    WHILE (a < b);
 end
