@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import lexico.MapeoCaracteres;
 import lexico.TablaDeSimbolos;
 import lexico.TablaTipoToken;
 import lexico.TablaDeSimbolos.Contexto;
@@ -59,7 +58,6 @@ public class GeneradorDeCodigo {
                 if (DEBUG) data.append("\t" + "\t" + terceto+ "\n");
                 switch (terceto.getT1()) {
                     case ":=":
-                        
                         procesarAsignacion(terceto);
                         break;
                     case "+":
@@ -75,23 +73,18 @@ public class GeneradorDeCodigo {
                         procesarDivision(terceto);
                         break;
                     case ">":
-                        //procesarMayor(terceto);
                         procesarComparacion(">", terceto);
                         break;
                     case ">=":
-                        //procesarMayorIgual(terceto);
                         procesarComparacion(">=", terceto);
                         break;
                     case "<":
-                        //procesarMenor(terceto);
                         procesarComparacion("<", terceto);
                         break;
                     case "<=":
-                        //procesarMenorIgual(terceto);
                         procesarComparacion("<=", terceto);
                         break;
                     case "=":
-                        //procesarIgual(terceto);
                         procesarComparacion("=", terceto);
                         break;
                     case "BI":
@@ -115,13 +108,11 @@ public class GeneradorDeCodigo {
                         pilaFunciones.add(new StringBuilder(data.toString()));
                         etiquetaFuncion = true;
                         data = aux;
-                        //procesarAnd(terceto); //?????
                         break;
                     case "FINFUN":
                         funciones.add(new StringBuilder(aux.toString()));
                         ambitos.remove(ambitos.size()-1);
                         data = pilaFunciones.pop();
-                        //procesarAnd(terceto);
                         break;
                     case "CALL":
                         procesarInvocacion(terceto);
@@ -227,10 +218,10 @@ public class GeneradorDeCodigo {
                 data.append("\t" +"MOV EAX, " + valor.replace(":", "_") + "\n");
                 data.append("\t" +"MOV " + variable.replace(":", "_") + ", EAX" + "\n");
             } else{
-                if (terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){//CONSTANTES HEXA
-                    if (valor.startsWith("0x")) valor = valor.substring(2) + "h";   
-                    else if (valor.startsWith("-0x")) valor = "-" + valor.substring(3) + "h";
-                }
+                //if (terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){//CONSTANTES HEXA            //CHEEECK
+                //    if (valor.startsWith("0x")) valor = valor.substring(2) + "h";   
+                //    else if (valor.startsWith("-0x")) valor = "-" + valor.substring(3) + "h";
+                //}
                 data.append("\t" +"MOV " + variable.replace(":", "_") + ", " + valor.replace(":", "_") + "\n");
             };
         } else{
@@ -262,16 +253,16 @@ public class GeneradorDeCodigo {
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
         if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
-            if (operando1.startsWith("0x")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
-            else if (operando1.startsWith("-0x")) operando1 = "-" + operando1.substring(3) + "h";
-            if (operando2.startsWith("0x")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
-            else if (operando2.startsWith("-0x")) operando2 = "-" + operando2.substring(3) + "h";
+            //if (operando1.startsWith("0x")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
+            //else if (operando1.startsWith("-0x")) operando1 = "-" + operando1.substring(3) + "h";
+            //if (operando2.startsWith("0x")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
+            //else if (operando2.startsWith("-0x")) operando2 = "-" + operando2.substring(3) + "h";
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
             data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
         }else{
-            if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
-            if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
+            //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
+            //if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
             data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
             data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
             data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
@@ -300,11 +291,10 @@ public class GeneradorDeCodigo {
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
         if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
-            if (operando1.startsWith("0x")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
-            else if (operando1.startsWith("-0x")) operando1 = "-" + operando1.substring(3) + "h";
-            if (operando2.startsWith("0x")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
-            else if (operando2.startsWith("-0x")) operando2 = "-" + operando2.substring(3) + "h";
-            
+            //if (operando1.startsWith("0x")) operando1 = (operando1.substring(2) + "h");   //CONSTANTE HEXA
+            //else if (operando1.startsWith("-0x")) operando1 = ("-" + operando1.substring(3) + "h"); //CONSTANTE HEXA
+            //if (operando2.startsWith("0x")) operando2 = (operando2.substring(2) + "h");   //CONSTANTE HEXA
+            //else if (operando2.startsWith("-0x")) operando2 =  ("-" + operando2.substring(3) + "h"); //CONSTANTE HEXA
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +"CDQ" + "\n");      // EXTIENDE SIGNO
             data.append("\t" +"MOV ECX, " + operando2.replace(":", "_") + "\n");      // Cargar arg1 en AX
@@ -312,8 +302,8 @@ public class GeneradorDeCodigo {
             ///HACER CHEQUEO DE OVERFLOW????
             data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal la parte baja de 32 bits
         }else{
-            if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
-            if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
+            //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
+            //if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
             data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
             data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
             data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
@@ -344,23 +334,20 @@ public class GeneradorDeCodigo {
         cantidadOperacionesLogicas = 1;
             
     }
-    /* private static void procesarAnd(Terceto terceto){
-        cantidadOperacionesLogicas = cantidadOperacionesLogicas + 1;
-    } */
 
     private static String procesarComparacion(String operacion, Terceto terceto){
         String operando1 = obtenerValor(terceto.getT2());
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
         if ((TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")) || (TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE"))){
-            if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
-            if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
+            //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
+            //if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
             data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
             data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
             data.append("\t" +"FCOMP"+ "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
         } else{
-            if (!operando1.startsWith("_")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
-            if (!operando2.startsWith("_")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
+            //if (!operando1.startsWith("_")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
+            //if (!operando2.startsWith("_")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +"MOV EBX, " + operando2.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" + "CMP EAX, EBX" + "\n"); // Realizar operación en AX
@@ -403,7 +390,12 @@ public class GeneradorDeCodigo {
         if (!valor.startsWith("-") && !valor.matches("^[0-9].*")){
             return "_" + encontrarAmbito(valor);
         } 
+        //constante
+        if (valor.startsWith("0x")) return (valor.substring(2) + "h");   //CONSTANTE HEXA
+        else if (valor.startsWith("-0x")) return ("-" + valor.substring(3) + "h"); //CONSTANTE HEXA
 
+        if (valor.contains(".")) return ("_" + valor.replace(".", "f").replace("-", "m").replace("+", "")); //CONSTANTE FLOAT
+        
         return valor;
     }
     public static String cargarAmbito(){
@@ -456,34 +448,13 @@ public class GeneradorDeCodigo {
     };
     public static String obtenerParametro(String nombreFuncion){
         nombreFuncion = nombreFuncion + cargarAmbito();
-        ///SEARCH FOR PARAMETRO
+
+        // GET PARAMETRO
         int index = nombreFuncion.indexOf(":");
         String primeraParte = nombreFuncion.substring(0, index);
         String ambitoParametro = nombreFuncion.substring(index);
         ambitoParametro = ambitoParametro + ":" + primeraParte;
-        int indice = 0;
-        boolean encontrado = false;
-        String parametro = null;
-        while((ambitoParametro.lastIndexOf(":") != -1) && !encontrado){
-            indice = 0;
-            while ((indice < lexemasTS.size()) && !encontrado){
-                String lexema = lexemasTS.get(indice);
-                Contexto contexto = TablaDeSimbolos.getContexto(lexema);
-                int aux = lexema.indexOf(":");
-                String ambito = null;
-                if (aux >= 0) ambito = lexema.substring(aux);          ///ME QUEDO SOLO CON EL AMBITO
-                
-                if (ambitoParametro.equals(ambito) && contexto.getUso().equals("nombre de parametro")){
-                    parametro = lexema;
-                    encontrado = true;
-                } 
-                indice = indice + 1;
-            };
-            if (ambitoParametro.lastIndexOf(":") != -1 && !encontrado){
-                int ultAmbito = ambitoParametro.lastIndexOf(":");
-                ambitoParametro = ambitoParametro.substring(0, ultAmbito);
-            }
-        }
+        String parametro = TablaDeSimbolos.getContexto(nombreFuncion).getNombreParametro() + ambitoParametro;
         return parametro;
     }
 
