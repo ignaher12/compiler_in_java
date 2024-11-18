@@ -1,0 +1,54 @@
+estructuraSintacticaIF
+begin
+    ##Caso valido estructura IF.
+    longint a;
+    longint b;
+    single c;
+    if (a = 2) then
+    begin
+        b:= 2;
+    end;
+    end_if;
+
+    ##Caso valido estructura IF con ELSE.
+    if(b = 3)then
+        begin
+            b:= 2;
+        end
+    else
+        begin
+            b:=3;
+        end
+    end_if;
+
+    ##Caso valido, pattern matching.
+    if((a,b) = (1,2))then
+    begin
+        a:=2;
+    end
+    end_if;
+    
+    ##Caso invalido, patterns matchings incorrectos.
+    ##No se corresponden los tipos.
+    if((a,c) = (1.1, 2))then
+    begin
+        a:=2;
+    end
+    end_if;
+
+    ##Las listas no tienen la misma cantidad de componentes.
+    if((a)=(2,3))then
+    begin
+        a:=2;
+    end
+    end_if;
+
+    ##Caso invalido, declaracion dentro de IF.
+    if(b = 3)then
+    begin
+        longint error;
+        error := 1;
+    end
+    end_if;
+
+end

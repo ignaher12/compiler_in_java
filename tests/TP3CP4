@@ -1,0 +1,86 @@
+chequeosSemanticosTipos
+begin
+    ##SUBTIPOS.
+    ##Definicion de subtipos
+    typedef enterito1 := longint {-5,10};
+    typedef enterito2 := longint {-5,10};
+    typedef flotantito := single {1.0, 10.0}
+
+    ##Redeclaracion de subtipos.
+    typedef enterito1 := single {1.1, 10.2};
+
+    ##Subtipo no declarado.
+    enterito3 i_enterito3;
+
+    ##Declarar variables con los subtipos creados
+    enterito1 i_enterito1;
+    enterito2 i_enterito2; 
+    flotantito i1_flotantito;
+    flotantito i2_flotantito;
+
+    ##Asignar constante dentro del rango.
+    i_enterito1 := 1;
+    i_enterito2 := 2;
+    i1_flotantito := 2.0;
+    i2_flotantito := 3.0;
+
+    ##Error, solo se pueden asignar variables con el mismo subtipo, por mas que el rango sea el mismo entre diferentes subtipos.
+    i_enterito1 := i_enterito2;
+
+    ##Asignacion correcta entre dos variablos con el mismo subtipo.
+    i1_flotantito := i2_flotantito;
+
+    ##Error, se intenta asignar una constante fuera de rango.
+    i_enterito1 := 200;
+    i1_flotantito := 20.0;
+
+    ##Error, se intenta asignar una constante de otro tipo.
+    i_enterito1 := 2.2;
+    i1_flotantito := 1;
+
+    ##TRIPLES
+    ##Declaracion de triples.
+    typedef triple<longint> triple_int;
+    typedef triple<hexadecimal> triple_hexa;
+    typedef triple<single> triple_single;
+
+    ##Redeclaracion de triples.
+    typedef triple<hexadecimal> triple_int;
+
+    ##Triple no declarado.
+    triple_intt t9;
+    
+    ##Declarar variables con los subtipos creados.
+    triple_int t1;
+    triple_int t1_2;
+    triple_hexa t2;
+    triple_single t3;
+
+    ##Error asignacion de triples con diferentes tipos.
+    t1 := t2;
+
+    ##Asignacion correcta entre triples con el mismo tipo.
+    t1 := t1_2;
+
+    ##Asignacion de componentes con constantes.
+    t1[1] := 10;
+    t2[2] := 0x100;
+    t3[0] := 1.1;
+
+    ##Asignacion de componentes con variables.
+    longint x;
+    x:= 10;
+    single y;
+    y:= 2.2;
+    hexadecimal h;
+    h:= 0x100;
+    t1[1] := x;
+    t2[2] := h;
+    t3[0] := y;
+
+    ##Asignaciones incorrectas.
+    t1[1] := 10.0;
+    t2[2] := 1;
+    t3[0] := 1;
+
+end
