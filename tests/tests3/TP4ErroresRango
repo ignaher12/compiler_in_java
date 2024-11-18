@@ -1,0 +1,12 @@
+TP4ErroresRango
+begin
+    typedef enterito1 := longint {-5,10};
+
+    enterito1 a;
+    longint b;
+    b := 20;
+
+    a := 1;
+
+    a := a + b;
+end

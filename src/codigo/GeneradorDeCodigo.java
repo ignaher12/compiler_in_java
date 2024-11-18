@@ -167,9 +167,9 @@ public class GeneradorDeCodigo {
             escritor.append("errorOverflow:"+ "\n");
             escritor.append("\t" +"INVOKE printf, ADDR mensajeErrorOverflow"+ "\n");
             escritor.append("\t" +"JMP FIN"+ "\n");
-            /* escritor.append("errorDivCero:"+ "\n");
-            escritor.append("\t" +"INVOKE printf, mensajeErrorDivCero"+ "\n");
-            escritor.append("\t" +"JMP FIN"+ "\n"); */
+            escritor.append("errorFueraDeRango:"+ "\n");
+            escritor.append("\t" +"INVOKE printf, ADDR mensajeErrorFueraDeRango"+ "\n");
+            escritor.append("\t" +"JMP FIN"+ "\n");
             escritor.append("END START");
             escritor.flush();
         }catch(IOException e){
@@ -195,6 +195,7 @@ public class GeneradorDeCodigo {
                 String lexema = par.getKey();
                 Contexto contexto = par.getValue();
                 if((contexto.getUso()!= "") && !(contexto.getUso().equals("nombre de funcion")) || (!contexto.getDeclarado() && contexto.getTipo() == TablaTipoToken.getTipoToken("SINGLE"))){        
+                    
                     String valorInicializacion = "?";
                     String tipoMemoria;
                     if (contexto.getTipo() == TablaTipoToken.getTipoToken("SINGLE")){
@@ -203,8 +204,11 @@ public class GeneradorDeCodigo {
                         tipoMemoria = "DD";
                     }
                     if (lexema.startsWith("@")){                                //auxiliar
-                        escritor.write("\t" + lexema + " "+ tipoMemoria + " ?\n");}
-                    else {
+                        escritor.write("\t" + lexema + " "+ tipoMemoria + " ?\n");
+                    }else if((contexto.getUso().equals("nombre de subtipo"))){
+                            escritor.write("\t_rangoInf" + contexto.getTypedef() + " " + tipoMemoria + " " + contexto.getLimiteInf() + "\n");
+                            escritor.write("\t_rangoSup" + contexto.getTypedef() + " " + tipoMemoria + " " + contexto.getLimiteSup() + "\n");
+                    }else {
                         if (contexto.getTipo() == TablaTipoToken.getTipoToken("SINGLE") && !contexto.getDeclarado()) //se deben declarar los floats para operar
                             valorInicializacion = lexema;                                                   
                         escritor.write("\t" + "_" + lexema.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "") + " "+ tipoMemoria + " " + valorInicializacion.replace("s", "e") + "\n");
@@ -217,6 +221,7 @@ public class GeneradorDeCodigo {
             escritor.append("\t" + "mensajeErrorDivCero db \"Error: Division por cero\", 10, 0" + "\n");
             escritor.append("\t" + "mensajeErrorOverflow db \"Error: Overflow en suma entre puntos flotantes\", 10, 0" + "\n");
             escritor.append("\t" + "maxFloat REAL4 3.402e38" + "\n");
+            escritor.append("\t" + "mensajeErrorFueraDeRango db \"Error: Valor fuera de rango del subtipo\", 10, 0" + "\n");
             escritor.append(".CODE"+ "\n");
         } catch (Exception e) {
             
@@ -266,12 +271,22 @@ public class GeneradorDeCodigo {
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
         if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
-            //if (operando1.startsWith("0x")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
-            //else if (operando1.startsWith("-0x")) operando1 = "-" + operando1.substring(3) + "h";
-            //if (operando2.startsWith("0x")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
-            //else if (operando2.startsWith("-0x")) operando2 = "-" + operando2.substring(3) + "h";
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
+             
+            if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
+                String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
+                data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
+                data.append("\t" + "JL errorFueraDeRango" + "\n");
+                data.append("\t" + "CMP EAX, _rangoSup" + typedef + "\n");
+                data.append("\t" + "JG errorFueraDeRango" + "\n");
+            }else if (!TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef().equals("null")){
+                String typedef = TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef();
+                data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
+                data.append("\t" + "JL errorFueraDeRango" + "\n");
+                data.append("\t" + "CMP EAX, _rangoSup" + typedef + "\n");
+                data.append("\t" + "JG errorFueraDeRango" + "\n");
+            }
             data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal
         }else{
             //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
@@ -282,9 +297,29 @@ public class GeneradorDeCodigo {
             if (operacion.equals("ADD")){
                 data.append("\t" + "FCOM maxFloat" + "\n");
                 data.append("\t" + "FSTSW ax" + "\n");
-                data.append("\t" + "JNZ errorOverflow" + "\n");
                 data.append("\t" + "SAHF" + "\n");
                 data.append("\t" + "JG errorOverflow" + "\n");
+            }
+            if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
+                String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
+                data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JL errorFueraDeRango" + "\n");
+                data.append("\t" + "FCOM _rangoSup" + typedef + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JG errorFueraDeRango" + "\n");
+            }else if (!TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef().equals("null")){
+                String typedef = TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef();
+                data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JL errorFueraDeRango" + "\n");
+                data.append("\t" + "FCOM _rangoSup" + typedef + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JG errorFueraDeRango" + "\n");
             }
             data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
         }
@@ -323,6 +358,19 @@ public class GeneradorDeCodigo {
                 data.append("\t" +"JE errorDivCero" + "\n");
             }
             data.append("\tI" + operacion + " ECX" + "\n"); // Realizar operación en AX
+            if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
+                String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
+                data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
+                data.append("\t" + "JL errorFueraDeRango" + "\n");
+                data.append("\t" + "CMP EAX, _rangoSup" + typedef + "\n");
+                data.append("\t" + "JG errorFueraDeRango" + "\n");
+            }else if (!TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef().equals("null")){
+                String typedef = TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef();
+                data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
+                data.append("\t" + "JL errorFueraDeRango" + "\n");
+                data.append("\t" + "CMP EAX, _rangoSup" + typedef + "\n");
+                data.append("\t" + "JG errorFueraDeRango" + "\n");
+            }
             data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal la parte baja de 32 bits
         }else{
             //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
@@ -334,6 +382,27 @@ public class GeneradorDeCodigo {
                 data.append("\t" +"JE errorDivCero" + "\n");
             }
             data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
+            if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
+                String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
+                data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JL errorFueraDeRango" + "\n");
+                data.append("\t" + "FCOM _rangoSup" + typedef + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JG errorFueraDeRango" + "\n");
+            }else if (!TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef().equals("null")){
+                String typedef = TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef();
+                data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JL errorFueraDeRango" + "\n");
+                data.append("\t" + "FCOM _rangoSup" + typedef + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JG errorFueraDeRango" + "\n");
+            }
             data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
         }
         return variableAux;
