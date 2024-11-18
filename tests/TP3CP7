@@ -1,0 +1,38 @@
+alcance
+begin
+    longint a;
+    longint b;
+
+    hexadecimal FUN alcance1(single c)
+    begin
+        ##Accede a la variable 'a', decalrada en el cuerpo main 
+        a := 10;
+
+        ## (Permitido) Declara otra variable 'a' dentro de su alcance
+        single a;
+        a := c;
+
+        hexadecimal FUN alcance2(longint h)
+        begin
+            b := h;
+            hexadecimal retorno;
+            retorno := 0x1000;
+            ret (retorno);
+        end;
+
+        ret(alcance2(10));                              ##REVISAR
+    end;
+
+    longint FUN otraFuncion(longint a)
+    begin
+        ##Accede a la variable 'a', decalrada en el cuerpo main 
+        a := 16;
+
+        ## (Error) Se intenta acceder a la variable 'retorno' de FUN alcance2
+        retorno := 0x4545;
+
+        ret (a);
+    end;
+
+
+end

@@ -4,7 +4,7 @@ begin
     ##Definicion de subtipos
     typedef enterito1 := longint {-5,10};
     typedef enterito2 := longint {-5,10};
-    typedef flotantito := single {1.0, 10.0}
+    typedef flotantito := single {1.0, 10.0};
 
     ##Redeclaracion de subtipos.
     typedef enterito1 := single {1.1, 10.2};
@@ -50,7 +50,7 @@ begin
     ##Triple no declarado.
     triple_intt t9;
     
-    ##Declarar variables con los subtipos creados.
+    ##Declarar variables con los triples creados.
     triple_int t1;
     triple_int t1_2;
     triple_hexa t2;
@@ -65,7 +65,7 @@ begin
     ##Asignacion de componentes con constantes.
     t1[1] := 10;
     t2[2] := 0x100;
-    t3[0] := 1.1;
+    t3[3] := 1.1;
 
     ##Asignacion de componentes con variables.
     longint x;
@@ -76,11 +76,27 @@ begin
     h:= 0x100;
     t1[1] := x;
     t2[2] := h;
-    t3[0] := y;
+    t3[3] := y;
 
     ##Asignaciones incorrectas.
     t1[1] := 10.0;
     t2[2] := 1;
-    t3[0] := 1;
+    t3[3] := 1;
 
-end
+    ##Uso de triples en funciones
+    hexadecimal FUN aceptaTriple(triple_int t1)
+    begin
+        triple_int t3;
+        hexadecimal h;
+        ret (h);
+    end;
+
+    ##Uso de subtipos en funciones
+    hexadecimal FUN aceptaEnterito(enterito2 t1)
+    begin
+        enterito2 t3;
+        t3 := t1;
+        hexadecimal h;
+        ret (h);
+    end;
+end 

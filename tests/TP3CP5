@@ -7,7 +7,7 @@ begin
     if (a = 2) then
     begin
         b:= 2;
-    end;
+    end
     end_if;
 
     ##Caso valido estructura IF con ELSE.
@@ -36,18 +36,10 @@ begin
     end
     end_if;
 
-    ##Las listas no tienen la misma cantidad de componentes.
+    ##Caso invalido, las listas no tienen la misma cantidad de componentes.
     if((a)=(2,3))then
     begin
         a:=2;
-    end
-    end_if;
-
-    ##Caso invalido, declaracion dentro de IF.
-    if(b = 3)then
-    begin
-        longint error;
-        error := 1;
     end
     end_if;
 

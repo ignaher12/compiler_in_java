@@ -1,0 +1,49 @@
+incompatibilidadTipos
+begin
+    ##Se pretende verificar la compatibilidad en los tipos del compilador
+    longint a;
+    single b;
+
+    ## (Error) no se acepta la asignacion, no hay conversiones
+    a:= b;
+    a := 12 + b;
+
+    ## (Permitido)
+    hexadecimal c;
+    hexadecimal d;
+    c := 0x4000 + d;
+    
+    hexadecimal FUN devuelveHexa(hexadecimal c)
+    begin
+        ret (c);
+    end;
+    longint FUN devuelveLongint(hexadecimal c)
+    begin
+        longint i;
+        a := a + i * 12;
+        ret (a);
+    end;
+
+    longint e;
+    
+    ## (Error) Incompatibilidad
+    e := devuelveHexa(c);
+    ## (Permitido)
+    e := devuelveLongint(c);
+
+
+    ##Conversiones
+    single FUN conversiones(hexadecimal h)
+    begin
+        single s;
+        s := 13.13s+34;
+        ret(s);
+    end;
+
+    single respuesta;
+    ## (Error) Incompatibilidad entre parametro formal y real
+    respuesta := conversiones(a);
+    ## (Permitido)
+    respuesta := conversiones(hexadecimal a);
+
+end

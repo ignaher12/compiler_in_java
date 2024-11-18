@@ -1,0 +1,26 @@
+estructuraSintacticaREPEAT
+begin
+
+    longint a;
+    longint b;
+
+    ##Declaracion valida de bloque REPEAT WHILE()
+    repeat
+    begin
+        a := 12;
+        b := 14 + a;
+        outf([prueba]);
+    end
+    while ( b <= 100);
+    
+    single c;
+    ##incompatibilidad de tipos entre comparadores en la condicion
+    repeat
+    begin
+        a := 12;
+        b := 14 + a;
+        outf([prueba]);
+    end
+    while (c > 10);
+
+end

@@ -11,8 +11,8 @@ public class TablaDeSimbolos {
         private List<Integer> refs;
         private List<Integer> refsAux;
         private int tipo;
-        private int limite_inf;
-        private int limite_sup;
+        private String limite_inf;
+        private String limite_sup;
         private String uso = "";
         private String valor;
         private boolean reservada;
@@ -114,19 +114,19 @@ public class TablaDeSimbolos {
         public void setUso(String uso){
             this.uso = uso;
         }
-        public void setLimiteSup(int limiteSup){
+        public void setLimiteSup(String limiteSup){
             this.limite_sup = limiteSup;
         }
-        public void setLimiteInf(int limiteInf){
+        public void setLimiteInf(String limiteInf){
             this.limite_inf = limiteInf;
         }
         public void setTypedef(String typedef){
             this.typedef = typedef;
         }
-        public int getLimiteSup(){
+        public String getLimiteSup(){
             return this.limite_sup;
         }
-        public int getLimiteInf(){
+        public String getLimiteInf(){
             return this.limite_inf;
         }
         public String getTypedef(){
@@ -306,7 +306,7 @@ public class TablaDeSimbolos {
     }
 
     public static Contexto getContexto(String atributo){
-        //System.out.println(atributo);
+        System.out.println(atributo);
         if (tabla.get(atributo) == null) { 
             return tablaReservada.get(atributo.toLowerCase());}
 

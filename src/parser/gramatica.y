@@ -61,13 +61,13 @@ sentencia : sentenciaDeclarativa
 sentenciaDeclarativa : tipoDato IDENTIFICADOR  ';'                      {ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden); estructuras.add("Linea "+ TablaDeSimbolos.getContexto($1.sval).popRef() +": "+"Declaracion");}
                      | tipoDato IDENTIFICADOR ',' listaVariable ';'     {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
                      | IDENTIFICADOR IDENTIFICADOR ',' listaVariable ';'
-                     | IDENTIFICADOR IDENTIFICADOR ';' {if (TablaDeSimbolos.getContexto($1.sval + cargarAmbito()) != null){$2.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo(); ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden);if(TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTypedef() == null){  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no corresponde a un nombre de tipo."));}}else{  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no declarado."));}}
+                     | IDENTIFICADOR IDENTIFICADOR ';' {String idenTipo = chequearDeclarado($1.sval); if (idenTipo != null && TablaDeSimbolos.getContexto(idenTipo) != null){$2.ival = TablaDeSimbolos.getContexto(idenTipo).getTipo(); ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden);if(TablaDeSimbolos.getContexto(idenTipo).getTypedef() == null){  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no corresponde a un nombre de tipo."));}}else{  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no declarado."));}}
                      | tipoDato IDENTIFICADOR ',' error ';' {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera IDENTIFICADOR.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
                      | tipoDato IDENTIFICADOR ',' listaVariable error ';' {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
                      | tipoDato IDENTIFICADOR error ';' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); }    
                      | typedefDeclaracion ';'
                      | typedefDeclaracion error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera ';'.")); }
-                     | tipoDato funDeclaracion ';'  {System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + retornos);if (!chequearTipoRetorno($1.ival, $2.sval)){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO todos los RET deben retornar el tipo " + $1.sval)); }; System.out.println($2.sval + cargarAmbito()); TablaDeSimbolos.getContexto($2.sval + cargarAmbito()).setTipo(TablaTipoToken.getTipoToken($1.sval));estructuras.add("Declaracion de funcion");}
+                     | tipoDato funDeclaracion ';'  {if (!chequearTipoRetorno($1.ival, $2.sval)){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO todos los RET deben retornar el tipo " + $1.sval)); }; System.out.println($2.sval + cargarAmbito()); TablaDeSimbolos.getContexto($2.sval + cargarAmbito()).setTipo(TablaTipoToken.getTipoToken($1.sval));estructuras.add("Declaracion de funcion");}
                      | funDeclaracion ';' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'tipo de dato antes de declaracion de funcion'.")); }
                      //| tipoDato error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'objeto a declarar'."));}
 
@@ -133,6 +133,7 @@ constante : CONSTANTE { System.out.println("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
 
 
 parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval); $$.sval = $2.sval; $$.ival = $1.ival;}
+          | IDENTIFICADOR IDENTIFICADOR {String idenTipo = chequearDeclarado($1.sval); if (idenTipo != null && TablaDeSimbolos.getContexto(idenTipo) != null){$2.ival = TablaDeSimbolos.getContexto(idenTipo).getTipo(); ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden);if(TablaDeSimbolos.getContexto(idenTipo).getTypedef() == null){  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no corresponde a un nombre de tipo."));}}else{  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no declarado."));}}
           | error IDENTIFICADOR      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta tipo de dato en el parametro."));}
           | tipoDato error      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre en el parametro."));}
 ;
@@ -261,8 +262,10 @@ condicion: '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' l
          | '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
          | '(' expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
          | '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         | '(' expresion ')' comparador '(' expresion ',' listaExpresiones ')'  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO No se puede comparar una expresion con una lista de expresiones"));}
+         | '(' expresion ',' listaExpresiones ')' comparador '(' expresion ')'  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO No se puede comparar una expresion con una lista de expresiones"));}
 
-         | expresion comparador expresion {if($1.ival == $3.ival){$$.sval = agregarTerceto($2.sval, $1.sval, $3.sval);}}
+         | expresion comparador expresion {if($1.ival == $3.ival){$$.sval = agregarTerceto($2.sval, $1.sval, $3.sval);}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO incompatibilidad de tipos en la condicion"));}}
          | error comparador expresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la izquierda del comparador."));}
          | expresion comparador error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la derecha del comparador."));}
          | expresion error expresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
@@ -371,7 +374,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("TP3CP3", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("TP3CP8", matriz, matrizAcciones);
         
         parser.run();
 
@@ -426,7 +429,10 @@ private boolean chequearTipoRetorno(int tipoFuncion, String nombreFuncion){
 }
 private boolean chequearTiposLista(ArrayList<String> lista1, ArrayList<String> lista2){
   
+  System.out.println("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR EMPIEZA");
+  System.out.println(lista1.size() + "+++++" + lista2.size());
   if (lista1.size() != lista2.size()){
+    System.out.println("RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR ENTRA ACA");
     erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO El numero de expresiones de un lado de la comparacion no corresponde con el otro"));
     return false; 
   } 
@@ -489,9 +495,9 @@ private void declararVariable(String refTipo, ArrayList<String> referenciasIdent
           if(TablaDeSimbolos.getContexto(refTipo).getTypedef() != null){
             conIdentificador.setTypedef(TablaDeSimbolos.getContexto(refTipo).getTypedef());
             if (TablaDeSimbolos.getContexto(refTipo).getUso().equals("nombre de triple")){
-              String newRef1 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 0 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
-              String newRef2 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 1 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
-              String newRef3 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 2 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+              String newRef1 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 1 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+              String newRef2 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 2 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+              String newRef3 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 3 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
               conIdentificador.setUso("nombre de variable triple");
               Contexto aux = new Contexto(conIdentificador);
               aux.setDeclarado();
@@ -535,9 +541,6 @@ private void declararFuncion(String ref){
 
 private void declaracionTriple(String refTipo, String refIdentificador){
   String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
-  String newRef1 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 1 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
-  String newRef2 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 2 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
-  String newRef3 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 3 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
   Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
@@ -563,8 +566,8 @@ private void declaracionSubtipo(String refTipo, String refIdentificador, ArrayLi
       System.out.println(TablaDeSimbolos.imprimir());
       System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" +limites.get(0) + "aaaaa " + limites.get(1));
 
-      conIdentificador.setLimiteInf(Integer.parseInt(limites.get(0)));
-      conIdentificador.setLimiteSup(Integer.parseInt(limites.get(1)));
+      conIdentificador.setLimiteInf(limites.get(0));
+      conIdentificador.setLimiteSup(limites.get(1));
       System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" +refIdentificador);
       conIdentificador.setTypedef(refIdentificador);
     }else{
@@ -613,9 +616,13 @@ private void declaracionParametro(String refTipo, String refIdentificador){
 private String chequearDeclarado(String lexemaSinAmbito){
   
   String lexema = lexemaSinAmbito + cargarAmbito();
+  System.out.println("COMIENZA CONNNNNNNNNNNNNNNNNN " + lexema);  
   while(lexema.lastIndexOf(":") != -1){
+    System.out.println(TablaDeSimbolos.imprimir());
     System.out.println("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL " + lexema);
     Contexto contexto = TablaDeSimbolos.getContexto(lexema);
+    System.out.println("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL " + contexto);
+
     if (contexto != null){
       if (contexto.getDeclarado()){    //CON UNA VARIABLE BASE (SIN AMBITO) EN LA T.S. ESTE IF PUEDE NO ESTAR. SI AGREGAMOS A LA T.S. (DESDE EL LEXER) CON AMBITO ENTONCES NECESITAMOS DEL ATRIBUTO "DECLARADO"
         System.out.println(TablaDeSimbolos.imprimir());
@@ -626,6 +633,7 @@ private String chequearDeclarado(String lexemaSinAmbito){
     }
     int ultAmbito = lexema.lastIndexOf(":");
     lexema = lexema.substring(0, ultAmbito);
+    System.out.println("!!!!!!!!! " + lexema);
   }
   erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + lexemaSinAmbito + " nunca fue declarado")); 
   return null;
@@ -794,13 +802,10 @@ public void completarFuncion(String parametro){
 }
 
 public boolean chequearAsignacion(String variable, String valor){
-  System.out.println("ENTRA A CHECK ASIGNACIONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN");
-  System.out.println(valor);
   if (valor.matches("\\^.*")) {
     valor = valor.substring(1,valor.length());
     int tipo = tercetos.get(Integer.parseInt(valor)).getTipo();
     System.out.println(variable + cargarAmbito());
-    System.out.println("NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN " + tipo + " NNNNNN " + TablaDeSimbolos.getContexto(chequearDeclarado(variable)).getTipo());
     if(TablaDeSimbolos.getContexto(chequearDeclarado(variable)).getTipo() == tipo){
       return true;
     }
@@ -821,8 +826,14 @@ public boolean chequearAsignacion(String variable, String valor){
       }else if(valor.matches("^[0-9].*")){
         //valor constante o variable
         if(contextoVariable.getUso().equals("nombre de subtipo")){
-          if (contextoVariable.getTipo() == TablaDeSimbolos.getContexto(valor).getTipo() && (Integer.parseInt(valor) <= TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteSup()) && (Integer.parseInt(valor) >= TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteInf())){
-            return true;
+          if (contextoVariable.getTipo() == TablaDeSimbolos.getContexto(valor).getTipo() && (Integer.parseInt(valor) >= Integer.parseInt(TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteInf()))){
+            if (TablaDeSimbolos.getContexto(valor).getTipo() == 277 && (Integer.parseInt(valor) <= Integer.parseInt(TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteSup())) ){
+              return true;
+            }else if(TablaDeSimbolos.getContexto(valor).getTipo() == 271 && (Float.parseFloat(valor) <= Float.parseFloat(TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteSup()))){
+              return true;
+            }else if(TablaDeSimbolos.getContexto(valor).getTipo() == 258 && (Integer.parseInt(valor.substring(2)) <= Integer.parseInt(TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteSup().substring(2)))){
+              return true;
+            }
           }
         }
       }
@@ -836,7 +847,6 @@ public boolean chequearAsignacion(String variable, String valor){
       }
     }else{
       if (TablaDeSimbolos.getContexto(valor) != null && contextoVariable.getTipo() == TablaDeSimbolos.getContexto(valor).getTipo()){
-        System.out.println("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ " + contextoVariable.getTipo() + " JJJJJJJJ " + TablaDeSimbolos.getContexto(valor).getTipo());
         return true;
       }
     }
