@@ -1,0 +1,9 @@
+TP4ErroresEjecucionDivCero
+BEGIN
+    single a;
+    single b;
+    a := 10.00;
+    b := 0.00;
+    a := a / b;
+    outf([dsa]);
+end
