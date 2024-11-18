@@ -118,8 +118,8 @@ public class GeneradorDeCodigo {
                         procesarInvocacion(terceto);
                         break;
                     case "RET":
-                        String res = encontrarAmbito(terceto.getT2());
-                        if (TablaDeSimbolos.getContexto(res).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")){
+                        String res = obtenerValor(terceto.getT2());
+                        if (TablaDeSimbolos.getContexto(res.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")){
                             data.append("\t" + "FLD _" + res.replace(":", "_") + "\n");
                         }else{
                             data.append("\t" + "MOV EAX, _" + res.replace(":", "_") + "\n");
