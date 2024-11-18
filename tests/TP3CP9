@@ -1,4 +1,30 @@
 pruebasGoto
 BEGIN
+    ##Pruebas GOTO
+
+    GOTO etiquetaN1@;
     
+    longint x;
+
+    hexadecimal FUN funcion(longint a)
+    BEGIN
+        x := 12 + 12;
+        hexadecimal b;
+        goto etiquetaN2@;
+        ret(b);
+    end;
+
+    longint a;
+    if (a = 0) then
+        a :=1;
+    else
+        a := 2;
+    end_if;
+
+    etiquetaN1: x := 12;
+    GOTO noExiste@;
+
+    etiquetaN2: 
+    longint var;
+    var := x / 14;
 end

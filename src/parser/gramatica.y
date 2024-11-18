@@ -374,7 +374,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("TP3CP8", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("TP3CP9", matriz, matrizAcciones);
         
         parser.run();
 
@@ -564,11 +564,8 @@ private void declaracionSubtipo(String refTipo, String refIdentificador, ArrayLi
       conIdentificador.setUso("nombre de subtipo");
       conIdentificador.setDeclarado();
       System.out.println(TablaDeSimbolos.imprimir());
-      System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" +limites.get(0) + "aaaaa " + limites.get(1));
-
       conIdentificador.setLimiteInf(limites.get(0));
       conIdentificador.setLimiteSup(limites.get(1));
-      System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" +refIdentificador);
       conIdentificador.setTypedef(refIdentificador);
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
@@ -731,10 +728,11 @@ public static void completarTercetosEtiqueta(){ //recorre TODOS tercetosGoto y a
       //tGoto.setT3(etiquetas.get(tGoto.getT2()));
       tGoto.setT3(tercetos.get(Integer.parseInt(etiquetas.get(tGoto.getT2()).replace("^", ""))).getT3());
       tGoto.setT2("");
+    }else{
+      erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO hay sentencias GOTO que van a etiquetas inexistentes"));
     }
   }
 }
-
 
 public void completarUltimoTercetoIncompleto(){
   if (tercetosIncompletos.size() > 0){
