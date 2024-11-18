@@ -221,6 +221,7 @@ public class GeneradorDeCodigo {
             escritor.append("\t" + "mensajeErrorDivCero db \"Error: Division por cero\", 10, 0" + "\n");
             escritor.append("\t" + "mensajeErrorOverflow db \"Error: Overflow en suma entre puntos flotantes\", 10, 0" + "\n");
             escritor.append("\t" + "maxFloat REAL4 3.402e38" + "\n");
+            escritor.append("\t" + "minFloat REAL4 -3.402e38" + "\n");
             escritor.append("\t" + "mensajeErrorFueraDeRango db \"Error: Valor fuera de rango del subtipo\", 10, 0" + "\n");
             escritor.append(".CODE"+ "\n");
         } catch (Exception e) {
@@ -299,6 +300,10 @@ public class GeneradorDeCodigo {
                 data.append("\t" + "FSTSW ax" + "\n");
                 data.append("\t" + "SAHF" + "\n");
                 data.append("\t" + "JG errorOverflow" + "\n");
+                data.append("\t" + "FCOM minFloat" + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JL errorOverflow" + "\n");
             }
             if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
