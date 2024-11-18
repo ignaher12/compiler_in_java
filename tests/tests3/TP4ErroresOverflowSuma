@@ -1,0 +1,9 @@
+TP4ErroresOverflowSuma
+BEGIN
+    single a;
+    single b;
+    a := 3.402s38;
+    b := 0.001s38;
+    a := a + b;
+    outf(a);
+end

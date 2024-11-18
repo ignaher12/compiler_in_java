@@ -119,7 +119,7 @@ public class GeneradorDeCodigo {
                         break;
                     case "RET":
                         String res = encontrarAmbito(terceto.getT2());
-                        if (TablaDeSimbolos.getContexto(res).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")){
+                        if (TablaDeSimbolos.getContexto(res.replace("_","")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")){
                             data.append("\t" + "FLD _" + res.replace(":", "_") + "\n");
                         }else{
                             data.append("\t" + "MOV EAX, _" + res.replace(":", "_") + "\n");
@@ -157,9 +157,19 @@ public class GeneradorDeCodigo {
                 escritor.append(datos);
             }
             escritor.append("START:"+ "\n");
+            escritor.append("\t" + "FINIT" + "\n");
             escritor.append(data);
             escritor.append("FIN:"+ "\n");
             escritor.append("\t" + "INVOKE ExitProcess, 0" + "\n");
+            escritor.append("errorDivCero:"+ "\n");
+            escritor.append("\t" +"INVOKE printf, ADDR mensajeErrorDivCero"+ "\n");
+            escritor.append("\t" +"JMP FIN"+ "\n");
+            escritor.append("errorOverflow:"+ "\n");
+            escritor.append("\t" +"INVOKE printf, ADDR mensajeErrorOverflow"+ "\n");
+            escritor.append("\t" +"JMP FIN"+ "\n");
+            /* escritor.append("errorDivCero:"+ "\n");
+            escritor.append("\t" +"INVOKE printf, mensajeErrorDivCero"+ "\n");
+            escritor.append("\t" +"JMP FIN"+ "\n"); */
             escritor.append("END START");
             escritor.flush();
         }catch(IOException e){
@@ -204,6 +214,9 @@ public class GeneradorDeCodigo {
             }
             escritor.append("\t" + "__new_line__ DB 13, 10, 0"+ "\n");
             escritor.append("\t" + "@imprimirFloat DQ ?"+ "\n");
+            escritor.append("\t" + "mensajeErrorDivCero db \"Error: Division por cero\", 10, 0" + "\n");
+            escritor.append("\t" + "mensajeErrorOverflow db \"Error: Overflow en suma entre puntos flotantes\", 10, 0" + "\n");
+            escritor.append("\t" + "maxFloat REAL4 3.402e38" + "\n");
             escritor.append(".CODE"+ "\n");
         } catch (Exception e) {
             
@@ -266,6 +279,13 @@ public class GeneradorDeCodigo {
             data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
             data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
             data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
+            if (operacion.equals("ADD")){
+                data.append("\t" + "FCOM maxFloat" + "\n");
+                data.append("\t" + "FSTSW ax" + "\n");
+                data.append("\t" + "JNZ errorOverflow" + "\n");
+                data.append("\t" + "SAHF" + "\n");
+                data.append("\t" + "JG errorOverflow" + "\n");
+            }
             data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
         }
         return variableAux;
@@ -298,14 +318,21 @@ public class GeneradorDeCodigo {
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +"CDQ" + "\n");      // EXTIENDE SIGNO
             data.append("\t" +"MOV ECX, " + operando2.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            if (operacion.equals("DIV")){
+                data.append("\t" +"CMP ECX, 0" + "\n");
+                data.append("\t" +"JE errorDivCero" + "\n");
+            }
             data.append("\tI" + operacion + " ECX" + "\n"); // Realizar operación en AX
-            ///HACER CHEQUEO DE OVERFLOW????
             data.append("\t" +"MOV " + variableAux + ", EAX" + "\n");  // Guardar en variable temporal la parte baja de 32 bits
         }else{
             //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
             //if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
             data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
             data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
+            if (operacion.equals("DIV")){
+                data.append("\t" +"FTST"+ "\n"); 
+                data.append("\t" +"JE errorDivCero" + "\n");
+            }
             data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
             data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
         }
