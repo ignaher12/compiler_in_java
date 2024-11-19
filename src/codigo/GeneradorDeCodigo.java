@@ -173,7 +173,8 @@ public class GeneradorDeCodigo {
             escritor.append("END START");
             escritor.flush();
         }catch(IOException e){
-            System.out.println("Error al abrir el archivo: " + e.getMessage());
+            System.out.println("Error al abrir el archivo de esritura: " + e.getMessage());
+            System.exit(1);
         };    
     }
     private static void generarHeader(){
@@ -211,7 +212,7 @@ public class GeneradorDeCodigo {
                     }else {
                         if (contexto.getTipo() == TablaTipoToken.getTipoToken("SINGLE") && !contexto.getDeclarado()) //se deben declarar los floats para operar
                             valorInicializacion = lexema;                                                   
-                        escritor.write("\t" + "_" + lexema.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "") + " "+ tipoMemoria + " " + valorInicializacion.replace("s", "e") + "\n");
+                        escritor.write("\t" + "_" + lexema.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "M") + " "+ tipoMemoria + " " + valorInicializacion.replace("s", "e") + "\n");
                     }
                 }
                 if (lexema.contains("[")) escritor.write("\t" + mapeoMultilineaData.get(lexema) + " DB \"" + lexema.replaceAll("[_\\[\\]]", "") +"\", 0\n");
@@ -245,9 +246,9 @@ public class GeneradorDeCodigo {
             };
         } else{
             if(valor.startsWith("@") || valor.startsWith("_")){
-                data.append("\t" +"FLD " + valor.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "") + "\n");
+                data.append("\t" +"FLD " + valor.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "M") + "\n");
             }else{
-                data.append("\t" +"FLD _" + valor.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "") + "\n");
+                data.append("\t" +"FLD _" + valor.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "M") + "\n");
             }
             data.append("\t" +"FSTP " + variable.replace(":", "_") + "\n");
         }
@@ -277,6 +278,8 @@ public class GeneradorDeCodigo {
             
             if (operando1.charAt(operando1.length()-1) == 'h') operando1 = "0x" + operando1.substring(0, operando1.length()-1);
             if (operando2.charAt(operando2.length()-1) == 'h') operando2 = "0x" + operando2.substring(0, operando2.length()-1);
+            if (operando1.contains("-")) operando1 = "-" + operando1.replace("-", "");
+            if (operando2.contains("-")) operando2 = "-" + operando2.replace("-", "");
             if (TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
                 data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
@@ -307,6 +310,8 @@ public class GeneradorDeCodigo {
                 data.append("\t" + "SAHF" + "\n");
                 data.append("\t" + "JL errorOverflow" + "\n");
             }
+            if (operando1.replace("_", "").matches("^[0-9].*")) operando1 = operando1.replace("f", ".").replace("m", "-").replace("M", "+");
+            if (operando2.replace("_", "").matches("^[0-9].*")) operando2 = operando2.replace("f", ".").replace("m", "-").replace("M", "+");
             if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
                 data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
@@ -367,6 +372,8 @@ public class GeneradorDeCodigo {
             data.append("\tI" + operacion + " ECX" + "\n"); // Realizar operación en AX
             if (operando1.charAt(operando1.length()-1) == 'h') operando1 = "0x" + operando1.substring(0, operando1.length()-1);
             if (operando2.charAt(operando2.length()-1) == 'h') operando2 = "0x" + operando2.substring(0, operando2.length()-1);
+            if (operando1.contains("-")) operando1 = "-" + operando1.replace("-", "");
+            if (operando2.contains("-")) operando2 = "-" + operando2.replace("-", "");
             if (TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
                 data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
@@ -391,8 +398,13 @@ public class GeneradorDeCodigo {
                 data.append("\t" +"JE errorDivCero" + "\n");
             }
             data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
-            if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
-                String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
+            if (operando1.replace("_", "").matches("^[0-9].*")) operando1 = operando1.replace("f", ".").replace("m", "-").replace("M", "+");
+            if (operando2.replace("_", "").matches("^[0-9].*")) operando2 = operando2.replace("f", ".").replace("m", "-").replace("M", "+");
+            Contexto aux1 = TablaDeSimbolos.getContexto(operando1.replace("_", ""));
+            Contexto aux2 = TablaDeSimbolos.getContexto(operando2.replace("_", ""));
+            if (aux1.getTypedef() != null){
+                System.out.println("dentro1");
+                String typedef = aux1.getTypedef();
                 data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
                 data.append("\t" + "FSTSW ax" + "\n");
                 data.append("\t" + "SAHF" + "\n");
@@ -401,8 +413,9 @@ public class GeneradorDeCodigo {
                 data.append("\t" + "FSTSW ax" + "\n");
                 data.append("\t" + "SAHF" + "\n");
                 data.append("\t" + "JG errorFueraDeRango" + "\n");
-            }else if (!TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef().equals("null")){
-                String typedef = TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef();
+            }else if (aux1.getTypedef() != null){
+                System.out.println("dentro2");
+                String typedef = aux2.getTypedef();
                 data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
                 data.append("\t" + "FSTSW ax" + "\n");
                 data.append("\t" + "SAHF" + "\n");
@@ -412,6 +425,7 @@ public class GeneradorDeCodigo {
                 data.append("\t" + "SAHF" + "\n");
                 data.append("\t" + "JG errorFueraDeRango" + "\n");
             }
+            System.out.println("afuera");
             data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
         }
         return variableAux;
@@ -499,7 +513,7 @@ public class GeneradorDeCodigo {
         if (valor.startsWith("0x")) return (valor.substring(2) + "h");   //CONSTANTE HEXA
         else if (valor.startsWith("-0x")) return ("-" + valor.substring(3) + "h"); //CONSTANTE HEXA
 
-        if (valor.contains(".")) return ("_" + valor.replace(".", "f").replace("-", "m").replace("+", "")); //CONSTANTE FLOAT
+        if (valor.contains(".")) return ("_" + valor.replace(".", "f").replace("-", "m").replace("+", "M")); //CONSTANTE FLOAT
         
         return valor;
     }
