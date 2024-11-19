@@ -274,7 +274,9 @@ public class GeneradorDeCodigo {
         if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
-             
+            
+            if (operando1.charAt(operando1.length()-1) == 'h') operando1 = "0x" + operando1.substring(0, operando1.length()-1);
+            if (operando2.charAt(operando2.length()-1) == 'h') operando2 = "0x" + operando2.substring(0, operando2.length()-1);
             if (TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
                 data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
@@ -363,6 +365,8 @@ public class GeneradorDeCodigo {
                 data.append("\t" +"JE errorDivCero" + "\n");
             }
             data.append("\tI" + operacion + " ECX" + "\n"); // Realizar operación en AX
+            if (operando1.charAt(operando1.length()-1) == 'h') operando1 = "0x" + operando1.substring(0, operando1.length()-1);
+            if (operando2.charAt(operando2.length()-1) == 'h') operando2 = "0x" + operando2.substring(0, operando2.length()-1);
             if (TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
                 data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
