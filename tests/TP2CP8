@@ -1,10 +1,10 @@
-CP8
+TP2CP8
 ##Falta de delimitador de programa.  
 
-    ##Falta de “;” al final de las sentencias.
+    ##Falta de punto y coma al final de las sentencias.
     typedef triple < longint > hola
 
-    ##Falta de sentencia RET en función
+    ##Falta de sentencia RET en funcion
     longint fun hola(longint fas) 
     begin
         longint x;
@@ -14,7 +14,7 @@ CP8
     ## Formato valido.
     longint as, a, sa;
 
-    ##Falta de “,” en declaración de variables.  
+    ##Falta de coma en declaracion de variables.  
     longint as  sa sa;
 
     longint as  sa, sa;
