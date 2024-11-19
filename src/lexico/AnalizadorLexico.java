@@ -110,11 +110,12 @@ public class AnalizadorLexico {
 
     private void abrirArchivo(String nombre){
         try {
-            this.fuente = new File("tests/"+nombre);
+            this.fuente = new File(nombre);
             generarLector();
           } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+            System.out.println("Error al abrir el archivo");
             e.printStackTrace();
+            System.exit(1);
           }
     }
 
