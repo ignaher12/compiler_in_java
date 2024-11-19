@@ -479,7 +479,6 @@ private void yyerror(String string) {
   System.out.println("Error: " + string);
 }
 private void declararVariable(String refTipo, ArrayList<String> referenciasIdentificador){
-  System.out.println("ENTRA ACA?");
   for (String refIdentificador: referenciasIdentificador){
     String newRef = TablaDeSimbolos.agregarSimbolo(refIdentificador + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
     Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
@@ -795,8 +794,6 @@ public void completarFuncion(String parametro){
 }
 
 public boolean chequearAsignacion(String variable, String valor){
-  System.out.println("varibale: " + variable + " valor: " + valor);
-  System.out.println(TablaDeSimbolos.imprimir());
   if (valor.matches("\\^.*")) {
     valor = valor.substring(1,valor.length());
     int tipo = tercetos.get(Integer.parseInt(valor)).getTipo();

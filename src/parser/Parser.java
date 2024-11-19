@@ -1017,7 +1017,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("TP3CP4", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("TP3CP9", matriz, matrizAcciones);
         
         parser.run();
 

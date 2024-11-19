@@ -150,7 +150,7 @@ public class GeneradorDeCodigo {
                     default:
                         break;
                 }
-                System.out.println(terceto);
+                //System.out.println(terceto);
             }
             generarHeader();
             for (StringBuilder datos : funciones) {
@@ -403,7 +403,6 @@ public class GeneradorDeCodigo {
             Contexto aux1 = TablaDeSimbolos.getContexto(operando1.replace("_", ""));
             Contexto aux2 = TablaDeSimbolos.getContexto(operando2.replace("_", ""));
             if (aux1.getTypedef() != null){
-                System.out.println("dentro1");
                 String typedef = aux1.getTypedef();
                 data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
                 data.append("\t" + "FSTSW ax" + "\n");
@@ -414,7 +413,6 @@ public class GeneradorDeCodigo {
                 data.append("\t" + "SAHF" + "\n");
                 data.append("\t" + "JG errorFueraDeRango" + "\n");
             }else if (aux1.getTypedef() != null){
-                System.out.println("dentro2");
                 String typedef = aux2.getTypedef();
                 data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
                 data.append("\t" + "FSTSW ax" + "\n");
@@ -425,7 +423,6 @@ public class GeneradorDeCodigo {
                 data.append("\t" + "SAHF" + "\n");
                 data.append("\t" + "JG errorFueraDeRango" + "\n");
             }
-            System.out.println("afuera");
             data.append("\t" +"FSTP " + variableAux + "\n");  // Guardar ST(0) en variable auxiliar y vacia la pila
         }
         return variableAux;
