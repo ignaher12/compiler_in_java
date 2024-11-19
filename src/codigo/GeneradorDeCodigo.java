@@ -275,13 +275,13 @@ public class GeneradorDeCodigo {
             data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
             data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
              
-            if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
+            if (TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
                 data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
                 data.append("\t" + "JL errorFueraDeRango" + "\n");
                 data.append("\t" + "CMP EAX, _rangoSup" + typedef + "\n");
                 data.append("\t" + "JG errorFueraDeRango" + "\n");
-            }else if (!TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef().equals("null")){
+            }else if (TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef();
                 data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
                 data.append("\t" + "JL errorFueraDeRango" + "\n");
@@ -363,13 +363,13 @@ public class GeneradorDeCodigo {
                 data.append("\t" +"JE errorDivCero" + "\n");
             }
             data.append("\tI" + operacion + " ECX" + "\n"); // Realizar operación en AX
-            if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
+            if (TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
                 data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
                 data.append("\t" + "JL errorFueraDeRango" + "\n");
                 data.append("\t" + "CMP EAX, _rangoSup" + typedef + "\n");
                 data.append("\t" + "JG errorFueraDeRango" + "\n");
-            }else if (!TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef().equals("null")){
+            }else if (TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef();
                 data.append("\t" + "CMP EAX, _rangoInf" + typedef + "\n");
                 data.append("\t" + "JL errorFueraDeRango" + "\n");

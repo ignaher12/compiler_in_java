@@ -20,7 +20,7 @@ begin
             ret (retorno);
         end;
 
-        ret(alcance2(10));                              ##REVISAR
+        ret(alcance2(10));
     end;
 
     longint FUN otraFuncion(longint a)

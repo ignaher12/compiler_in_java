@@ -27,4 +27,5 @@ BEGIN
     etiquetaN2: 
     longint var;
     var := x / 14;
+
 end
