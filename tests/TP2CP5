@@ -1,17 +1,20 @@
-
+TP2CP5
 BEGIN
-    ## Forma correcta.
-    a[2] := b;
 
-    ## Error, falta de rango.
-    a[] := 2;
+    ##Errores falta de comparador.
+    if (dsad   dsaddsad) 
+        then 
+            outf([da]); 
+    end_if;
 
-    ## Error, exceso de rango.
-    a[5] := -2;
+    REPEAT outf([da]);
+    WHILE (ave maria);
 
-    ## Error, falta de nombre definido.
-    typedef triple <longint> ;
+    ## Errores falta de operando.
+    a := + 3;
+    a := 2 + ;
+    a:= 2 + 3 -;
+    a := 2 + / 4;
+    a := 2 - 3;
 
-    ## Error, falta de tipo base.
-    typedef triple <> test ;
-END
+end

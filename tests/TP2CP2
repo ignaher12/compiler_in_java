@@ -1,6 +1,10 @@
 CP2_2
 begin   
 
+    ## (TP3) Se agregaron estas sentencias para evitar errores Semanticos del tipo '___ no fue declarado' 
+    longint a;
+    longint b;
+
     ## Faltan parentesis a la izquierda
     if ((a,b < (3,4)) then
         begin

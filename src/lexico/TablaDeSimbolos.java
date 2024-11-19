@@ -306,6 +306,7 @@ public class TablaDeSimbolos {
     }
 
     public static Contexto getContexto(String atributo){
+        System.out.println(TablaDeSimbolos.imprimir());
         System.out.println(atributo);
         if (tabla.get(atributo) == null) { 
             return tablaReservada.get(atributo.toLowerCase());}

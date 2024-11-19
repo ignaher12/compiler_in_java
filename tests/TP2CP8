@@ -1,44 +1,26 @@
-TP2CP8
-BEGIN
-    ## Formato valido
-    longint fun hola (longint a) BEGIN
-        x := 3;
-        ret (x);
+CP8
+##Falta de delimitador de programa.  
+
+    ##Falta de “;” al final de las sentencias.
+    typedef triple < longint > hola
+
+    ##Falta de sentencia RET en función
+    longint fun hola(longint fas) 
+    begin
+        longint x;
+        x := 12;
     end;
 
-    ##Falta de nombre de parametro formal en declaracion de funcion.  
-    longint fun hola (longint) BEGIN
-        x := 3;
-        ret (x);
-    end;
+    ## Formato valido.
+    longint as, a, sa;
 
-    ##Falta de tipo de parametro formal en declaracion de funcion.
-    longint fun hola (test) BEGIN
-        x := 3;
-        ret (x);
-    end;
+    ##Falta de “,” en declaración de variables.  
+    longint as  sa sa;
 
-    ##Falta de funcion. ## MAL LA LINEA
-    longint fun (test) BEGIN
-        x := 3;
-        ret (x);
-    end;
+    longint as  sa, sa;
 
-    ## Formato valido
-    outf(hola);
+    longint as , sa dsx ;
 
-    ## Falta parametro en sentencia OUTF.       
-    outf();
-
-    ## Parametro incorrecto en sentencia OUTF. 
-    outf(longint a);
-
-    ## Formato valido
-    x := hola(bien);
-
-    ## Cantidad erronea de parametros en declaracion o invocacion de funcion.  
-    x := hola();
-    x := hola(hola , va);
-    x := hola(hola , var, var, var, var);
+    longint as sa dsx ;
 
 end

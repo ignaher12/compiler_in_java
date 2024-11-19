@@ -1,12 +1,18 @@
-comentarios
+cadenas
 begin
 
-    ## Comentario bien escrito.
+    ## Cadenas bien escritas.
+    outF ([cadena
+    Multilinea]);
 
-    # Comentario mal escrito. 
-
-    #    # Comentario mal escrito.
-
-
+    outF ([[Cadena 
     
+    
+    multilinea]);
+
+
+    ## Cadenas con errores. No tienen cierres o aperturas.
+    outF ( Cadena Multilinea con error]);
+    outF ( [Cadena Multilinea con error);
+
 end

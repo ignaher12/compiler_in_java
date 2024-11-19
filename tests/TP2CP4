@@ -1,22 +1,17 @@
-CP4
+
 BEGIN
-    ## todo ok
-    repeat begin  x:=2; end while (x > 0);
+    ## Forma correcta.
+    a[2] := b;
 
-    ## error falta while
-    repeat begin  x:=2.2; end  (x > 0);
-    repeat x:=2.2; (x > 0);
+    ## Error, falta de rango.
+    a[] := 2;
 
-    ## error falta () en condicion
-    repeat begin  x:=2.2; end while x > 0);
-    repeat begin  x:=2.2; end while (x > 0;
-    
-    
-    ## error falta  () condicion
-    repeat x:=2.2; while x > 0;
+    ## Error, exceso de rango.
+    a[5] := -2;
 
-    ## error falta  () condicion
-    repeat  while x > 0;
+    ## Error, falta de nombre definido.
+    typedef triple <longint> ;
 
-
+    ## Error, falta de tipo base.
+    typedef triple <> test ;
 END

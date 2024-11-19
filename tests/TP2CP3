@@ -1,0 +1,22 @@
+CP3
+BEGIN
+    ## todo ok
+    repeat begin  x:=2; end while (x > 0);
+
+    ## error falta while
+    repeat begin  x:=2.2; end  (x > 0);
+    repeat x:=2.2; (x > 0);
+
+    ## error falta () en condicion
+    repeat begin  x:=2.2; end while x > 0);
+    repeat begin  x:=2.2; end while (x > 0;
+    
+    
+    ## error falta  () condicion
+    repeat x:=2.2; while x > 0;
+
+    ## error falta  () condicion
+    repeat  while x > 0;
+
+
+END
