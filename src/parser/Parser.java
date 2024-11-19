@@ -1009,36 +1009,39 @@ public static void main(String[] args) {
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
     Parser parser = new Parser(true);
-    Parser.lex = new AnalizadorLexico("--", matriz, matrizAcciones);
     ambitos.add("main");
-    if (args.length > 1) {
-        Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
-
-        parser.run();
-        for (Error error: erroresLexico){System.out.println(error);}
-    } else {
-        Parser.lex = new AnalizadorLexico("TP3CP9", matriz, matrizAcciones);
+    if (args.length > 0) {
         
-        parser.run();
+      try {
+          
+          Parser.lex = new AnalizadorLexico(args[0], matriz, matrizAcciones);
 
-        completarTercetosEtiqueta();
+          parser.run();
+          completarTercetosEtiqueta();
 
-        System.out.println("v---------------------------v");
-        for (String estructura: estructuras){System.out.println(estructura);}
-        System.out.println("^---------------------------^");
-        for (Error error: warnings){System.out.println(error);}
-        for (Error error: erroresSintactico){System.out.println(error);}
-        for (Error error: erroresLexico){System.out.println(error);}
-        for (Error error: erroresSemanticos){System.out.println(error);}
-        System.out.println("^---------------------------^");
-        for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
-        if (erroresSintactico.isEmpty() && erroresLexico.isEmpty() && erroresSemanticos.isEmpty()){
-          System.out.println("###EMPIEZA LA GENERACION DE CODIGO ASSEMBLER###");
-          limpiarTablaDeSimbolos();
-          GeneradorDeCodigo.generarCodigoAssembler("./src/codigo/salida.asm");
+          System.out.println("v---------------------------v");
+          for (String estructura: estructuras){System.out.println(estructura);}
+          System.out.println("^---------------------------^");
+          for (Error error: warnings){System.out.println(error);}
+          for (Error error: erroresSintactico){System.out.println(error);}
+          for (Error error: erroresLexico){System.out.println(error);}
+          for (Error error: erroresSemanticos){System.out.println(error);}
+          System.out.println("^---------------------------^");
+          for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
+          if (erroresSintactico.isEmpty() && erroresLexico.isEmpty() && erroresSemanticos.isEmpty()){
+            System.out.println("###EMPIEZA LA GENERACION DE CODIGO ASSEMBLER###");
+            limpiarTablaDeSimbolos();
+            GeneradorDeCodigo.generarCodigoAssembler(args[1]);
+          }
+            
+        } catch (Exception e) {
+          e.printStackTrace();
+          System.exit(1);
         }
-        //for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
-        //System.out.println("No se especifico el archivo a compilar");
+        
+    } else {
+        System.out.println("No se especifico el archivo a compilar");
+        System.exit(1);
     }
     System.out.println(TablaDeSimbolos.imprimir());
 }
@@ -1048,7 +1051,6 @@ private int yylex(){
   if (!lex.end()){
     idToken = lex.getNextToken(yylval);
   }
-  System.out.println("PARSER: " + yyval.ival);
   return idToken;
 }
 
@@ -1439,8 +1441,6 @@ public void completarFuncion(String parametro){
 }
 
 public boolean chequearAsignacion(String variable, String valor){
-  System.out.println("varibale: " + variable + " valor: " + valor);
-  System.out.println(TablaDeSimbolos.imprimir());
   if (valor.matches("\\^.*")) {
     valor = valor.substring(1,valor.length());
     int tipo = tercetos.get(Integer.parseInt(valor)).getTipo();
@@ -1495,7 +1495,7 @@ public boolean chequearAsignacion(String variable, String valor){
   }
   return false;
 }
-//#line 1426 "Parser.java"
+//#line 1430 "Parser.java"
 //###############################################################
 // method: yylexdebug : check lexer state
 //###############################################################
