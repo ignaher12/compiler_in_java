@@ -1002,10 +1002,10 @@ public static Stack<Integer> comienzoDeFuncion = new Stack<Integer>();
 public static List<String> ambitos = new ArrayList<String>();
 public static int numeroLineaError = -1;
 public static void main(String[] args) {
-    String filePath = "src/MATRIZ DE TRANSICIONES - Hoja 1.csv";
+    String filePath = "MATRIZ DE TRANSICIONES - Hoja 1.csv";
 
     int[][] matriz = MatrizTransicion.leerMatrizDesdeCSV(filePath);
-    filePath = "src/MATRIZ DE TRANSICIONES - Hoja 2.csv";
+    filePath = "MATRIZ DE TRANSICIONES - Hoja 2.csv";
 
     Accion[][] matrizAcciones = MatrizAccion.leerMatrizDesdeCSV(filePath);
     Parser parser = new Parser(true);

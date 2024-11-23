@@ -58,14 +58,16 @@ sentencia : sentenciaDeclarativa
           //| sentenciaDeclarativa error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ';'."));}
 ;
 
-sentenciaDeclarativa : tipoDato IDENTIFICADOR  ';'                      {ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden); estructuras.add("Linea "+ TablaDeSimbolos.getContexto($1.sval).popRef() +": "+"Declaracion"); TablaDeSimbolos.getContexto($2.sval + cargarAmbito()).setDeclarado();}
+sentenciaDeclarativa : tipoDato IDENTIFICADOR  ';'                      {ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden); estructuras.add("Linea "+ TablaDeSimbolos.getContexto($1.sval).popRef() +": "+"Declaracion");}
                      | tipoDato IDENTIFICADOR ',' listaVariable ';'     {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
+                     | IDENTIFICADOR IDENTIFICADOR ',' listaVariable ';'
+                     | IDENTIFICADOR IDENTIFICADOR ';' {String idenTipo = chequearDeclarado($1.sval); if (idenTipo != null && TablaDeSimbolos.getContexto(idenTipo) != null){$2.ival = TablaDeSimbolos.getContexto(idenTipo).getTipo(); ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden);if(TablaDeSimbolos.getContexto(idenTipo).getTypedef() == null){  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no corresponde a un nombre de tipo."));}}else{  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no declarado."));}}
                      | tipoDato IDENTIFICADOR ',' error ';' {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera IDENTIFICADOR.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
                      | tipoDato IDENTIFICADOR ',' listaVariable error ';' {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); estructuras.add("Linea "+ contexto.popRef() +": "+"Declaracion");}
                      | tipoDato IDENTIFICADOR error ';' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ','.")); }    
                      | typedefDeclaracion ';'
                      | typedefDeclaracion error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera ';'.")); }
-                     | tipoDato funDeclaracion ';'  {System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + retornos);if (!chequearTipoRetorno($1.ival, $2.sval)){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO todos los RET deben retornar el tipo " + $1.sval)); }; System.out.println($2.sval + cargarAmbito()); TablaDeSimbolos.getContexto($2.sval + cargarAmbito()).setTipo(TablaTipoToken.getTipoToken($1.sval));estructuras.add("Declaracion de funcion");}
+                     | tipoDato funDeclaracion ';'  {if (!chequearTipoRetorno($1.ival, $2.sval)){erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO todos los RET deben retornar el tipo " + $1.sval)); }; TablaDeSimbolos.getContexto($2.sval + cargarAmbito()).setTipo(TablaTipoToken.getTipoToken($1.sval));estructuras.add("Declaracion de funcion");}
                      | funDeclaracion ';' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'tipo de dato antes de declaracion de funcion'.")); }
                      //| tipoDato error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera 'objeto a declarar'."));}
 
@@ -94,13 +96,13 @@ declaracionTriple : TRIPLE '<' tipoDato '>' IDENTIFICADOR {declaracionTriple($3.
                   |  TRIPLE tipoDato IDENTIFICADOR {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '<>'."));} // TEMA 22
 ;
 
-funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {completarFuncion($3.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1); agregarTerceto("FINFUN", "", "");}
+funDeclaracion : funComienzo '(' parametro ')' BEGIN cuerpoFuncion END {completarFuncion($3.sval);if ($6.sval.equals("false")){erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta return en el cuerpo de la funcion."));}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion"); ambitos.remove(ambitos.size()-1);TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).setTipoParametro($3.ival);TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).setNombreParametro($3.sval);  agregarTerceto("FINFUN", "", "");}
                | FUN error '(' parametro ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre de la funcion."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ','  error ')' BEGIN cuerpoFuncion END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO  no puede tener mas de un parametro."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
                | funComienzo '(' parametro ')' BEGIN error END  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta cuerpo con retorno."));  Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Declaracion de funcion");}
 ;
 
-funComienzo : FUN IDENTIFICADOR  {$$.sval = $2.sval; declararFuncion($2.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", $2.sval);} //PROBLEMA CON FUN error de fundeclaracion??
+funComienzo : FUN IDENTIFICADOR  {$$.sval = $2.sval; declararFuncion($2.sval); ambitos.add($2.sval); agregarTerceto("INICIOFUN", "", ""); agregarTerceto("ETIQUETA", "", $2.sval); comienzoDeFuncion.add(tercetos.size()-2);} //PROBLEMA CON FUN error de fundeclaracion??
 ;
 tipoDato : SINGLE      {$$.ival = TablaTipoToken.getTipoToken("SINGLE");}
          | LONGINT     {$$.ival = TablaTipoToken.getTipoToken("LONGINT");}
@@ -117,18 +119,20 @@ listaConstante : listaConstante ',' constante  {((ArrayList<String>)$1.obj).add(
                | constante    {ArrayList<String> aux = new ArrayList<String>(); aux.add($1.sval); $$.obj = aux;}                   // TEMA 11
 ;
 
-constante : CONSTANTE { Contexto contexto = TablaDeSimbolos.getContexto($1.sval);
-                        chequearRango(contexto);
-                        ArrayList<String> referenciasConst = new ArrayList<String>(); referenciasConst.add($1.sval);                          //SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER
+constante : CONSTANTE {Contexto contexto = TablaDeSimbolos.getContexto($1.sval);
+                       chequearRango(contexto);
+                       ArrayList<String> referenciasConst = new ArrayList<String>(); referenciasConst.add($1.sval);                          //SOLO SE CHEQUEA EN POSITIVO YA QUE EL MAXIMO DE NEGATIVOS ES MAYOR AL MAXIMO DE POSITIVOS Y YA LO CHEQUEA EL PARSER
                       }
           | '-' CONSTANTE {
                             Contexto contexto = TablaDeSimbolos.getContexto($2.sval);
                             String newLexRef = TablaDeSimbolos.agregarSimbolo("-"+val_peek(0).sval, contexto.getTipo(), "-"+val_peek(0).sval, AnalizadorLexico.getNumeroLinea());
+                            $$.sval = "-"+ $2.sval;
                           }
 ;
 
 
-parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval); $$.sval = $2.sval;}
+parametro : tipoDato IDENTIFICADOR   {declaracionParametro($1.sval, $2.sval); $$.sval = $2.sval; $$.ival = $1.ival;}
+          | IDENTIFICADOR IDENTIFICADOR {String idenTipo = chequearDeclarado($1.sval); if (idenTipo != null && TablaDeSimbolos.getContexto(idenTipo) != null){$2.ival = TablaDeSimbolos.getContexto(idenTipo).getTipo(); ArrayList<String> referenciasIden = new ArrayList<String>(); referenciasIden.add($2.sval); declararVariable($1.sval, referenciasIden);if(TablaDeSimbolos.getContexto(idenTipo).getTypedef() == null){  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no corresponde a un nombre de tipo."));}}else{  erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO " + $1.sval + " no declarado."));}}
           | error IDENTIFICADOR      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta tipo de dato en el parametro."));}
           | tipoDato error      {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta nombre en el parametro."));}
 ;
@@ -163,8 +167,8 @@ sentenciaEjecutableConRet : asignacion                 {$$.sval = "false";}
                           | clausulaSeleccionConRet    {$$.sval = $1.sval;}
 ;
 
-asignacion : IDENTIFICADOR SIMASIGNACION expresion {System.out.println("?????????????????????????????????????????????????????????????????????????????????????????" + $1.ival + " || " + $3.ival);if (chequearDeclarado($1.sval + cargarAmbito()) != null){ if(TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo() == $3.ival){$$.sval = agregarTerceto(":=", $1.sval, $3.sval, TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo());}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO asignacion con diferentes tipos no permitida"));}};Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
-           | IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion   {String aux = chequearDeclarado($1.sval); if (!$2.sval.equals("[1]") && !$2.sval.equals("[2]") && !$2.sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else agregarTerceto(":=", $1.sval + $2.sval , $4.sval, TablaDeSimbolos.getContexto(aux).getTipo()); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}//TEMA 22
+asignacion : IDENTIFICADOR SIMASIGNACION expresion {if (chequearDeclarado($1.sval) != null){ if(chequearAsignacion($1.sval, $3.sval)){$$.sval = agregarTerceto(":=", $1.sval, $3.sval, TablaDeSimbolos.getContexto(chequearDeclarado($1.sval)).getTipo());}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO asignacion con diferentes tipos no permitida"));}};Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
+           | IDENTIFICADOR CADENA_MULTI SIMASIGNACION expresion   {String aux = chequearDeclarado($1.sval); if (!$2.sval.equals("[1]") && !$2.sval.equals("[2]") && !$2.sval.equals("[3]")) erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO rango invalido, se espera entre 1 y 3.")); else {if (($1.sval + $2.sval) != null && $4.sval != null && chequearAsignacion($1.sval + $2.sval, $4.sval)){agregarTerceto(":=", $1.sval + $2.sval , $4.sval, TablaDeSimbolos.getContexto(aux).getTipo());}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO asignacion con diferentes tipos no permitida"));}}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}//TEMA 22
            | IDENTIFICADOR CONSTANTE SIMASIGNACION expresion   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Sentencia de Asignacion");}
 ;
 
@@ -189,15 +193,15 @@ termino : termino '*' operando {if (($1.ival == $3.ival)) {$$.sval = agregarTerc
 operando : IDENTIFICADOR                  {$$.sval = $1.sval; $1.sval = chequearDeclarado($1.sval); if($1.sval != null){$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}}   //SE TIENE QUE CHEQUEAR QUE EL IDENTIFICADOR NO SEA UN TRIPLE YA QUE FALTARIA EL RANGO  
          | constante                      {$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}
          | invocacionFuncion              
-         | IDENTIFICADOR CADENA_MULTI //TEMA 22  SE TIENE QUE CHEQUEAR QUE EL VALOR DE LA CADENAMULTI ESTA ENTRE 1 Y 3
+         | IDENTIFICADOR CADENA_MULTI      {$$.sval = $1.sval + $2.sval; $1.sval = chequearDeclarado($1.sval);$$.ival = TablaDeSimbolos.getContexto(($1.sval).substring(0, ($1.sval).indexOf(":")) + $2.sval + cargarAmbito()).getTipo();}//TEMA 22  SE TIENE QUE CHEQUEAR QUE EL VALOR DE LA CADENAMULTI ESTA ENTRE 1 Y 3
          | IDENTIFICADOR  '1'  //TEMA 22  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango"));}
          | IDENTIFICADOR  '2'  //TEMA 22  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango"));}
          | IDENTIFICADOR  '3'   //TEMA 22 {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan '[]' en el rango"));}
 ;
 
-invocacionFuncion : IDENTIFICADOR '(' expresion ')'       {if (chequearAmbitoFuncion($1.sval)){if ($3.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.sval = agregarTerceto("CALL", $1.sval, $3.sval);$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
-                  | IDENTIFICADOR '(' tipoDato expresion ')' { if (chequearAmbitoFuncion($1.sval)){if ($4.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
-                  | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' { if (chequearAmbitoFuncion($1.sval)){if ($5.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.ival = TablaDeSimbolos.getContexto($1.sval).getTipo();}else{$$.ival = -1;}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
+invocacionFuncion : IDENTIFICADOR '(' expresion ')'       {if(chequearDeclarado($1.sval) != null){if (chequearAmbitoFuncion($1.sval)){if ($3.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.sval = agregarTerceto("CALL", $1.sval, $3.sval, TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo());$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;}}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
+                  | IDENTIFICADOR '(' tipoDato expresion ')' { if (chequearAmbitoFuncion($1.sval)){String conversion = conversion($3.ival, $4.ival);if (($3.ival != $4.ival) && conversion != null){String aux = agregarTerceto(conversion, $4.sval, "", $3.ival); if ($4.ival != -1){comprobarTipoParametro($1.sval, $3.ival);}; $$.sval = agregarTerceto("CALL", $1.sval, aux, TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo());$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;};}; Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
+                  | IDENTIFICADOR '(' tipoDato '(' expresion ')' ')' { if (chequearAmbitoFuncion($1.sval)){String conversion = conversion($3.ival, $5.ival);if (($3.ival != $5.ival) && conversion != null){String aux = agregarTerceto(conversion, $5.sval, "", $3.ival); if ($5.ival != -1){comprobarTipoParametro($1.sval, $3.ival);};$$.sval = agregarTerceto("CALL", $1.sval, aux, TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo());$$.ival = TablaDeSimbolos.getContexto($1.sval + cargarAmbito()).getTipo();}else{$$.ival = -1;}; }Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
                   | IDENTIFICADOR '(' expresion ',' error ')'                  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");} //TEMA 27
                   | IDENTIFICADOR '(' error ')'                                         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta expresion en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}
                   | IDENTIFICADOR '(' tipoDato expresion ',' error ')'         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO numero de expresiones invalido en el llamado a funcion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Invocacion de Funcion");}//TEMA 27
@@ -257,8 +261,10 @@ condicion: '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' l
          | '(' expresion ',' listaExpresiones ')' comparador error expresion ',' listaExpresiones ')'{erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
          | '(' expresion ',' listaExpresiones ')' error '(' expresion ',' listaExpresiones ')' {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
          | '(' expresion ',' listaExpresiones ')' comparador '(' expresion ',' listaExpresiones error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO faltan parentesis en las listas de expresiones."));}
+         | '(' expresion ')' comparador '(' expresion ',' listaExpresiones ')'  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO No se puede comparar una expresion con una lista de expresiones"));}
+         | '(' expresion ',' listaExpresiones ')' comparador '(' expresion ')'  {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO No se puede comparar una expresion con una lista de expresiones"));}
 
-         | expresion comparador expresion {if($1.ival == $3.ival){$$.sval = agregarTerceto($2.sval, $1.sval, $3.sval);}}
+         | expresion comparador expresion {if($1.ival == $3.ival){$$.sval = agregarTerceto($2.sval, $1.sval, $3.sval);}else{erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO incompatibilidad de tipos en la condicion"));}}
          | error comparador expresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la izquierda del comparador."));}
          | expresion comparador error {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera una expresion a la derecha del comparador."));}
          | expresion error expresion {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO se espera un comparador."));}
@@ -298,7 +304,7 @@ bloqueSentenciaEjecutableConRet : sentenciaEjecutableConRet ';'   {$$.sval = $1.
 ;
 
 
-clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {agregarTerceto("BF", $5.sval, ((Integer)(tercetos.size()+2)).toString());agregarTerceto("BI", "", (inicioBucle.pop().toString()));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size())); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
+clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {agregarTerceto("BF", $5.sval, "etiqueta"+ (tercetos.size()+2));agregarTerceto("BI", "", (tercetos.get(inicioBucle.pop()).getT3()));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); agregarTerceto("ETIQUETA", "", "etiqueta"+ (tercetos.size())); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat error WHILE '(' condicion ')'                         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta bloque de sentencias ejecutables.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat bloqueSentenciaEjecutable WHILE error condicion ')'   {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta ( de apertura de condicion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
               | repeat bloqueSentenciaEjecutable WHILE '(' error ')'         {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta condicion.")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
@@ -310,7 +316,7 @@ clausulaBucle : repeat bloqueSentenciaEjecutable WHILE '(' condicion ')'     {ag
               | repeat bloqueSentenciaEjecutable error                       {erroresSintactico.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SINTACTICO falta while")); Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"Bucle");}
 ;
 
-repeat: REPEAT {inicioBucle.add(tercetos.size()); agregarTerceto("ETIQUETA", "", ";etiqueta"+ (tercetos.size()));}
+repeat: REPEAT {inicioBucle.add(tercetos.size()); agregarTerceto("ETIQUETA", "", "etiqueta"+ (tercetos.size()));}
 ;
 
 goto : GOTO IDENTIFICADOR '@'     {tercetosGoto.push(agregarTerceto("BI", $2.sval,  ""));Integer lastRef = TablaDeSimbolos.getContexto($1.sval).popRef(); estructuras.add("Linea "+lastRef.toString() +": "+"GOTO");}
@@ -336,6 +342,7 @@ private static AnalizadorLexico lex;
 public static List<Error> erroresLexico = new ArrayList<Error>();
 public static List<Error> erroresSintactico = new ArrayList<Error>();
 public static List<Error> erroresSemanticos = new ArrayList<Error>();
+public static List<Error> warnings = new ArrayList<Error>();
 public static List<String> estructuras = new ArrayList<String>();
 public static List<Terceto> tercetos = new ArrayList<Terceto>();
 public static Stack<String> tercetosIncompletos = new Stack<String>();
@@ -366,7 +373,7 @@ public static void main(String[] args) {
         parser.run();
         for (Error error: erroresLexico){System.out.println(error);}
     } else {
-        Parser.lex = new AnalizadorLexico("tests3/test5", matriz, matrizAcciones);
+        Parser.lex = new AnalizadorLexico("TP3CP9", matriz, matrizAcciones);
         
         parser.run();
 
@@ -375,6 +382,7 @@ public static void main(String[] args) {
         System.out.println("v---------------------------v");
         for (String estructura: estructuras){System.out.println(estructura);}
         System.out.println("^---------------------------^");
+        for (Error error: warnings){System.out.println(error);}
         for (Error error: erroresSintactico){System.out.println(error);}
         for (Error error: erroresLexico){System.out.println(error);}
         for (Error error: erroresSemanticos){System.out.println(error);}
@@ -385,7 +393,7 @@ public static void main(String[] args) {
           limpiarTablaDeSimbolos();
           GeneradorDeCodigo.generarCodigoAssembler("./src/codigo/salida.asm");
         }
-        for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
+        //for (int i = 0; i < tercetos.size(); i++){System.out.println(i + " - " + tercetos.get(i));}
         //System.out.println("No se especifico el archivo a compilar");
     }
     System.out.println(TablaDeSimbolos.imprimir());
@@ -476,8 +484,32 @@ private void declararVariable(String refTipo, ArrayList<String> referenciasIdent
     Contexto conIdentificador = TablaDeSimbolos.getContexto(newRef);
     if (conIdentificador.getTipo() == -1){
       if (conIdentificador.getUso().equals("") ){
-        conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
-        conIdentificador.setUso("nombre de variable");
+        
+        if (!refTipo.equals("longint") && !refTipo.equals("hexadecimal") && !refTipo.equals("single")){  
+          refTipo = chequearDeclarado(refTipo);
+          if(refTipo != null){
+            if(TablaDeSimbolos.getContexto(refTipo).getTypedef() != null){
+              conIdentificador.setTypedef(TablaDeSimbolos.getContexto(refTipo).getTypedef());
+              if (TablaDeSimbolos.getContexto(refTipo).getUso().equals("nombre de triple")){
+                String newRef1 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 1 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+                String newRef2 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 2 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+                String newRef3 = TablaDeSimbolos.agregarSimbolo(refIdentificador + "[" + 3 + "]" + cargarAmbito(), -1, TablaDeSimbolos.getContexto(refIdentificador).popRefUso());
+                conIdentificador.setUso("nombre de variable triple");
+                Contexto aux = new Contexto(conIdentificador);
+                aux.setDeclarado();
+                aux.setUso("nombre de variable");
+                aux.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
+                TablaDeSimbolos.setContexto(newRef1, aux);
+                TablaDeSimbolos.setContexto(newRef2, aux);
+                TablaDeSimbolos.setContexto(newRef3, aux);
+              }else{ conIdentificador.setUso("nombre de variable"); }
+            }
+          }
+        }else{ conIdentificador.setUso("nombre de variable"); }
+        if(refTipo != null){
+          conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
+          conIdentificador.setDeclarado();
+        }
       }else{
         erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
       }
@@ -512,8 +544,9 @@ private void declaracionTriple(String refTipo, String refIdentificador){
   if (conIdentificador.getTipo() == -1){
     if (conIdentificador.getUso().equals("") ){
       conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
-      conIdentificador.setUso("nombre de variable triple");
+      conIdentificador.setUso("nombre de triple");
       conIdentificador.setDeclarado();
+      conIdentificador.setTypedef(refIdentificador);
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
     }
@@ -529,8 +562,9 @@ private void declaracionSubtipo(String refTipo, String refIdentificador, ArrayLi
       conIdentificador.setTipo(TablaDeSimbolos.getContexto(refTipo).getTipo());
       conIdentificador.setUso("nombre de subtipo");
       conIdentificador.setDeclarado();
-      conIdentificador.setLimiteInf(Integer.parseInt(limites.get(0)));
-      conIdentificador.setLimiteSup(Integer.parseInt(limites.get(1)));
+      conIdentificador.setLimiteInf(limites.get(0));
+      conIdentificador.setLimiteSup(limites.get(1));
+      conIdentificador.setTypedef(refIdentificador);
     }else{
       erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO identificador ya posee otro uso"));
     }
@@ -581,7 +615,7 @@ private String chequearDeclarado(String lexemaSinAmbito){
     Contexto contexto = TablaDeSimbolos.getContexto(lexema);
     if (contexto != null){
       if (contexto.getDeclarado()){    //CON UNA VARIABLE BASE (SIN AMBITO) EN LA T.S. ESTE IF PUEDE NO ESTAR. SI AGREGAMOS A LA T.S. (DESDE EL LEXER) CON AMBITO ENTONCES NECESITAMOS DEL ATRIBUTO "DECLARADO"
-        contexto.addRef(TablaDeSimbolos.getContexto(lexemaSinAmbito).popRefUso());
+        contexto.addRef(TablaDeSimbolos.getContexto(lexema).popRefUso());
         return lexema;
       }
     }
@@ -665,12 +699,16 @@ private String agregaListaExpresionTercetos(String operador1, ArrayList<String> 
           erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO incompatibilidad de tipos entre " + op2.get(i) + " y " + op3.get(i))); 
         }
     };
-
-    String comp = aux.pop();
-    while(aux.size() > 0){
-      comp = agregarTerceto("AND", comp, aux.pop());
+    
+    if (!aux.empty()){
+      String comp = aux.pop();
+      while(aux.size() > 0){
+        comp = agregarTerceto("AND", comp, aux.pop());
+      }
+      return comp; 
+    }else{
+      return "^" + (tercetos.size()-1);
     }
-    return comp; 
 }
 public int conversionIndexStoI(String aux){
   return Integer.parseInt(aux.substring(1,aux.length()));
@@ -684,10 +722,11 @@ public static void completarTercetosEtiqueta(){ //recorre TODOS tercetosGoto y a
       //tGoto.setT3(etiquetas.get(tGoto.getT2()));
       tGoto.setT3(tercetos.get(Integer.parseInt(etiquetas.get(tGoto.getT2()).replace("^", ""))).getT3());
       tGoto.setT2("");
+    }else{
+      erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO hay sentencias GOTO que van a etiquetas inexistentes"));
     }
   }
 }
-
 
 public void completarUltimoTercetoIncompleto(){
   if (tercetosIncompletos.size() > 0){
@@ -711,12 +750,101 @@ public static void limpiarTablaDeSimbolos(){
   }
 }
 
-private String conversion(String tipoDato, int tipoExpresion){
-  return "juas juas";
-                                                                                                                                            //MATRIZ
+private String conversion(int tipoDato, int tipoExpresion){
+  String[][] matrizConversiones = {
+    {"X", "ItoH", "ItoF"},
+    {"HtoI", "X", "HtoF"},
+    {"FtoI", "FtoH", "X"}
+  };
+  int row = 0;
+  switch (tipoExpresion){
+    case (277):
+      row = 0;
+      break;
+    case (258):
+      row = 1;
+      break;
+    case (271):
+      row = 2;
+      break;
+  }
+  int col = 0;
+  switch (tipoDato){
+    case (277):
+      col = 0;
+      break;
+    case (258):
+      col = 1;
+      break;
+    case (271):
+      col = 2;
+      break;
+  }
+  if (!(matrizConversiones[row][col]).equals("0")){
+    return matrizConversiones[row][col];
+  }else{
+    erroresSemanticos.add(new Error(AnalizadorLexico.getNumeroLinea(), Tipo.ERROR, "ERROR SEMANTICO no se puede convertir el parametro formal"));
+    return null;
+  }
 }
 
 public void completarFuncion(String parametro){
   int index = comienzoDeFuncion.pop();
   tercetos.get(index).setT3(parametro);
+}
+
+public boolean chequearAsignacion(String variable, String valor){
+  if (valor.matches("\\^.*")) {
+    valor = valor.substring(1,valor.length());
+    int tipo = tercetos.get(Integer.parseInt(valor)).getTipo();
+    if (chequearDeclarado(variable) != null){
+      if(TablaDeSimbolos.getContexto(chequearDeclarado(variable)).getTipo() == tipo){
+        return true;
+      }
+    }
+  } else {
+    if (!valor.matches("^[0-9].*") && !valor.matches("^-\\d.*")){
+      valor = valor + cargarAmbito();
+    }
+    if (chequearDeclarado(variable) != null){
+      Contexto contextoVariable = TablaDeSimbolos.getContexto(chequearDeclarado(variable));
+
+      if(contextoVariable.getTypedef() != null && contextoVariable.getUso().equals("nombre de subtipo")){
+        //variable Subtipo
+        if(TablaDeSimbolos.getContexto(valor).getTypedef() != null){
+          //valor Subtipo o triple
+          if (contextoVariable.getTypedef().equals(TablaDeSimbolos.getContexto(valor).getTypedef())){
+            //caso iguales
+            return true;
+          }
+        }else if(valor.matches("^[0-9].*")){
+          //valor constante o variable
+          if(contextoVariable.getUso().equals("nombre de subtipo")){
+            if (contextoVariable.getTipo() == TablaDeSimbolos.getContexto(valor).getTipo() && (Integer.parseInt(valor) >= Integer.parseInt(TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteInf()))){
+              if (TablaDeSimbolos.getContexto(valor).getTipo() == 277 && (Integer.parseInt(valor) <= Integer.parseInt(TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteSup())) ){
+                return true;
+              }else if(TablaDeSimbolos.getContexto(valor).getTipo() == 271 && (Float.parseFloat(valor) <= Float.parseFloat(TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteSup()))){
+                return true;
+              }else if(TablaDeSimbolos.getContexto(valor).getTipo() == 258 && (Integer.parseInt(valor.substring(2)) <= Integer.parseInt(TablaDeSimbolos.getContexto(variable + cargarAmbito()).getLimiteSup().substring(2)))){
+                return true;
+              }
+            }
+          }
+        }
+      }else if(contextoVariable.getTypedef() != null && contextoVariable.getUso().equals("nombre de variable triple")){
+        //variable Triple
+        if (TablaDeSimbolos.getContexto(valor).getTypedef() != null && TablaDeSimbolos.getContexto(valor).getUso().equals("nombre de variable triple")){
+
+          if(contextoVariable.getTipo() == TablaDeSimbolos.getContexto(valor).getTipo()){
+            return true;
+          }
+        }
+      }else{
+        if (TablaDeSimbolos.getContexto(valor) != null && contextoVariable.getTipo() == TablaDeSimbolos.getContexto(valor).getTipo()){
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }

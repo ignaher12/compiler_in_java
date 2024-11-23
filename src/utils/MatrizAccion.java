@@ -1,74 +1,62 @@
 package utils;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import lexico.AccionesSemanticas.*;
 
 public class MatrizAccion {
     public static Accion[][] leerMatrizDesdeCSV(String path) {
         String separator = ",";
-        int numFilas = 0;
-        int numColumnas = 0;
+        int numFilas = 18;
+        int numColumnas = 33;
         String line;
-
-        // Leer el archivo CSV para contar filas y columnas
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            boolean firstLine = true;
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    // Calcular el número de columnas en la primera fila de encabezados
-                    String[] columns = line.split(separator);
-                    numColumnas = columns.length;
-                    firstLine = false;
-                } else {
-                    numFilas++;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-
+    
         // Inicializar la matriz de acciones
-        Accion[][] matriz_accion = new Accion[numFilas][numColumnas - 1];
+        Accion[][] matriz_accion = new Accion[numFilas][numColumnas]; // -1 para ignorar la primera columna (índice de fila)
+    
+        try (InputStream inputStream = MatrizTransicion.class.getClassLoader().getResourceAsStream(path)) {
+            if (inputStream == null) {
+                throw new FileNotFoundException("El archivo no fue encontrado: " + path);
+            }
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-        // Leer el archivo CSV de nuevo para llenar la matriz de acciones
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            int rowIndex = 0;
-            boolean firstLine = true;
-            
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    // Ignorar la primera fila de encabezados
-                    firstLine = false;
-                    continue;
+            // Saltar encabezado
+            br.readLine();
+
+            int row = 0;
+            while ((line = br.readLine()) != null && row < numFilas) {
+                String[] values = line.split(separator);
+                for (int col = 0; col < numColumnas && col < values.length; col++) {
+                    try {
+                        matriz_accion[row][col] = mapToASObject(values[col].trim());
+                    } catch (NumberFormatException e) {
+                        System.err.println("Valor no entero en fila " + (row + 1) + ", columna " + (col + 1) + ". Se establece en null.");
+                        matriz_accion[row][col] = null;
+                    }
                 }
-                
-                // Usar la coma como separador
-                String[] elements = line.split(separator);
+                row++;
+            }
 
-                // Asegurarse de que no se accedan más columnas de las que existen
-                for (int colIndex = 0; colIndex < elements.length; colIndex++) { // Ignora la primera columna (número de estado)
-                    String element = elements[colIndex].trim();
-
-                    // Mapear el valor del CSV a un objeto AS
-                    matriz_accion[rowIndex][colIndex] = mapToASObject(element);
-                }
-                rowIndex++;
+            // Avisar si el archivo tiene menos filas de las esperadas
+            if (row < numFilas) {
+                System.out.println("Advertencia: El archivo tiene menos de " + numFilas + " filas. Las filas restantes se llenarán con ceros.");
             }
         } catch (IOException e) {
+            System.err.println("Error al leer el archivo: " + e.getMessage());
             e.printStackTrace();
         }
         return matriz_accion;
     }
-
-    // Function to map CSV values to AS objects
+    
+    // Función para mapear los valores del CSV a objetos Accion
     public static Accion mapToASObject(String value) {
-
         switch (value) {
             case "AS1":
-                return new AS1(); // Assume AS1 is a static object of class AS
+                return new AS1();
             case "AS2":
                 return new AS2();
             case "AS3_F":
@@ -90,7 +78,7 @@ public class MatrizAccion {
             case "ASE":
                 return new ASE();
             default:
-                return null; // Or handle default case
+                return null; // O manejar el caso por defecto
         }
     }
 }
