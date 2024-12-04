@@ -312,7 +312,7 @@ public class GeneradorDeCodigo {
             }
             if (operando1.replace("_", "").matches("^[0-9].*")) operando1 = operando1.replace("f", ".").replace("m", "-").replace("M", "+");
             if (operando2.replace("_", "").matches("^[0-9].*")) operando2 = operando2.replace("f", ".").replace("m", "-").replace("M", "+");
-            if (!TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef().equals("null")){
+            if (TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTypedef();
                 data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
                 data.append("\t" + "FSTSW ax" + "\n");
@@ -322,7 +322,7 @@ public class GeneradorDeCodigo {
                 data.append("\t" + "FSTSW ax" + "\n");
                 data.append("\t" + "SAHF" + "\n");
                 data.append("\t" + "JG errorFueraDeRango" + "\n");
-            }else if (!TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef().equals("null")){
+            }else if (TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef() != null){
                 String typedef = TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTypedef();
                 data.append("\t" + "FCOM _rangoInf" + typedef + "\n");
                 data.append("\t" + "FSTSW ax" + "\n");

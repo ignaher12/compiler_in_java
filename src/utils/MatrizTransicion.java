@@ -48,7 +48,6 @@ public class MatrizTransicion {
             System.err.println("Error al leer el archivo: " + e.getMessage());
             e.printStackTrace();
         }
-        imprimirMatriz(matrizTransicion);
         return matrizTransicion;
     }
     public static void imprimirMatriz(int[][] matriz) {
