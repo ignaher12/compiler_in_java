@@ -1,5 +1,7 @@
 bucles
 BEGIN
+	longint y;
+	longint x;
     repeat 
         begin
             repeat y := 10; while (y < 0);
@@ -11,5 +13,7 @@ BEGIN
     ola:
 
     typedef triple<longint> triplete;
-    triplete [2] := 2;
+	triplete a;
+    a[2] := 2;
+	outf(a[2]);
 end

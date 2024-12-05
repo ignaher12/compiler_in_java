@@ -120,9 +120,9 @@ public class GeneradorDeCodigo {
                     case "RET":
                         String res = obtenerValor(terceto.getT2());
                         if (TablaDeSimbolos.getContexto(res.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")){
-                            data.append("\t" + "FLD _" + res.replace(":", "_") + "\n");
+                            data.append("\t" + "FLD _" + res.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
                         }else{
-                            data.append("\t" + "MOV EAX, _" + res.replace(":", "_") + "\n");
+                            data.append("\t" + "MOV EAX, _" + res.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
                         }
                         data.append("RET" + "\n");
                         break;
@@ -212,7 +212,7 @@ public class GeneradorDeCodigo {
                     }else {
                         if (contexto.getTipo() == TablaTipoToken.getTipoToken("SINGLE") && !contexto.getDeclarado()) //se deben declarar los floats para operar
                             valorInicializacion = lexema;                                                   
-                        escritor.write("\t" + "_" + lexema.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "M") + " "+ tipoMemoria + " " + valorInicializacion.replace("s", "e") + "\n");
+                        escritor.write("\t" + "_" + lexema.replace(":", "_").replace("[", "@").replace("]", "@").replace(".","f").replace("-", "m").replace("+", "M") + " "+ tipoMemoria + " " + valorInicializacion.replace("s", "e") + "\n");
                     }
                 }
                 if (lexema.contains("[")) escritor.write("\t" + mapeoMultilineaData.get(lexema) + " DB \"" + lexema.replaceAll("[_\\[\\]]", "") +"\", 0\n");
@@ -235,22 +235,22 @@ public class GeneradorDeCodigo {
         String valor = obtenerValor(terceto.getT3());
         if (terceto.getTipo()  == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
             if (valor.startsWith("@") || valor.startsWith("_")){
-                data.append("\t" +"MOV EAX, " + valor.replace(":", "_") + "\n");
-                data.append("\t" +"MOV " + variable.replace(":", "_") + ", EAX" + "\n");
+                data.append("\t" +"MOV EAX, " + valor.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
+                data.append("\t" +"MOV " + variable.replace(":", "_").replace("[", "@").replace("]", "@") + ", EAX" + "\n");
             } else{
                 //if (terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){//CONSTANTES HEXA            //CHEEECK
                 //    if (valor.startsWith("0x")) valor = valor.substring(2) + "h";   
                 //    else if (valor.startsWith("-0x")) valor = "-" + valor.substring(3) + "h";
                 //}
-                data.append("\t" +"MOV " + variable.replace(":", "_") + ", " + valor.replace(":", "_") + "\n");
+                data.append("\t" +"MOV " + variable.replace(":", "_").replace("[", "@").replace("]", "@") + ", " + valor.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
             };
         } else{
             if(valor.startsWith("@") || valor.startsWith("_")){
-                data.append("\t" +"FLD " + valor.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "M") + "\n");
+                data.append("\t" +"FLD " + valor.replace(":", "_").replace("[", "@").replace("]", "@").replace(".","f").replace("-", "m").replace("+", "M") + "\n");
             }else{
-                data.append("\t" +"FLD _" + valor.replace(":", "_").replace(".","f").replace("-", "m").replace("+", "M") + "\n");
+                data.append("\t" +"FLD _" + valor.replace(":", "_").replace("[", "@").replace("]", "@").replace(".","f").replace("-", "m").replace("+", "M") + "\n");
             }
-            data.append("\t" +"FSTP " + variable.replace(":", "_") + "\n");
+            data.append("\t" +"FSTP " + variable.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
         }
     }
 
@@ -273,8 +273,8 @@ public class GeneradorDeCodigo {
         String operando2 = obtenerValor(terceto.getT3());
         String variableAux = "@aux" + (++contadorAux);
         if (terceto.getTipo() == TablaTipoToken.getTipoToken("LONGINT") || terceto.getTipo() == TablaTipoToken.getTipoToken("HEXADECIMAL")){
-            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
-            data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_") + "\n"); // Realizar operación en AX
+            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar arg1 en AX
+            data.append("\t" +operacion + " EAX, " + operando2.replace(":", "_").replace("[", "@").replace("]", "@") + "\n"); // Realizar operación en AX
             
             if (operando1.charAt(operando1.length()-1) == 'h') operando1 = "0x" + operando1.substring(0, operando1.length()-1);
             if (operando2.charAt(operando2.length()-1) == 'h') operando2 = "0x" + operando2.substring(0, operando2.length()-1);
@@ -297,8 +297,8 @@ public class GeneradorDeCodigo {
         }else{
             //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
             //if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
-            data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
-            data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
+            data.append("\t" +"FLD " + operando1.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar operando1 en ST(0)
+            data.append("\t" +"FLD " + operando2.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar operando2 en ST(0)
             data.append("\t" +"F"+ operacion + "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
             if (operacion.equals("ADD")){
                 data.append("\t" + "FCOM maxFloat" + "\n");
@@ -362,9 +362,9 @@ public class GeneradorDeCodigo {
             //else if (operando1.startsWith("-0x")) operando1 = ("-" + operando1.substring(3) + "h"); //CONSTANTE HEXA
             //if (operando2.startsWith("0x")) operando2 = (operando2.substring(2) + "h");   //CONSTANTE HEXA
             //else if (operando2.startsWith("-0x")) operando2 =  ("-" + operando2.substring(3) + "h"); //CONSTANTE HEXA
-            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar arg1 en AX
             data.append("\t" +"CDQ" + "\n");      // EXTIENDE SIGNO
-            data.append("\t" +"MOV ECX, " + operando2.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            data.append("\t" +"MOV ECX, " + operando2.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar arg1 en AX
             if (operacion.equals("DIV")){
                 data.append("\t" +"CMP ECX, 0" + "\n");
                 data.append("\t" +"JE errorDivCero" + "\n");
@@ -391,8 +391,8 @@ public class GeneradorDeCodigo {
         }else{
             //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
             //if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
-            data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
-            data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
+            data.append("\t" +"FLD " + operando1.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar operando1 en ST(0)
+            data.append("\t" +"FLD " + operando2.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar operando2 en ST(0)
             if (operacion.equals("DIV")){
                 data.append("\t" +"FTST"+ "\n"); 
                 data.append("\t" +"JE errorDivCero" + "\n");
@@ -458,14 +458,14 @@ public class GeneradorDeCodigo {
         if ((TablaDeSimbolos.getContexto(operando1.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE")) || (TablaDeSimbolos.getContexto(operando2.replace("_", "")).getTipo()  == TablaTipoToken.getTipoToken("SINGLE"))){
             //if (operando1.contains(".")) operando1 = "_" + operando1.replace(".", "f").replace("-", "m").replace("+", "");
             //if (operando2.contains(".")) operando2 = "_" + operando2.replace(".", "f").replace("-", "m").replace("+", "");
-            data.append("\t" +"FLD " + operando1.replace(":", "_") + "\n");      // Cargar operando1 en ST(0)
-            data.append("\t" +"FLD " + operando2.replace(":", "_") + "\n");      // Cargar operando2 en ST(0)
+            data.append("\t" +"FLD " + operando1.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar operando1 en ST(0)
+            data.append("\t" +"FLD " + operando2.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar operando2 en ST(0)
             data.append("\t" +"FCOMP"+ "\n"); // Realizar opercion entre operando2 y ST(0), guarda resultado en ST(0)
         } else{
             //if (!operando1.startsWith("_")) operando1 = operando1.substring(2) + "h";   //CONSTANTES HEXA
             //if (!operando2.startsWith("_")) operando2 = operando2.substring(2) + "h";   //CONSTANTES HEXA
-            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_") + "\n");      // Cargar arg1 en AX
-            data.append("\t" +"MOV EBX, " + operando2.replace(":", "_") + "\n");      // Cargar arg1 en AX
+            data.append("\t" +"MOV EAX, " + operando1.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar arg1 en AX
+            data.append("\t" +"MOV EBX, " + operando2.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");      // Cargar arg1 en AX
             data.append("\t" + "CMP EAX, EBX" + "\n"); // Realizar operación en AX
         }
 
@@ -482,9 +482,9 @@ public class GeneradorDeCodigo {
         if (valor.startsWith("_") || valor.startsWith("@")){
             int tipo = TablaDeSimbolos.getContexto(valor.replace("_", "")).getTipo();
             if ( tipo == TablaTipoToken.getTipoToken("LONGINT")){
-                data.append("\t" +"INVOKE printf, cfm$(\"%d\\n\"), "+ valor.replace(":", "_")+ "\n");
+                data.append("\t" +"INVOKE printf, cfm$(\"%d\\n\"), "+ valor.replace(":", "_").replace("[", "@").replace("]", "@")+ "\n");
             }else if (tipo == TablaTipoToken.getTipoToken("HEXADECIMAL")){
-                data.append("\t" +"INVOKE printf, cfm$(\"0x%08X\\n\"), "+ valor.replace(":", "_")+ "\n");
+                data.append("\t" +"INVOKE printf, cfm$(\"0x%08X\\n\"), "+ valor.replace(":", "_").replace("[", "@").replace("]", "@")+ "\n");
             }else if ( tipo == TablaTipoToken.getTipoToken("SINGLE")){
                 data.append("\t" +"FLD  " + valor.replace(":", "_" ) + "\n");
 	            data.append("\t" +"FSTP @imprimirFloat" + "\n");
@@ -544,20 +544,20 @@ public class GeneradorDeCodigo {
         String aux = pasaje.replace("_","");
         String parametro = obtenerParametro(terceto.getT2());
         if (TablaDeSimbolos.getContexto(aux).getTipo() == TablaTipoToken.getTipoToken("SINGLE")){
-            data.append("\t" + "FLD " + pasaje.replace(":", "_") + "\n");
-            data.append("\t" + "FSTP _" + parametro.replace(":", "_") + "\n");
+            data.append("\t" + "FLD " + pasaje.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
+            data.append("\t" + "FSTP _" + parametro.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
         } else{
-            data.append("\t" + "MOV EAX, " + pasaje.replace(":", "_") + "\n");
-            data.append("\t" + "MOV _" + parametro.replace(":", "_") + ", EAX" + "\n");
+            data.append("\t" + "MOV EAX, " + pasaje.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
+            data.append("\t" + "MOV _" + parametro.replace(":", "_").replace("[", "@").replace("]", "@") + ", EAX" + "\n");
         }
         data.append("\t" + "CALL " + terceto.getT2() + "\n");
        
         String variableAux = "@aux" + (++contadorAux);
         int tipoFuncion = TablaDeSimbolos.getContexto(terceto.getT2()+cargarAmbito()).getTipo();
         if (tipoFuncion == TablaTipoToken.getTipoToken("SINGLE")){      
-            data.append("\t" + "FSTP " + variableAux.replace(":", "_") + "\n"); ///CHECK
+            data.append("\t" + "FSTP " + variableAux.replace(":", "_").replace("[", "@").replace("]", "@") + "\n"); ///CHECK
         }else{
-            data.append("\t" + "MOV " + variableAux.replace(":", "_") +", EAX " + "\n");
+            data.append("\t" + "MOV " + variableAux.replace(":", "_").replace("[", "@").replace("]", "@") +", EAX " + "\n");
         }
         terceto.setResultado(variableAux);
         TablaDeSimbolos.agregarSimbolo(variableAux, tipoFuncion, "variable auxiliar");
@@ -576,7 +576,7 @@ public class GeneradorDeCodigo {
 
     public static void toFloat(Terceto terceto){
         String valor = obtenerValor(terceto.getT2());
-        data.append("\t" + "FILD " + valor.replace(":", "_") + "\n");
+        data.append("\t" + "FILD " + valor.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");
         String variableAux = "@aux" + (++contadorAux);
         data.append("\t" +"FSTP " + variableAux + "\n");
         terceto.setResultado(variableAux);
@@ -584,7 +584,7 @@ public class GeneradorDeCodigo {
     }
     public static void floattoHexaorInt(Terceto terceto){
         String valor = obtenerValor(terceto.getT2());
-        data.append("\t" + "FLD " + valor.replace(":", "_") + "\n");  
+        data.append("\t" + "FLD " + valor.replace(":", "_").replace("[", "@").replace("]", "@") + "\n");  
         String variableAux = "@aux" + (++contadorAux);
         data.append("\t" + "FIST " + variableAux + "\n");
         terceto.setResultado(variableAux);
