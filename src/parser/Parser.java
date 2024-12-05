@@ -1031,7 +1031,12 @@ public static void main(String[] args) {
           if (erroresSintactico.isEmpty() && erroresLexico.isEmpty() && erroresSemanticos.isEmpty()){
             System.out.println("###EMPIEZA LA GENERACION DE CODIGO ASSEMBLER###");
             limpiarTablaDeSimbolos();
-            GeneradorDeCodigo.generarCodigoAssembler(args[1]);
+            try {
+              GeneradorDeCodigo.generarCodigoAssembler(args[1]);
+            } catch (Exception e) {
+              System.out.println("No se especifico direccion donde guardar la salida");
+              System.exit(1);
+            }
           }
             
         } catch (Exception e) {
